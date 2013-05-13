@@ -8,9 +8,7 @@ namespace viennamini
 {
 
   //
-  // Defining a bunch of accessor keys for physical quantities.
-  // These should be part of a semiconductor application based on ViennaFVM, not of ViennaFVM itself
-  // (which is just a generic finite volume solver and agnostic with respect to the actual physics).
+  // TODO: Think about where to move the following keys.
   //
 
   struct permittivity_key
