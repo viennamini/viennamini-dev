@@ -181,17 +181,23 @@ int main()
   // Initial conditions (required for nonlinear problems)
   //
   viennafvm::set_initial_guess(my_domain, my_simulator.quantity_potential(), viennamini::builtin_potential_key());
-  //viennafvm::smooth_initial_guess(my_domain, psi, viennafvm::arithmetic_mean_smoother());
-  //viennafvm::smooth_initial_guess(my_domain, psi, viennafvm::arithmetic_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_potential(), viennafvm::arithmetic_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_potential(), viennafvm::arithmetic_mean_smoother());
 
   viennafvm::set_initial_guess(my_domain, my_simulator.quantity_electron_density(), viennamini::donator_doping_key());
-  //viennafvm::smooth_initial_guess(my_domain, n, viennafvm::geometric_mean_smoother());
-  //viennafvm::smooth_initial_guess(my_domain, n, viennafvm::geometric_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_electron_density(), viennafvm::geometric_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_electron_density(), viennafvm::geometric_mean_smoother());
 
   viennafvm::set_initial_guess(my_domain, my_simulator.quantity_hole_density(), viennamini::acceptor_doping_key());
-  //viennafvm::smooth_initial_guess(my_domain, p, viennafvm::geometric_mean_smoother());
-  //viennafvm::smooth_initial_guess(my_domain, p, viennafvm::geometric_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_hole_density(), viennafvm::geometric_mean_smoother());
+//  viennafvm::smooth_initial_guess(my_domain, my_simulator.quantity_hole_density(), viennafvm::geometric_mean_smoother());
 
+
+  viennagrid::io::vtk_writer<DomainType> my_vtk_writer;
+  viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, DomainType>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
+  viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, DomainType>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
+  viennagrid::io::add_scalar_data_on_cells<viennamini::builtin_potential_key,double, DomainType>(my_vtk_writer, viennamini::builtin_potential_key(),"pot_bi");    
+  my_vtk_writer(my_domain, "mosfet_setup");
 
   //
   // Run simulator
@@ -210,7 +216,7 @@ int main()
   //
   // TODO:
   //
-  viennafvm::io::write_solution_to_VTK_file(my_simulator.result(), "mosfet", my_domain, result_ids);
+  viennafvm::io::write_solution_to_VTK_file(my_simulator.result(), "mosfet_result", my_domain, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
