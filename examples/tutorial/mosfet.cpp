@@ -23,8 +23,8 @@
 #include "viennamini/simulator.hpp"
 
 
-template <typename DomainType>
-void init_quantities(DomainType const & my_domain, double n_plus, double p_plus)
+template <typename DomainType, typename MaterialLibrary>
+void init_quantities(DomainType const & my_domain, MaterialLibrary & matlib, double n_plus, double p_plus)
 {
   viennamini::permittivity_key       eps_key;
   viennamini::donator_doping_key     ND_key;
@@ -35,8 +35,8 @@ void init_quantities(DomainType const & my_domain, double n_plus, double p_plus)
   // Init permittivity
   //
   viennafvm::set_quantity_region(eps_key, my_domain, true);               // permittivity is (for simplicity) defined everywhere
-  viennafvm::set_quantity_value(eps_key, my_domain, 11.7 * 8.854e-12);                // permittivity of silicon
-  viennafvm::set_quantity_value(eps_key, my_domain.segments()[2], 15.6 * 8.854e-12);  // permittivty of HfO2
+  viennafvm::set_quantity_value(eps_key, my_domain,               matlib.getParameterValue("Si", "permittivity")   * 8.854e-12);                // permittivity of silicon
+  viennafvm::set_quantity_value(eps_key, my_domain.segments()[2], matlib.getParameterValue("HfO2", "permittivity") * 8.854e-12);  // permittivty of HfO2
 
   //
   // Initialize doping
@@ -124,12 +124,19 @@ int main()
   scale_domain(my_domain, 1e-9); // scale to nanometer
 
   //
+  // Prepare material library
+  //
+  typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibrary;
+  MaterialLibrary matlib;
+  matlib.load("../materials.xml");
+
+  //
   // Set initial values
   //
   double n_plus = 1e24;
   double p_plus = 1e20;
 
-  init_quantities(my_domain, n_plus, p_plus);
+  init_quantities(my_domain, matlib, n_plus, p_plus);
 
   //
   // Instantiate simulator object:

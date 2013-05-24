@@ -27,6 +27,10 @@
 // ViennaMath includes:
 #include "viennamath/expression.hpp"
 
+// ViennaMaterials includes:
+#include "viennamaterials/library.hpp"
+#include "viennamaterials/kernels/pugixml.hpp"
+
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/operation.hpp>
@@ -45,7 +49,6 @@ namespace viennamini
     typedef viennamath::equation          equation_type;
 
     typedef boost::numeric::ublas::vector<double>   vector_type;
-
 
     template <typename DomainType>
     void operator()(DomainType const & my_domain)
