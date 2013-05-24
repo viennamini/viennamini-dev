@@ -128,7 +128,7 @@ int main()
   //
   typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibrary;
   MaterialLibrary matlib;
-  matlib.load("../materials.xml");
+  matlib.load("../external/ViennaMaterials/database/materials.xml");
 
   //
   // Set initial values

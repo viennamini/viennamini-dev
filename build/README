@@ -1,3 +1,0 @@
-This is the build directory of ViennaMini. Build here using
-$> cmake ..
-$> make
