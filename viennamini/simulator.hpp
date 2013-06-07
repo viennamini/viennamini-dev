@@ -38,74 +38,104 @@
 
 #include "viennamini/fwd.h"
 #include "viennamini/physics.hpp"
-
+#include "viennamini/constants.hpp"
 
 namespace viennamini
 {
+  template<typename DomainT, typename MaterialDatabaseT>
   class simulator
   {
    public:
-    typedef viennamath::function_symbol   function_symbol_type;
-    typedef viennamath::equation          equation_type;
+    typedef viennamath::function_symbol         function_symbol_type;
+    typedef viennamath::equation                equation_type;
+    typedef std::map<std::size_t, std::string>  IndexKeys;
+    typedef std::vector<std::size_t>            Indices;
 
     typedef boost::numeric::ublas::vector<double>   vector_type;
 
-    template <typename DomainType>
-    void operator()(DomainType const & my_domain)
-    {
-      typedef typename DomainType::config_type    ConfigType;
-      typedef typename ConfigType::cell_tag       CellTag;
+    simulator(DomainT& domain, MaterialDatabaseT& matlib) : domain(domain), matlib(matlib) {}
 
-      typedef typename viennagrid::result_of::ncell<ConfigType, CellTag::dim>::type   CellType;
+//    void assign_name(std::size_t segment_index, std::string const& name)
+//    {
+//      segment_names[segment_index] = name;
+//    }
 
-      //
-      // Specify PDEs:
-      //
+//    void assign_material(std::size_t segment_index, std::string const& material_id)
+//    {
+//      segment_materials[segment_index] = material_id;
+//    }
 
-      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  permittivity; permittivity.wrap_constant( permittivity_key() );
-      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  donator_doping; donator_doping.wrap_constant( donator_doping_key() );
-      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  acceptor_doping; acceptor_doping.wrap_constant( acceptor_doping_key() );
+//    void assign_contact(std::size_t segment_index)
+//    {
+//      contact_segments.push_back(segment_index);
+//    }
 
-      double q  = 1.6e-19;
-      double kB = 1.38e-23; // Boltzmann constant
-      double mu = 1;        // mobility (constant is fine for the moment)
-      double T  = 300;
-      double VT = kB * T / q;
-      double D  = mu * VT;  //diffusion constant
+//    void assign_oxide(std::size_t segment_index)
+//    {
+//      oxide_segments.push_back(segment_index);
+//    }
+//    
+//    void assign_semiconductor(std::size_t segment_index)
+//    {
+//      semiconductor_segments.push_back(segment_index);
+//    }    
 
-      // here is all the fun: specify DD system
-      function_symbol_type psi = quantity_potential();         // potential, using id=0
-      function_symbol_type n   = quantity_electron_density();  // electron concentration, using id=1
-      function_symbol_type p   = quantity_hole_density();      // hole concentration, using id=2
+//    template <typename DomainType>
+//    void operator()(DomainType const & my_domain)
+//    {
+//      typedef typename DomainType::config_type    ConfigType;
+//      typedef typename ConfigType::cell_tag       CellTag;
 
-      // Set up the Poisson equation and the two continuity equations
-      equation_type poisson_eq = viennamath::make_equation( viennamath::div(permittivity * viennamath::grad(psi)),                     /* = */ q * ((n - donator_doping) - (p - acceptor_doping)));
-      equation_type cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu * viennamath::grad(psi) * n), /* = */ 0);
-      equation_type cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p) + mu * viennamath::grad(psi) * p), /* = */ 0);
+//      typedef typename viennagrid::result_of::ncell<ConfigType, CellTag::dim>::type   CellType;
 
-      // Specify the PDE system:
-      viennafvm::linear_pde_system<> pde_system;
-      pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
-      pde_system.add_pde(cont_eq_n, n);    // equation and associated quantity
-      pde_system.add_pde(cont_eq_p, p);    // equation and associated quantity
+//      //
+//      // Specify PDEs:
+//      //
 
-      pde_system.option(0).damping_term( (n + p) * (-q / VT) );
-      pde_system.option(1).geometric_update(true);
-      pde_system.option(2).geometric_update(true);
+//      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  permittivity; permittivity.wrap_constant( permittivity_key() );
+//      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  donator_doping; donator_doping.wrap_constant( donator_doping_key() );
+//      viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  acceptor_doping; acceptor_doping.wrap_constant( acceptor_doping_key() );
 
-      pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
+//      double q  = 1.6e-19;
+//      double kB = 1.38e-23; // Boltzmann constant
+//      double mu = 1;        // mobility (constant is fine for the moment)
+//      double T  = 300;
+//      double VT = kB * T / q;
+//      double D  = mu * VT;  //diffusion constant
+
+//      // here is all the fun: specify DD system
+//      function_symbol_type psi = quantity_potential();         // potential, using id=0
+//      function_symbol_type n   = quantity_electron_density();  // electron concentration, using id=1
+//      function_symbol_type p   = quantity_hole_density();      // hole concentration, using id=2
+
+//      // Set up the Poisson equation and the two continuity equations
+//      equation_type poisson_eq = viennamath::make_equation( viennamath::div(permittivity * viennamath::grad(psi)),                     /* = */ q * ((n - donator_doping) - (p - acceptor_doping)));
+//      equation_type cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu * viennamath::grad(psi) * n), /* = */ 0);
+//      equation_type cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p) + mu * viennamath::grad(psi) * p), /* = */ 0);
+
+//      // Specify the PDE system:
+//      viennafvm::linear_pde_system<> pde_system;
+//      pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
+//      pde_system.add_pde(cont_eq_n, n);    // equation and associated quantity
+//      pde_system.add_pde(cont_eq_p, p);    // equation and associated quantity
+
+//      pde_system.option(0).damping_term( (n + p) * (-q / VT) );
+//      pde_system.option(1).geometric_update(true);
+//      pde_system.option(2).geometric_update(true);
+
+//      pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
 
-      //
-      // Create PDE solver instance and run the solver:
-      //
+//      //
+//      // Create PDE solver instance and run the solver:
+//      //
 
-      viennafvm::pde_solver<>  dd_solver;
-      dd_solver(pde_system, my_domain);   // weird math happening in here ;-)
+//      viennafvm::pde_solver<>  dd_solver;
+//      dd_solver(pde_system, my_domain);   // weird math happening in here ;-)
 
-      // Get result vector:
-      result_ = dd_solver.result();
-    }
+//      // Get result vector:
+//      result_ = dd_solver.result();
+//    }
 
     function_symbol_type quantity_potential()        const { return function_symbol_type(0); }
     function_symbol_type quantity_electron_density() const { return function_symbol_type(1); }
@@ -116,6 +146,13 @@ namespace viennamini
    private:
     viennafvm::pde_solver<> pde_solver;
     vector_type             result_;
+    DomainT&                domain;
+    MaterialDatabaseT&      matlib;
+    IndexKeys               segment_names;
+    IndexKeys               segment_materials;
+    Indices                 contact_segments;
+    Indices                 oxide_segments;
+    Indices                 semiconductor_segments;
   };
 }
 
