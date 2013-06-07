@@ -39,46 +39,87 @@
 #include "viennamini/fwd.h"
 #include "viennamini/physics.hpp"
 #include "viennamini/constants.hpp"
+#include "viennamini/config.hpp"
+#include "viennamini/device.hpp"
 
 namespace viennamini
 {
-  template<typename DomainT, typename MaterialDatabaseT>
+  template<typename MatlibT>
   class simulator
   {
    public:
     typedef viennamath::function_symbol         function_symbol_type;
     typedef viennamath::equation                equation_type;
-    typedef std::map<std::size_t, std::string>  IndexKeys;
-    typedef std::vector<std::size_t>            Indices;
-
+    typedef double                              numeric_type;
     typedef boost::numeric::ublas::vector<double>   vector_type;
 
-    simulator(DomainT& domain, MaterialDatabaseT& matlib) : domain(domain), matlib(matlib) {}
+    simulator(MatlibT& matlib) : matlib(matlib) {}
 
-//    void assign_name(std::size_t segment_index, std::string const& name)
-//    {
-//      segment_names[segment_index] = name;
-//    }
+    template <typename DomainT>
+    void operator()(viennamini::Device<DomainT, MatlibT> & device,
+                    viennamini::Config                   & config )
+    {
+      // finalize the device setup
+      //
+      this->prepare(device, config);
 
-//    void assign_material(std::size_t segment_index, std::string const& material_id)
-//    {
-//      segment_materials[segment_index] = material_id;
-//    }
+      typedef viennamini::Device<DomainT, MatlibT> Device;
 
-//    void assign_contact(std::size_t segment_index)
-//    {
-//      contact_segments.push_back(segment_index);
-//    }
 
-//    void assign_oxide(std::size_t segment_index)
-//    {
-//      oxide_segments.push_back(segment_index);
-//    }
-//    
-//    void assign_semiconductor(std::size_t segment_index)
-//    {
-//      semiconductor_segments.push_back(segment_index);
-//    }    
+
+
+    }
+
+private:
+    template <typename DomainT>
+    void prepare(viennamini::Device<DomainT, MatlibT> & device,
+                 viennamini::Config                   & config )
+    {
+      typedef viennamini::Device<DomainT, MatlibT> Device;
+
+      typedef typename Device::Indices Indices;
+
+      Indices& contact_segments = device.get_contact_segments();
+      for(typename Indices::iterator iter = contact_segments.begin();
+          iter != contact_segments.end(); iter++)
+      {
+
+        viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
+            config.get_contact_values(*iter)[0], quantity_potential());
+
+      //            viennafvm::set_dirichlet_boundary(domain.segments()[si],
+      //                                              n_plus, my_simulator.quantity_electron_density());
+
+      //            viennafvm::set_dirichlet_boundary(domain.segments()[si],
+      //                                              p_plus, my_simulator.quantity_hole_density());
+      }
+
+
+
+      // now, finish preparing the oxides
+      Indices& oxide_segments = device.get_oxide_segments();
+      for(typename Indices::iterator iter = oxide_segments.begin();
+          iter != oxide_segments.end(); iter++)
+      {
+        viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+        viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+      }
+
+      // .. finalize the semiconductor segments too!
+      //
+      Indices& semiconductor_segments = device.get_semiconductor_segments();
+      for(typename Indices::iterator iter = semiconductor_segments.begin();
+          iter != semiconductor_segments.end(); iter++)
+      {
+        numeric_type build_int_potential_value = viennamini::built_in_potential(
+                config.acc_temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
+
+        viennafvm::set_quantity_region(builtin_key, device.get_domain().segments()[*iter], true);
+        viennafvm::set_quantity_value(builtin_key, device.get_domain().segments()[*iter],
+                                      build_int_potential_value);
+      }
+    }
+
 
 //    template <typename DomainType>
 //    void operator()(DomainType const & my_domain)
@@ -146,13 +187,10 @@ namespace viennamini
    private:
     viennafvm::pde_solver<> pde_solver;
     vector_type             result_;
-    DomainT&                domain;
-    MaterialDatabaseT&      matlib;
-    IndexKeys               segment_names;
-    IndexKeys               segment_materials;
-    Indices                 contact_segments;
-    Indices                 oxide_segments;
-    Indices                 semiconductor_segments;
+    MatlibT&                matlib;
+
+    viennamini::builtin_potential_key  builtin_key;
+
   };
 }
 
