@@ -6,6 +6,8 @@
 */
 
 
+#define NDEBUG
+
 // ViennaFVM includes:
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
@@ -84,8 +86,14 @@ private:
           iter != contact_segments.end(); iter++)
       {
 
-        viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
-            config.get_contact_values(*iter)[0], quantity_potential());
+          //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
+
+          viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+          viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+
+
+//        viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
+//            config.get_contact_values(*iter)[0], quantity_potential());
 
       //            viennafvm::set_dirichlet_boundary(domain.segments()[si],
       //                                              n_plus, my_simulator.quantity_electron_density());
@@ -101,6 +109,8 @@ private:
       for(typename Indices::iterator iter = oxide_segments.begin();
           iter != oxide_segments.end(); iter++)
       {
+        //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
+
         viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
         viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
       }
@@ -118,6 +128,14 @@ private:
         viennafvm::set_quantity_value(builtin_key, device.get_domain().segments()[*iter],
                                       build_int_potential_value);
       }
+
+
+      //
+      // Initial conditions (required for nonlinear problems)
+      //
+      viennafvm::set_initial_guess(device.get_domain(), quantity_potential(),        viennamini::builtin_potential_key());
+      viennafvm::set_initial_guess(device.get_domain(), quantity_electron_density(), viennamini::donator_doping_key());
+      viennafvm::set_initial_guess(device.get_domain(), quantity_hole_density(),     viennamini::acceptor_doping_key());
     }
 
 

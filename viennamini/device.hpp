@@ -59,6 +59,11 @@ struct Device
     segment_donators[segment_index] = ND;
     segment_acceptors[segment_index] = NA;
 
+    viennafvm::set_quantity_region(eps_key, domain.segments()[segment_index], true);
+    viennafvm::set_quantity_value (eps_key, domain.segments()[segment_index],
+                                   matlib.getParameterValue(
+                                     segment_materials[segment_index], "permittivity") * viennamini::eps0::val()); // TODO
+
     viennafvm::set_quantity_region(ND_key, domain.segments()[segment_index], true);
     viennafvm::set_quantity_value (ND_key, domain.segments()[segment_index], ND);
 
