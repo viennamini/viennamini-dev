@@ -34,6 +34,7 @@ struct Device
 
   void assign_contact(std::size_t segment_index)
   {
+    std::cout << "assigning segment " << segment_index << ": contact" << std::endl;
     contact_segments.push_back(segment_index);
 
     viennafvm::set_quantity_region(eps_key,     domain.segments()[segment_index], false);
@@ -42,6 +43,10 @@ struct Device
 
   void assign_oxide(std::size_t segment_index)
   {
+    std::cout << "assigning segment " << segment_index << ": oxide" << std::endl;
+    std::cout << "  epsr: " << matlib.getParameterValue(segment_materials[segment_index], "permittivity") << std::endl;
+
+
     oxide_segments.push_back(segment_index);
 
     viennafvm::set_quantity_region(eps_key, domain.segments()[segment_index], true);
@@ -55,6 +60,10 @@ struct Device
   template<typename NumericT>
   void assign_semiconductor(std::size_t segment_index, NumericT const& ND, NumericT const& NA)
   {
+    std::cout << "assigning segment " << segment_index << ": semiconductor" << std::endl;
+    std::cout << "  ND: " << ND << " NA: " << NA << std::endl;
+    std::cout << "  epsr: " << matlib.getParameterValue(segment_materials[segment_index], "permittivity") << std::endl;
+
     semiconductor_segments.push_back(segment_index);
 
     segment_donators[segment_index] = ND;
