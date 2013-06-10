@@ -22,6 +22,7 @@
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/voronoi.hpp"
+#include "viennagrid/algorithm/interface.hpp"
 
 // ViennaData includes:
 #include "viennadata/api.hpp"
@@ -46,33 +47,100 @@
 
 namespace viennamini
 {
-  template<typename MatlibT>
-  class simulator
-  {
-   public:
-    typedef viennamath::function_symbol         function_symbol_type;
-    typedef viennamath::equation                equation_type;
-    typedef double                              numeric_type;
-    typedef boost::numeric::ublas::vector<double>   vector_type;
+    static int NOTFOUND = -1;
 
-    simulator(MatlibT& matlib) : matlib(matlib) {}
 
-    template <typename DomainT>
-    void operator()(viennamini::Device<DomainT, MatlibT> & device,
-                    viennamini::Config                   & config )
+    template<typename MatlibT>
+    class simulator
     {
-      // finalize the device setup
-      //
-      this->prepare(device, config);
+        public:
+        typedef viennamath::function_symbol         function_symbol_type;
+        typedef viennamath::equation                equation_type;
+        typedef double                              numeric_type;
+        typedef boost::numeric::ublas::vector<double>   vector_type;
 
-      typedef viennamini::Device<DomainT, MatlibT> Device;
+        simulator(MatlibT& matlib) : matlib(matlib) {}
 
+        template <typename DomainT>
+        void operator()(viennamini::Device<DomainT, MatlibT> & device,
+                    viennamini::Config                   & config )
+        {
+        // detect contact-semiconductor and contact-oxide interfaces
+        this->detect_interfaces(device);
 
+        // finalize the device setup
+        //
+        this->prepare(device, config);
 
-
+        typedef viennamini::Device<DomainT, MatlibT> Device;
     }
 
 private:
+
+    template <typename DomainT>
+    void detect_interfaces(viennamini::Device<DomainT, MatlibT> & device)
+    {
+        typedef viennamini::Device<DomainT, MatlibT>    Device;
+        typedef typename Device::Indices                Indices;
+
+        typedef typename DomainT::config_type                                                   ConfigType;
+        typedef typename ConfigType::cell_tag                                                   CellTag;
+        typedef typename viennagrid::result_of::segment<ConfigType>::type                       SegmentType;
+        typedef typename viennagrid::result_of::ncell_range<SegmentType, CellTag::dim-1>::type  FacetRange;
+        typedef typename viennagrid::result_of::iterator<FacetRange>::type                      FacetIterator;
+
+        Indices& contact_segments       = device.get_contact_segments();
+        Indices& oxide_segments         = device.get_oxide_segments();
+        Indices& semiconductor_segments = device.get_semiconductor_segments();
+
+        for(typename Indices::iterator cs_it = contact_segments.begin();
+          cs_it != contact_segments.end(); cs_it++)
+        {
+            SegmentType& current_contact_segment = device.get_domain().segments()[*cs_it];
+
+            int adjacent_semiconduct_segment_id = find_adjacent_segment(device, current_contact_segment, semiconductor_segments);
+            if(adjacent_semiconduct_segment_id != NOTFOUND)
+            {
+                std::cout << "Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
+            }
+
+            int adjacent_oxide_segment_id = find_adjacent_segment(device, current_contact_segment, oxide_segments);
+            if(adjacent_oxide_segment_id != NOTFOUND)
+            {
+                std::cout << "Found neighbour Oxide segment #" << adjacent_oxide_segment_id << " for contact segment #" << *cs_it << std::endl;
+            }
+        }
+    }
+
+    template <typename DomainT, typename SegmentType, typename IndicesT>
+    int find_adjacent_segment(viennamini::Device<DomainT, MatlibT> & device,
+                              SegmentType                          & current_contact_segment,
+                              IndicesT                             & segments_under_test)
+    {
+        typedef typename DomainT::config_type                                                   ConfigType;
+        typedef typename ConfigType::cell_tag                                                   CellTag;
+        typedef typename viennagrid::result_of::ncell_range<SegmentType, CellTag::dim-1>::type  FacetRange;
+        typedef typename viennagrid::result_of::iterator<FacetRange>::type                      FacetIterator;
+
+        FacetRange   facets                  = viennagrid::ncells<CellTag::dim-1>(current_contact_segment);
+
+        for(typename IndicesT::iterator sit = segments_under_test.begin();
+            sit != segments_under_test.end(); sit++)
+        {
+            SegmentType& current_segment = device.get_domain().segments()[*sit];
+
+            for (FacetIterator fit = facets.begin(); fit != facets.end(); ++fit)
+            {
+                if (viennagrid::is_interface(*fit, current_contact_segment, current_segment))
+                {
+                    return *sit;
+                }
+            }
+        }
+
+        return NOTFOUND;
+    }
+
     template <typename DomainT>
     void prepare(viennamini::Device<DomainT, MatlibT> & device,
                  viennamini::Config                   & config )
@@ -81,6 +149,9 @@ private:
 
       typedef typename Device::Indices Indices;
 
+      //
+      // CONTACTS
+      //
       Indices& contact_segments = device.get_contact_segments();
       for(typename Indices::iterator iter = contact_segments.begin();
           iter != contact_segments.end(); iter++)
@@ -103,8 +174,9 @@ private:
       }
 
 
-
-      // now, finish preparing the oxides
+      //
+      // OXIDES
+      //
       Indices& oxide_segments = device.get_oxide_segments();
       for(typename Indices::iterator iter = oxide_segments.begin();
           iter != oxide_segments.end(); iter++)
@@ -115,7 +187,8 @@ private:
         viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
       }
 
-      // .. finalize the semiconductor segments too!
+      //
+      // SEMICONDUCTORS
       //
       Indices& semiconductor_segments = device.get_semiconductor_segments();
       for(typename Indices::iterator iter = semiconductor_segments.begin();

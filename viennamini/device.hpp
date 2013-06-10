@@ -6,6 +6,7 @@
 #include "viennagrid/domain.hpp"
 #include "viennagrid/config/simplex.hpp"
 
+#include <QDebug> // REMOVEME
 
 namespace viennamini {
 
