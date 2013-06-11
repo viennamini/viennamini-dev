@@ -305,6 +305,10 @@ namespace viennamini
             //
 
             viennafvm::pde_solver<>  dd_solver;
+            dd_solver.set_damping(0.3);
+            dd_solver.set_linear_breaktol(1.0E-14);
+            dd_solver.set_linear_iterations(500);
+            dd_solver.set_nonlinear_iterations(40);
             dd_solver(pde_system, device.get_domain());   // weird math happening in here ;-)
 
             // Get result vector:
