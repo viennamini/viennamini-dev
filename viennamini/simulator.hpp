@@ -45,6 +45,7 @@
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
 #include "viennamini/initial_guess_accessor.hpp"
+#include "viennamini/result_accessor.hpp"
 
 namespace viennamini
 {
@@ -82,7 +83,7 @@ namespace viennamini
 
             // run the simulation
             //
-            this->run(device);
+            this->run(device, config);
         }
 
         template <typename DomainT>
@@ -227,7 +228,7 @@ namespace viennamini
                   std::size_t adjacent_semiconductor_segment = contactSemiconductorInterfaces[*iter];
                   numeric_type ND = device.get_donator(adjacent_semiconductor_segment);
                   numeric_type NA = device.get_acceptor(adjacent_semiconductor_segment);
-                  numeric_type builtin_pot = viennamini::built_in_potential(config.acc_temperature(), ND, NA);
+                  numeric_type builtin_pot = viennamini::built_in_potential(config.temperature(), ND, NA);
 
                   std::cout << "si: " << *iter << "@ semiconductor:: contact-potential: " << config.get_contact_values(*iter)[0] <<
                                " workfunction: " << config.get_workfunction(*iter) << " builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
@@ -272,7 +273,7 @@ namespace viennamini
 
 
             numeric_type build_int_potential_value = viennamini::built_in_potential(
-                    config.acc_temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
+                    config.temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
 
             viennafvm::set_quantity_region(builtin_key, device.get_domain().segments()[*iter], true);
             viennafvm::set_quantity_value(builtin_key, device.get_domain().segments()[*iter],
@@ -314,7 +315,8 @@ namespace viennamini
 
 
         template <typename DomainT>
-        void run(viennamini::Device<DomainT, MatlibT> & device)
+        void run(viennamini::Device<DomainT, MatlibT> & device,
+                 viennamini::Config                   & config)
         {
             typedef typename DomainT::config_type       ConfigType;
             typedef typename ConfigType::cell_tag       CellTag;
@@ -364,10 +366,10 @@ namespace viennamini
             //
 
             viennafvm::pde_solver<>  dd_solver;
-            dd_solver.set_damping(0.5);
-            dd_solver.set_linear_breaktol(1.0E-13);
-            dd_solver.set_linear_iterations(700);
-            dd_solver.set_nonlinear_iterations(70);
+            dd_solver.set_damping(config.dampening());
+            dd_solver.set_linear_breaktol(config.linear_breaktol());
+            dd_solver.set_linear_iterations(config.linear_iterations());
+            dd_solver.set_nonlinear_iterations(config.nonlinear_iterations());
             dd_solver(pde_system, device.get_domain());   // weird math happening in here ;-)
 
             // Get result vector:

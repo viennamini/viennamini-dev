@@ -4,7 +4,7 @@ namespace viennamini
 {
 
 
-  double built_in_potential(double temperature, double doping_n, double doping_p)
+  inline double built_in_potential(double temperature, double doping_n, double doping_p)
   {
     const double net_doping = doping_n - doping_p;
     const double x = std::abs(net_doping) / (2.0 * 1e16);
