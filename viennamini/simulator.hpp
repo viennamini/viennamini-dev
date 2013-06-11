@@ -44,6 +44,7 @@
 #include "viennamini/constants.hpp"
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
+#include "viennamini/initial_guess_accessor.hpp"
 
 namespace viennamini
 {
@@ -63,30 +64,64 @@ namespace viennamini
 
         template <typename DomainT>
         void operator()(viennamini::Device<DomainT, MatlibT> & device,
-                    viennamini::Config                   & config )
+                        viennamini::Config                   & config )
         {
             // detect contact-semiconductor and contact-oxide interfaces
+            //
             this->detect_interfaces(device);
 
             // finalize the device setup
             //
             this->prepare(device, config);
 
-
-            typedef viennafvm::current_iterate_key              IterateKey;
-
-
-            viennagrid::io::vtk_writer<DomainT> my_vtk_writer;
-            viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, DomainT>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
-            viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, DomainT>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
-            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_potential().id()),"init_pot");
-            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_electron_density().id()),"init_n");
-            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_hole_density().id()),"init_p");
-            my_vtk_writer(device.get_domain(), "mosfet_setup");
+            // write doping and initial guesses (including boundary conditions) to
+            // vtk files for analysis
+            //
+            this->write_device_doping(device);
+            this->write_device_initial_guesses(device);
 
             // run the simulation
             //
             this->run(device);
+        }
+
+        template <typename DomainT>
+        void write_device_doping(viennamini::Device<DomainT, MatlibT> & device)
+        {
+
+            viennagrid::io::vtk_writer<DomainT> my_vtk_writer;
+            viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, DomainT>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
+            viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, DomainT>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
+            my_vtk_writer(device.get_domain(), "viennamini_doping");
+        }
+
+        template <typename DomainT>
+        void write_device_initial_guesses(viennamini::Device<DomainT, MatlibT> & device)
+        {
+            typedef viennafvm::boundary_key             BoundaryKey;
+            typedef viennafvm::current_iterate_key      IterateKey;
+
+            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_pot(quantity_potential().id());
+            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_n(quantity_electron_density().id());
+            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_p(quantity_hole_density().id());
+
+            typedef typename DomainT::config_type                                           ConfigType;
+            typedef typename ConfigType::cell_tag                                           CellTag;
+            typedef typename viennagrid::result_of::const_ncell_range<DomainT, CellTag::dim>::type      CellContainer;
+            typedef typename viennagrid::result_of::iterator<CellContainer>::type                       CellIterator;
+            CellContainer const& cells = viennagrid::ncells<CellTag::dim>(device.get_domain());
+            for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
+            {
+                viennadata::access<std::string, double>("initial_pot")(*cit) = init_guess_pot(*cit);
+                viennadata::access<std::string, double>("initial_n")(*cit) = init_guess_n(*cit);
+                viennadata::access<std::string, double>("initial_p")(*cit) = init_guess_p(*cit);
+            }
+
+            viennagrid::io::vtk_writer<DomainT> initial_writer;
+            viennagrid::io::add_scalar_data_on_cells<std::string,double, DomainT>(initial_writer, "initial_pot", "initial_pot");
+            viennagrid::io::add_scalar_data_on_cells<std::string,double, DomainT>(initial_writer, "initial_n", "initial_n");
+            viennagrid::io::add_scalar_data_on_cells<std::string,double, DomainT>(initial_writer, "initial_p", "initial_p");
+            initial_writer(device.get_domain(), "viennamini_initial_guesses");
         }
 
     private:
@@ -173,11 +208,6 @@ namespace viennamini
               iter != contact_segments.end(); iter++)
           {
 
-              //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
-
-//              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
-//              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
-
               if(isContactInsulatorInterface(*iter))
               {
                   std::cout << "si: " << *iter << "@ insulator:: contact-potential: " << config.get_contact_values(*iter)[0] <<
@@ -212,6 +242,9 @@ namespace viennamini
                                                     NA, quantity_hole_density());
 
               }
+
+              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
           }
 
           //
@@ -331,10 +364,10 @@ namespace viennamini
             //
 
             viennafvm::pde_solver<>  dd_solver;
-            dd_solver.set_damping(0.3);
-            dd_solver.set_linear_breaktol(1.0E-14);
-            dd_solver.set_linear_iterations(500);
-            dd_solver.set_nonlinear_iterations(40);
+            dd_solver.set_damping(0.5);
+            dd_solver.set_linear_breaktol(1.0E-13);
+            dd_solver.set_linear_iterations(700);
+            dd_solver.set_nonlinear_iterations(70);
             dd_solver(pde_system, device.get_domain());   // weird math happening in here ;-)
 
             // Get result vector:
