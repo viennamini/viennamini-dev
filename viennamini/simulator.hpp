@@ -73,10 +73,15 @@ namespace viennamini
             this->prepare(device, config);
 
 
+            typedef viennafvm::current_iterate_key              IterateKey;
+
+
             viennagrid::io::vtk_writer<DomainT> my_vtk_writer;
             viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, DomainT>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
             viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, DomainT>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
-            viennagrid::io::add_scalar_data_on_cells<viennamini::builtin_potential_key,double, DomainT>(my_vtk_writer, viennamini::builtin_potential_key(),"pot_bi");
+            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_potential().id()),"init_pot");
+            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_electron_density().id()),"init_n");
+            viennagrid::io::add_scalar_data_on_cells<IterateKey,double, DomainT>(my_vtk_writer, IterateKey(quantity_hole_density().id()),"init_p");
             my_vtk_writer(device.get_domain(), "mosfet_setup");
 
             // run the simulation
@@ -170,8 +175,8 @@ namespace viennamini
 
               //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
 
-              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
-              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+//              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+//              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
 
               if(isContactInsulatorInterface(*iter))
               {
@@ -179,7 +184,14 @@ namespace viennamini
                                " workfunction: " << config.get_workfunction(*iter) << std::endl;
                   viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
                       config.get_contact_values(*iter)[0] + config.get_workfunction(*iter), quantity_potential());
-              }
+
+                  std::size_t adjacent_oxide_segment = contactOxideInterfaces[*iter];
+
+                  viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+                  viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+                  viennafvm::disable_quantity(device.get_domain().segments()[adjacent_oxide_segment], quantity_electron_density());
+                  viennafvm::disable_quantity(device.get_domain().segments()[adjacent_oxide_segment], quantity_hole_density());
+                }
               else if(isContactSemiconductorInterface(*iter))
               {
                   std::size_t adjacent_semiconductor_segment = contactSemiconductorInterfaces[*iter];
@@ -209,10 +221,11 @@ namespace viennamini
           for(typename Indices::iterator iter = oxide_segments.begin();
               iter != oxide_segments.end(); iter++)
           {
+              std::cout << "preparing segment " << *iter << " for an oxide .. " << std::endl;
             //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
 
-            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
-            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+//            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+//            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
           }
 
           //
@@ -222,6 +235,9 @@ namespace viennamini
           for(typename Indices::iterator iter = semiconductor_segments.begin();
               iter != semiconductor_segments.end(); iter++)
           {
+              std::cout << "preparing segment " << *iter << " for an semiconductor .. " << std::endl;
+
+
             numeric_type build_int_potential_value = viennamini::built_in_potential(
                     config.acc_temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
 
@@ -237,6 +253,16 @@ namespace viennamini
           viennafvm::set_initial_guess(device.get_domain(), quantity_potential(),        viennamini::builtin_potential_key());
           viennafvm::set_initial_guess(device.get_domain(), quantity_electron_density(), viennamini::donator_doping_key());
           viennafvm::set_initial_guess(device.get_domain(), quantity_hole_density(),     viennamini::acceptor_doping_key());
+
+          //
+          // smooth the initial guesses
+          //
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
+          viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
         }
 
         bool isContactInsulatorInterface(std::size_t contact_segment_index)
