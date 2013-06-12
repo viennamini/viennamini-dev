@@ -11,7 +11,7 @@ namespace viennamini {
 struct Config
 {
   typedef double Numeric;
-  typedef std::size_t Index;
+  typedef int Index;
   typedef std::vector<Numeric> Values;
   typedef std::map<std::size_t, Numeric > SegmentValues;
 
@@ -25,12 +25,12 @@ struct Config
     local_damping = 1.0;
   }
 
-  Numeric& temperature() { return local_temperature; }
-  Index& nonlinear_iterations() { return local_nonlinear_iterations; }
-  Numeric& nonlinear_breaktol() { return local_nonlinear_breaktol; }
-  Index& linear_iterations() { return local_linear_iterations; }
-  Numeric& linear_breaktol() { return local_linear_breaktol; }
-  Numeric& dampening() { return local_damping; }
+  Numeric&  temperature()           { return local_temperature; }
+  Index&    nonlinear_iterations()  { return local_nonlinear_iterations; }
+  Numeric&  nonlinear_breaktol()    { return local_nonlinear_breaktol; }
+  Index&    linear_iterations()     { return local_linear_iterations; }
+  Numeric&  linear_breaktol()       { return local_linear_breaktol; }
+  Numeric&  dampening()             { return local_damping; }
 
   void assign_contact(std::size_t segment_index, Numeric value, Numeric workfunction)
   {
@@ -51,9 +51,9 @@ struct Config
 private:
   Numeric local_temperature;
 
-  std::size_t local_nonlinear_iterations;
+  Index       local_nonlinear_iterations;
   Numeric     local_nonlinear_breaktol;
-  std::size_t local_linear_iterations;
+  Index       local_linear_iterations;
   Numeric     local_linear_breaktol;
   Numeric     local_damping;
 
