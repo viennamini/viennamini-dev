@@ -5,8 +5,9 @@
    Configuration should happen in a similar manner, allowing for the selection of predefined models (DD, Hydro, ev. ET)
 */
 
-
-#define NDEBUG
+#ifndef NDEBUG
+  #define NDEBUG
+#endif
 
 // ViennaFVM includes:
 #include "viennafvm/forwards.h"
