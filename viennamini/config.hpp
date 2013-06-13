@@ -23,14 +23,16 @@ struct Config
     local_linear_breaktol = 1.E-14;
     local_linear_iterations = 700;
     local_damping = 1.0;
+    local_initial_guess_smoothing_iterations = 2;
   }
 
-  Numeric&  temperature()           { return local_temperature; }
-  Index&    nonlinear_iterations()  { return local_nonlinear_iterations; }
-  Numeric&  nonlinear_breaktol()    { return local_nonlinear_breaktol; }
-  Index&    linear_iterations()     { return local_linear_iterations; }
-  Numeric&  linear_breaktol()       { return local_linear_breaktol; }
-  Numeric&  dampening()             { return local_damping; }
+  Numeric&  temperature()                         { return local_temperature; }
+  Index&    nonlinear_iterations()                { return local_nonlinear_iterations; }
+  Numeric&  nonlinear_breaktol()                  { return local_nonlinear_breaktol; }
+  Index&    linear_iterations()                   { return local_linear_iterations; }
+  Numeric&  linear_breaktol()                     { return local_linear_breaktol; }
+  Numeric&  damping()                             { return local_damping; }
+  Index&    initial_guess_smoothing_iterations()  { return local_initial_guess_smoothing_iterations; }  
 
   void assign_contact(std::size_t segment_index, Numeric value, Numeric workfunction)
   {
@@ -56,6 +58,8 @@ private:
   Index       local_linear_iterations;
   Numeric     local_linear_breaktol;
   Numeric     local_damping;
+
+  Index       local_initial_guess_smoothing_iterations;
 
   SegmentValues segment_contact_values;
   SegmentValues segment_contact_workfunctions;

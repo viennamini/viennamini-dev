@@ -76,9 +76,9 @@ namespace viennamini
             //
             this->prepare(device, config);
 
-//            // write doping and initial guesses (including boundary conditions) to
-//            // vtk files for analysis
-//            //
+            // write doping and initial guesses (including boundary conditions) to
+            // vtk files for analysis
+            //
 //            this->write_device_doping(device);
 //            this->write_device_initial_guesses(device);
 
@@ -202,6 +202,10 @@ namespace viennamini
 
           typedef typename Device::Indices Indices;
 
+        #ifdef VIENNAMINI_DEBUG
+           std::cout << "* finalizing device segments:" << std::endl;
+        #endif
+
           //
           // CONTACTS
           //
@@ -212,16 +216,17 @@ namespace viennamini
 
               if(isContactInsulatorInterface(*iter))
               {
-
-
+              #ifdef VIENNAMINI_DEBUG
+                 std::cout << "  * segment " << *iter << " : contact-to-insulator interface" << std::endl;
+              #endif
                   viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
                       config.get_contact_value(*iter) + config.get_workfunction(*iter), quantity_potential());
 
                   std::size_t adjacent_oxide_segment = contactOxideInterfaces[*iter];
 
-                  std::cout << "contact segment " << *iter << " interfaces with insulator segment " << adjacent_oxide_segment
-                            << " :: contact potential: " << config.get_contact_value(*iter) <<
-                               " workfunction: " << config.get_workfunction(*iter) << std::endl;
+//                  std::cout << "contact segment " << *iter << " interfaces with insulator segment " << adjacent_oxide_segment
+//                            << " :: contact potential: " << config.get_contact_value(*iter) <<
+//                               " workfunction: " << config.get_workfunction(*iter) << std::endl;
 
                   viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
                   viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
@@ -230,15 +235,19 @@ namespace viennamini
                 }
               else if(isContactSemiconductorInterface(*iter))
               {
+              #ifdef VIENNAMINI_DEBUG
+                 std::cout << "  * segment " << *iter << " : contact-to-semiconductor interface" << std::endl;
+              #endif
+              
                   std::size_t adjacent_semiconductor_segment = contactSemiconductorInterfaces[*iter];
                   numeric_type ND = device.get_donator(adjacent_semiconductor_segment);
                   numeric_type NA = device.get_acceptor(adjacent_semiconductor_segment);
                   numeric_type builtin_pot = viennamini::built_in_potential(config.temperature(), ND, NA);
 
-                  std::cout << "contact segment " << *iter << " interfaces with semiconductor segment " << adjacent_semiconductor_segment
-                            << " :: contact potential: " << config.get_contact_value(*iter) <<
-                               " workfunction: " << config.get_workfunction(*iter) <<
-                               "builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
+//                  std::cout << "contact segment " << *iter << " interfaces with semiconductor segment " << adjacent_semiconductor_segment
+//                            << " :: contact potential: " << config.get_contact_value(*iter) <<
+//                               " workfunction: " << config.get_workfunction(*iter) <<
+//                               "builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
 
                   viennafvm::set_dirichlet_boundary(
                           device.get_domain().segments()[*iter],  // segment
@@ -254,10 +263,10 @@ namespace viennamini
                           NA, // BC value
                           quantity_hole_density()); // quantity
 
-              }
+                viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+                viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
 
-              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
-              viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+              }
           }
 
           //
@@ -267,11 +276,13 @@ namespace viennamini
           for(typename Indices::iterator iter = oxide_segments.begin();
               iter != oxide_segments.end(); iter++)
           {
-              std::cout << "oxide segment " << *iter  << std::endl;
+          #ifdef VIENNAMINI_DEBUG
+                 std::cout << "  * segment " << *iter << " : oxide" << std::endl;
+          #endif
             //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
 
-//            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
-//            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
+            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
+            viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
           }
 
           //
@@ -281,8 +292,9 @@ namespace viennamini
           for(typename Indices::iterator iter = semiconductor_segments.begin();
               iter != semiconductor_segments.end(); iter++)
           {
-              std::cout << "semiconductor segment " << *iter << std::endl;
-
+          #ifdef VIENNAMINI_DEBUG
+                 std::cout << "  * segment " << *iter << " : semiconductor" << std::endl;
+          #endif
 
             numeric_type builtin_potential_value = viennamini::built_in_potential(
                     config.temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
@@ -292,8 +304,9 @@ namespace viennamini
                                           builtin_potential_value);
           }
 
-
-          std::cout << "setting initial conditions .." << std::endl;
+      #ifdef VIENNAMINI_DEBUG
+          std::cout << "* setting initial conditions .." << std::endl;
+      #endif
           //
           // Initial conditions (required for nonlinear problems)
           //
@@ -301,16 +314,18 @@ namespace viennamini
           viennafvm::set_initial_guess(device.get_domain(), quantity_electron_density(), viennamini::donator_doping_key());
           viennafvm::set_initial_guess(device.get_domain(), quantity_hole_density(),     viennamini::acceptor_doping_key());
 
-          std::cout << "smoothing initial conditions .. " << std::endl;
+      #ifdef VIENNAMINI_DEBUG
+          std::cout << "* smoothing initial conditions " << config. initial_guess_smoothing_iterations() << " times " << std::endl;
+      #endif
           //
           // smooth the initial guesses
           //
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
-          viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
+          for(int i = 0; i < config.initial_guess_smoothing_iterations(); i++)
+          {
+            viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
+            viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
+            viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
+          }
         }
 
         bool isContactInsulatorInterface(std::size_t contact_segment_index)
@@ -343,8 +358,6 @@ namespace viennamini
             viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  donator_doping; donator_doping.wrap_constant( donator_doping_key() );
             viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  acceptor_doping; acceptor_doping.wrap_constant( acceptor_doping_key() );
 
-
-            std::cout << "setting parameters .. " << std::endl;
             const double q  = 1.6e-19;
             const double kB = 1.38e-23; // Boltzmann constant
             const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
@@ -382,17 +395,17 @@ namespace viennamini
             //
 
             // configure the DD solver
-            std::cout << "damening: " << config.dampening() << std::endl;
-            std::cout << "linear breaktol: " << config.linear_breaktol() << std::endl;
-            std::cout << "linear iterations: " << config.linear_iterations() << std::endl;
-            std::cout << "nonlinear iterations: " << config.nonlinear_iterations() << std::endl;
-            pde_solver.set_damping(config.dampening());
+            pde_solver.set_damping(config.damping());
             pde_solver.set_linear_breaktol(config.linear_breaktol());
             pde_solver.set_linear_iterations(config.linear_iterations());
             pde_solver.set_nonlinear_iterations(config.nonlinear_iterations());
             pde_solver.set_nonlinear_breaktol(config.nonlinear_breaktol());
-            std::cout << "starting simulatoin " << std::endl;
 
+//            std::cout << "starting simulatoin " << std::endl;
+
+        #ifdef VIENNAMINI_DEBUG
+            std::cout << "* starting simulation .. " << std::endl;
+        #endif
             // run the simulation
             pde_solver(pde_system, device.get_domain());
         }

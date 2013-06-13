@@ -49,7 +49,7 @@ struct eps0
   typedef std::string   string_type;
 
   static result_type val() { 
-    return 8.854187817620E-12; // TODO higher accuracy!
+    return 8.854187817620E-12; 
   }
   
   static string_type unit() {
@@ -61,6 +61,41 @@ struct eps0
   }  
 };
 
+struct kB
+{
+  typedef double        result_type;
+  typedef std::string   string_type;
+
+  static result_type val() { 
+    return 1.3806488e-23; 
+  }
+  
+  static string_type unit() {
+    return "J/K";
+  }
+  
+  static string_type note() {
+    return "Boltzmann constant";
+  }  
+};
+
+struct q
+{
+  typedef double        result_type;
+  typedef std::string   string_type;
+
+  static result_type val() { 
+    return 1.602176565e-19; 
+  }
+  
+  static string_type unit() {
+    return "As";
+  }
+  
+  static string_type note() {
+    return "Elementary charge";
+  }  
+};
 
 //  /** @brief Implementations. Not intended to be used by a library user. */
 //  namespace detail

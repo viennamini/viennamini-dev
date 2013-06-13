@@ -29,8 +29,8 @@ struct result_accessor
       return viennadata::access<BoundaryKeyType, double>(bnd_key)(cell);
     }
   }
-  std::size_t     id;
   ResultVector const&   result;
+  std::size_t     id;
   MappingKeyType  map_key;
   BoundaryKeyType bnd_key;  
 };

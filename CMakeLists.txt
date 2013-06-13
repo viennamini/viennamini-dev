@@ -38,6 +38,13 @@ SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 
 #list all source files here
 ADD_EXECUTABLE(mosfet     examples/tutorial/mosfet.cpp)
+TARGET_LINK_LIBRARIES(mosfet ${LIBRARIES})
+
+ADD_EXECUTABLE(trigate     examples/tutorial/trigate.cpp)
+TARGET_LINK_LIBRARIES(trigate ${LIBRARIES})
+
+ADD_EXECUTABLE(nin2d     examples/tutorial/nin2d.cpp)
+TARGET_LINK_LIBRARIES(nin2d ${LIBRARIES})
 
 
 ##Compatibility with Qt-Creator

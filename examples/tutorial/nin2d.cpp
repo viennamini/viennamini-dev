@@ -33,75 +33,50 @@
 template<typename DomainType, typename MaterialLibrary>
 void prepare(viennamini::Device<DomainType, MaterialLibrary>& device)
 {
-  const int gate_contact    = 0;
-  const int source_contact  = 1;
-  const int oxide           = 2;
-  const int drain_contact   = 3;
-  const int source          = 4;
-  const int drain           = 5;
-  const int body            = 6;
-  const int body_contact    = 7;
+  const int left_contact    = 0;
+  const int left_n          = 1;
+  const int intrinsic       = 2;
+  const int right_n         = 3;
+  const int right_contact   = 4;
 
-  // Segment 0: Gate Contact
-  device.assign_name          (gate_contact, "gate_contact");
-  device.assign_material      (gate_contact, "Cu");
-  device.assign_contact       (gate_contact);
+
+  // Segment 0:
+  device.assign_name          (left_contact, "left_contact");
+  device.assign_material      (left_contact, "Cu");
+  device.assign_contact       (left_contact);
+    
+  // Segment 1:
+  device.assign_name          (left_n, "left_n");
+  device.assign_material      (left_n, "Si");
+  device.assign_semiconductor (left_n, 1.E24, 1.E8);   
   
-  // Segment 1: Source Contact
-  device.assign_name          (source_contact, "source_contact");
-  device.assign_material      (source_contact, "Cu");
-  device.assign_contact       (source_contact);    
+  // Segment 2:
+  device.assign_name          (intrinsic, "intrinsic");
+  device.assign_material      (intrinsic, "Si");
+  device.assign_semiconductor (intrinsic, 1.E21, 1.E11);   
   
-  // Segment 2: Oxide
-  device.assign_name          (oxide, "oxide");
-  device.assign_material      (oxide, "HfO2");
-  device.assign_oxide         (oxide);  
+  // Segment 3:
+  device.assign_name          (right_n, "right_n");
+  device.assign_material      (right_n, "Si");
+  device.assign_semiconductor (right_n, 1.E24, 1.E8);   
   
-  // Segment 3: Drain Contact
-  device.assign_name          (drain_contact, "drain_contact");
-  device.assign_material      (drain_contact, "Cu");
-  device.assign_contact       (drain_contact);    
-  
-  // Segment 4: Source
-  device.assign_name          (source, "source");
-  device.assign_material      (source, "Si");
-  device.assign_semiconductor (source, 1.E24, 1.E8);  
-  
-  // Segment 5: Drain
-  device.assign_name          (drain, "drain");
-  device.assign_material      (drain, "Si");
-  device.assign_semiconductor (drain, 1.E24, 1.E8);     
-  
-  // Segment 6: Body
-  device.assign_name          (body, "body");
-  device.assign_material      (body, "Si");
-  device.assign_semiconductor (body, 1.E17, 1.E15);
-  
-  // Segment 7: Body Contact
-  device.assign_name          (body_contact, "body_contact");
-  device.assign_material      (body_contact, "Cu");
-  device.assign_contact       (body_contact);    
+  // Segment 4:
+  device.assign_name          (right_contact, "right_contact");
+  device.assign_material      (right_contact, "Cu");
+  device.assign_contact       (right_contact);
 }
 
 /** @brief Assign actual values to the dirichlet contacts */
 void prepare_boundary_conditions(viennamini::Config& config)
 {
-  const int gate_contact    = 0;
-  const int body_contact    = 7;
-  const int source_contact  = 1;
-  const int drain_contact   = 3;        
+  const int left_contact    = 0;
+  const int right_contact   = 4;
 
-  // Segment 0: Gate Contact
-  config.assign_contact(gate_contact, 0.5, 0.0);  // segment id, contact potential, workfunction
+  // Segment 0: 
+  config.assign_contact(left_contact, 0.0, 0.0);  // segment id, contact potential, workfunction
   
-  // Segment 7: Body Contact
-  config.assign_contact(body_contact, 0.0, 0.0);
-  
-  // Segment 1: Source Contact
-  config.assign_contact(source_contact, 0.0, 0.0);
-
-  // Segment 3: Drain Contact
-  config.assign_contact(drain_contact, 1.0, 0.0);
+  // Segment 4: 
+  config.assign_contact(right_contact, 0.5, 0.0);
 }
 
 /** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
@@ -138,7 +113,7 @@ int main()
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, "../examples/data/mosfet.mesh");
+    my_reader(domain, "../examples/data/nin2d.mesh");
   }
   catch (...)
   {
@@ -209,7 +184,7 @@ int main()
   //
   // TODO:
   //
-  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "mosfet", domain, result_ids);
+  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "nin2d", domain, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
