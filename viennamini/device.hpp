@@ -19,17 +19,25 @@ struct Device
 
   Device(DomainT& domain, MatlibT& matlib) : domain(domain), matlib(matlib) {}
 
-
+  /** 
+      @brief Stores a name string for a given segment index
+  */
   void assign_name(std::size_t segment_index, std::string const& name)
   {
     segment_names[segment_index] = name;
   }
 
+  /** 
+      @brief Stores a material ID string for a given segment index
+  */
   void assign_material(std::size_t segment_index, std::string const& material_id)
   {
     segment_materials[segment_index] = material_id;
   }
 
+  /** 
+      @brief Identifies the segment to be a contact
+  */
   void assign_contact(std::size_t segment_index)
   {
   #ifdef VIENNAMINI_DEBUG
@@ -41,6 +49,9 @@ struct Device
     viennafvm::set_quantity_region(builtin_key, domain.segments()[segment_index], false);
   }
 
+  /** 
+      @brief Identifies the segment to be a oxide
+  */
   void assign_oxide(std::size_t segment_index)
   {
   #ifdef VIENNAMINI_DEBUG
@@ -59,6 +70,9 @@ struct Device
     viennafvm::set_quantity_region(builtin_key, domain.segments()[segment_index], false);
   }
 
+  /** 
+      @brief Identifies the segment to be a semiconductor
+  */
   template<typename NumericT>
   void assign_semiconductor(std::size_t segment_index, NumericT const& ND, NumericT const& NA)
   {

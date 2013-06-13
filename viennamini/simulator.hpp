@@ -64,6 +64,13 @@ namespace viennamini
 
         simulator(MatlibT& matlib) : matlib(matlib) {}
 
+        /** 
+            @brief Public simulator 'execute' function. Performs all required
+            step for conducting the device simulation. Requires the segments 
+            of the 'device' to be identified as contact/oxide/semiconductor.
+            Also a doping is required, which will be retrieved from the device
+            during the preparations.
+        */
         template <typename DomainT>
         void operator()(viennamini::Device<DomainT, MatlibT> & device,
                         viennamini::Config                   & config )
@@ -87,6 +94,9 @@ namespace viennamini
             this->run(device, config);
         }
 
+        /** 
+            @brief Writes the doping phi,n,p to a vtk file
+        */
         template <typename DomainT>
         void write_device_doping(viennamini::Device<DomainT, MatlibT> & device)
         {
@@ -97,6 +107,9 @@ namespace viennamini
             my_vtk_writer(device.get_domain(), "viennamini_doping");
         }
 
+        /** 
+            @brief Writes the initial guess distributions phi,n,p to a vtk file
+        */
         template <typename DomainT>
         void write_device_initial_guesses(viennamini::Device<DomainT, MatlibT> & device)
         {
@@ -128,6 +141,9 @@ namespace viennamini
 
     private:
 
+        /** 
+            @brief Method identifies metal-semiconductor/oxide interfaces
+        */
         template <typename DomainT>
         void detect_interfaces(viennamini::Device<DomainT, MatlibT> & device)
         {
@@ -144,6 +160,9 @@ namespace viennamini
             Indices& oxide_segments         = device.get_oxide_segments();
             Indices& semiconductor_segments = device.get_semiconductor_segments();
 
+            // traverse only contact segments
+            // for each contact segment, determine whether it shares an interface with an oxide or a semiconductor
+            //
             for(typename Indices::iterator cs_it = contact_segments.begin();
               cs_it != contact_segments.end(); cs_it++)
             {
@@ -155,7 +174,7 @@ namespace viennamini
                     //std::cout << "Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
                     contactSemiconductorInterfaces[*cs_it] = adjacent_semiconduct_segment_id;
                 }
-
+                // if it's not a contact-semiconductor interface -> try a contact-insulator interface 
                 int adjacent_oxide_segment_id = find_adjacent_segment(device, current_contact_segment, oxide_segments);
                 if(adjacent_oxide_segment_id != NOTFOUND)
                 {
@@ -165,6 +184,10 @@ namespace viennamini
             }
         }
 
+        /** 
+            @brief Method identifies for a given segment under test whether it 
+            shares an interface with a reference contact segment
+        */
         template <typename DomainT, typename SegmentType, typename IndicesT>
         int find_adjacent_segment(viennamini::Device<DomainT, MatlibT> & device,
                                   SegmentType                          & current_contact_segment,
@@ -177,6 +200,8 @@ namespace viennamini
 
             FacetRange   facets                  = viennagrid::ncells<CellTag::dim-1>(current_contact_segment);
 
+            // segments under test: these are either all oxide or semiconductor segments
+            //
             for(typename IndicesT::iterator sit = segments_under_test.begin();
                 sit != segments_under_test.end(); sit++)
             {
@@ -194,6 +219,13 @@ namespace viennamini
             return NOTFOUND;
         }
 
+        /** 
+            @brief Perform final steps required for the device simulation:
+            1. assign dirichlet boundary conditions
+            2. disable obsolete quantities
+            3. assign initial guesses
+            4. smooth initial guesses
+        */
         template <typename DomainT>
         void prepare(viennamini::Device<DomainT, MatlibT> & device,
                      viennamini::Config                   & config )
@@ -219,6 +251,12 @@ namespace viennamini
               #ifdef VIENNAMINI_DEBUG
                  std::cout << "  * segment " << *iter << " : contact-to-insulator interface" << std::endl;
               #endif
+                  // According to [MB] for a Contact-Insulator interface, it doesn't make sense to use 
+                  // a builtin-pot, as there is no adjacent semiconductor segment. adding 'workfunction' instead, 
+                  // which can be set by the user
+                  // [NOTE] as there is no adjacent semiconductor segment, we must not set a electron/hole BC at 
+                  // this contact 
+                  //
                   viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter],
                       config.get_contact_value(*iter) + config.get_workfunction(*iter), quantity_potential());
 
@@ -228,6 +266,9 @@ namespace viennamini
 //                            << " :: contact potential: " << config.get_contact_value(*iter) <<
 //                               " workfunction: " << config.get_workfunction(*iter) << std::endl;
 
+                  // delete obsolete quantities for the current contact and the adjacent oxide segments
+                  // in both, electrons and holes don't make sense.
+                  //
                   viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
                   viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
                   viennafvm::disable_quantity(device.get_domain().segments()[adjacent_oxide_segment], quantity_electron_density());
@@ -239,6 +280,8 @@ namespace viennamini
                  std::cout << "  * segment " << *iter << " : contact-to-semiconductor interface" << std::endl;
               #endif
               
+                  // retrieve the doping values of the adjacent semiconductor segment and 
+                  // compute the initial guess
                   std::size_t adjacent_semiconductor_segment = contactSemiconductorInterfaces[*iter];
                   numeric_type ND = device.get_donator(adjacent_semiconductor_segment);
                   numeric_type NA = device.get_acceptor(adjacent_semiconductor_segment);
@@ -249,11 +292,16 @@ namespace viennamini
 //                               " workfunction: " << config.get_workfunction(*iter) <<
 //                               "builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
 
+                  // aside of the contact potential, add the builtin-pot and the workfunction (0 by default ..)
+                  //                  
                   viennafvm::set_dirichlet_boundary(
                           device.get_domain().segments()[*iter],  // segment
                           config.get_contact_value(*iter) + config.get_workfunction(*iter) + builtin_pot, // BC value
                           quantity_potential()); // quantity
 
+                  // as this contact is a contact-semiconductor interface, we have to 
+                  // provide BCs for the electrons and holes as well
+                  //
                   viennafvm::set_dirichlet_boundary(device.get_domain().segments()[*iter], // segment
                           ND, // BC value
                           quantity_electron_density()); // quantity
@@ -263,6 +311,8 @@ namespace viennamini
                           NA, // BC value
                           quantity_hole_density()); // quantity
 
+                // for a contact, the following quantities don't make any sense
+                //
                 viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
                 viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
 
@@ -279,8 +329,9 @@ namespace viennamini
           #ifdef VIENNAMINI_DEBUG
                  std::cout << "  * segment " << *iter << " : oxide" << std::endl;
           #endif
-            //TODO should we assign a build-in potential?! (to have a proper initial guess here as well ...)
-
+          
+            // No need to do anything for the oxide, except disabling the obvious quantities 
+            //
             viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_electron_density());
             viennafvm::disable_quantity(device.get_domain().segments()[*iter], quantity_hole_density());
           }
@@ -296,6 +347,10 @@ namespace viennamini
                  std::cout << "  * segment " << *iter << " : semiconductor" << std::endl;
           #endif
 
+            // within the semiconductor segments, we have to prepare an initial guess quantity for the potential distribution
+            // we shall use the builtin-pot here ..
+            // [NOTE] I have pimped the builtin-pot implementation, with respect to UT
+            //
             numeric_type builtin_potential_value = viennamini::built_in_potential(
                     config.temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
 
@@ -309,6 +364,7 @@ namespace viennamini
       #endif
           //
           // Initial conditions (required for nonlinear problems)
+          // we use the doping for the n, p - initial guesses
           //
           viennafvm::set_initial_guess(device.get_domain(), quantity_potential(),        viennamini::builtin_potential_key());
           viennafvm::set_initial_guess(device.get_domain(), quantity_electron_density(), viennamini::donator_doping_key());
@@ -319,26 +375,37 @@ namespace viennamini
       #endif
           //
           // smooth the initial guesses
+          // we can set the number of smoothing iterations via the config object
           //
           for(int i = 0; i < config.initial_guess_smoothing_iterations(); i++)
           {
             viennafvm::smooth_initial_guess(device.get_domain(), quantity_potential(),        viennafvm::arithmetic_mean_smoother());
             viennafvm::smooth_initial_guess(device.get_domain(), quantity_electron_density(), viennafvm::geometric_mean_smoother());
             viennafvm::smooth_initial_guess(device.get_domain(), quantity_hole_density(),     viennafvm::geometric_mean_smoother());
+         
           }
         }
 
+        /** 
+            @brief Test whether the contact segment under test shares an interface with an insulator
+        */
         bool isContactInsulatorInterface(std::size_t contact_segment_index)
         {
             return !(contactOxideInterfaces.find(contact_segment_index) == contactOxideInterfaces.end());
         }
 
+        /** 
+            @brief Test whether the contact segment under test shares an interface with a semiconductor
+        */
         bool isContactSemiconductorInterface(std::size_t contact_segment_index)
         {
             return !(contactSemiconductorInterfaces.find(contact_segment_index) == contactSemiconductorInterfaces.end());
         }
 
-
+        /** 
+            @brief Perform the device simulation. The device has been assigned an initial guess
+            and boundary conditions at this point.
+        */
         template <typename DomainT>
         void run(viennamini::Device<DomainT, MatlibT> & device,
                  viennamini::Config                   & config)
@@ -360,6 +427,12 @@ namespace viennamini
 
             const double q  = 1.6e-19;
             const double kB = 1.38e-23; // Boltzmann constant
+            
+            
+            // [NOTE] Instead of '1', I am using the values for silicon at 300 K. 
+            // Also I am using different mobilities for electrons/holes
+            // We need a ViennaModels/ViennaMaterials approach here. .. obviously
+            //
             const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
             const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
             const double T  = config.temperature();
