@@ -9,16 +9,16 @@ namespace viennamini {
 template<typename ResultVector>
 struct result_accessor
 {
-  typedef typename ResultVector::value_type   NumericType;
-  typedef viennafvm::mapping_key              MappingKeyType;
-  typedef viennafvm::boundary_key             BoundaryKeyType;
+  typedef typename ResultVector::value_type   value_type;
+  typedef viennafvm::mapping_key              mapping_key_type;
+  typedef viennafvm::boundary_key             boundary_key_type;
 
   result_accessor(ResultVector const& result, std::size_t const& id) : result(result), id(id), map_key(id), bnd_key(id) {}
 
   template<typename CellT>
-  NumericType operator()(CellT& cell)
+  value_type operator()(CellT const& cell)
   {
-    long cur_index = viennadata::access<MappingKeyType, long>(map_key)(cell);
+    long cur_index = viennadata::access<mapping_key_type, long>(map_key)(cell);
     // if interior or non-Dirichlet boundary
     if(cur_index > -1)
     {
@@ -26,13 +26,29 @@ struct result_accessor
     }
     else //use Dirichlet boundary data:
     {
-      return viennadata::access<BoundaryKeyType, double>(bnd_key)(cell);
+      return viennadata::access<boundary_key_type, double>(bnd_key)(cell);
     }
   }
+  
+  template<typename CellT>
+  value_type operator()(CellT const& cell) const
+  {
+    long cur_index = viennadata::access<mapping_key_type, long>(map_key)(cell);
+    // if interior or non-Dirichlet boundary
+    if(cur_index > -1)
+    {
+      return result[cur_index];
+    }
+    else //use Dirichlet boundary data:
+    {
+      return viennadata::access<boundary_key_type, double>(bnd_key)(cell);
+    }
+  }
+  
   ResultVector const&   result;
   std::size_t     id;
-  MappingKeyType  map_key;
-  BoundaryKeyType bnd_key;  
+  mapping_key_type  map_key;
+  boundary_key_type bnd_key;  
 };
 
 

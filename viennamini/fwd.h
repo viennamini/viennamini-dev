@@ -60,6 +60,24 @@ namespace viennamini
     // Operator< is required for compatibility with std::map
     bool operator<(material_key const & ) const { return false; }
   };    
+
+  struct potential_key
+  {
+    // Operator< is required for compatibility with std::map
+    bool operator<(potential_key const & ) const { return false; }
+  };    
+
+  struct electron_key
+  {
+    // Operator< is required for compatibility with std::map
+    bool operator<(electron_key const & ) const { return false; }
+  };    
+
+  struct hole_key
+  {
+    // Operator< is required for compatibility with std::map
+    bool operator<(hole_key const & ) const { return false; }
+  };        
 }
 
 #endif
