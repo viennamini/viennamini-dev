@@ -8,14 +8,14 @@ namespace viennamini {
 
 
 
-struct Config
+struct config
 {
   typedef double Numeric;
   typedef int Index;
   typedef std::vector<Numeric> Values;
   typedef std::map<std::size_t, Numeric > SegmentValues;
 
-  Config()
+  config()
   {
     local_temperature = 300.0; // K
     local_nonlinear_iterations = 100;
