@@ -30,8 +30,8 @@
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename DomainType, typename MaterialLibrary>
-void prepare(viennamini::Device<DomainType, MaterialLibrary>& device)
+template<typename DomainType>
+void prepare(viennamini::device<DomainType>& device)
 {
   const int source          = 0;
   const int channel         = 1;
@@ -92,7 +92,7 @@ void prepare(viennamini::Device<DomainType, MaterialLibrary>& device)
 }
 
 /** @brief Assign actual values to the dirichlet contacts */
-void prepare_boundary_conditions(viennamini::Config& config)
+void prepare_boundary_conditions(viennamini::config& config)
 {
   const int gate_contact    = 4;
   const int body_contact    = 6;
@@ -169,9 +169,9 @@ int main()
   //
   // Create a device and a config object
   //
-  typedef viennamini::Device<DomainType, MaterialLibrary>   Device;
-  Device device(domain, matlib);
-  viennamini::Config config;
+  typedef viennamini::device<DomainType>   Device;
+  Device device(domain);
+  viennamini::config config;
 
   // 
   // Prepare device, i.e., assign doping and segment roles, 
@@ -187,8 +187,8 @@ int main()
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<MaterialLibrary>          Simulator;
-  Simulator simulator(matlib);
+  typedef viennamini::simulator<Device, MaterialLibrary>          Simulator;
+  Simulator simulator(device, matlib, config);
   
   //
   // Set simulation parameters
@@ -204,7 +204,7 @@ int main()
   //
   // Run the simulation
   // 
-  simulator(device, config);
+  simulator();
 
   //
   // Writing all solution variables back to domain.

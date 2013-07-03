@@ -94,6 +94,9 @@ namespace viennamini
           donator_doping.wrap_constant( ND_key );
           acceptor_doping.wrap_constant( NA_key );
 
+          // check the config object, which model is active. add each active 
+          // model to the linear pde system ...
+          //
           if(config.has_drift_diffusion())
             add_drift_diffusion();
         }
