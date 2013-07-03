@@ -78,24 +78,24 @@ namespace viennamini
 
         typedef viennafvm::pde_solver<>                                                         PDESolver;
         typedef viennafvm::linear_pde_system<>                                                  PDESystem;
+        
         typedef viennafvm::boundary_key                                                         BoundaryKey;
         typedef viennafvm::current_iterate_key                                                  IterateKey;
         typedef viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>           Quantity;
 
+        /** 
+            @brief C'tor activates the various models in the linear pde system and 
+            initializes objects
+        */
         simulator(DeviceT& device, MatlibT& matlib, viennamini::config& config) : 
-          device(device), matlib(matlib), config(config) 
+          device(device), matlib(matlib), config(config)
         {
-//          if(config.hasModel(viennamini::model::DD)
-//          {
-//          }
-
           permittivity.wrap_constant( eps_key );
           donator_doping.wrap_constant( ND_key );
           acceptor_doping.wrap_constant( NA_key );
 
-          add_drift_diffusion();
-
-
+          if(config.has_drift_diffusion())
+            add_drift_diffusion();
         }
 
         /** 
@@ -429,41 +429,41 @@ namespace viennamini
 
         void add_drift_diffusion()
         {
-          const double q  = 1.6e-19;
-          const double kB = 1.38e-23; // Boltzmann constant
-          
-          
-          // [NOTE] Instead of '1', I am using the values for silicon at 300 K. 
-          // Also I am using different mobilities for electrons/holes
-          // We need a ViennaModels/ViennaMaterials approach here. .. obviously
-          //
-          const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
-          const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
-          const double T  = config.temperature();
-          const double VT = kB * T / q;
-          const double D_n  = mu_n * VT;  //diffusion constant
-          const double D_p  = mu_p * VT;
+            const double q  = viennamini::q::val();
+            const double kB = viennamini::kB::val(); 
+            
+            
+            // [NOTE] Instead of '1', I am using the values for silicon at 300 K. 
+            // Also I am using different mobilities for electrons/holes
+            // We need a ViennaModels/ViennaMaterials approach here. .. obviously
+            //
+            const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
+            const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
+            const double T  = config.temperature();
+            const double VT = kB * T / q;
+            const double D_n  = mu_n * VT;  //diffusion constant
+            const double D_p  = mu_p * VT;
 
-          // here is all the fun: specify DD system
-          FunctionSymbol psi = quantity_potential();         // potential, using id=0
-          FunctionSymbol n   = quantity_electron_density();  // electron concentration, using id=1
-          FunctionSymbol p   = quantity_hole_density();      // hole concentration, using id=2
+            // here is all the fun: specify DD system
+            FunctionSymbol psi = quantity_potential();         // potential, using id=0
+            FunctionSymbol n   = quantity_electron_density();  // electron concentration, using id=1
+            FunctionSymbol p   = quantity_hole_density();      // hole concentration, using id=2
 
-          // Set up the Poisson equation and the two continuity equations
-          Equation poisson_eq = viennamath::make_equation( viennamath::div(permittivity * viennamath::grad(psi)),                     /* = */ q * ((n - donator_doping) - (p - acceptor_doping)));
-          Equation cont_eq_n  = viennamath::make_equation( viennamath::div(D_n * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
-          Equation cont_eq_p  = viennamath::make_equation( viennamath::div(D_p * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
+            // Set up the Poisson equation and the two continuity equations
+            Equation poisson_eq = viennamath::make_equation( viennamath::div(permittivity * viennamath::grad(psi)),                     /* = */ q * ((n - donator_doping) - (p - acceptor_doping)));
+            Equation cont_eq_n  = viennamath::make_equation( viennamath::div(D_n * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
+            Equation cont_eq_p  = viennamath::make_equation( viennamath::div(D_p * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
 
-          // Specify the PDE system:
-          pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
-          pde_system.add_pde(cont_eq_n,  n);   // equation and associated quantity
-          pde_system.add_pde(cont_eq_p,  p);   // equation and associated quantity
+            // Specify the PDE system:
+            pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
+            pde_system.add_pde(cont_eq_n,  n);   // equation and associated quantity
+            pde_system.add_pde(cont_eq_p,  p);   // equation and associated quantity
 
-          pde_system.option(0).damping_term( (n + p) * (-q / VT) );
-          pde_system.option(1).geometric_update(true);
-          pde_system.option(2).geometric_update(true);
+            pde_system.option(0).damping_term( (n + p) * (-q / VT) );
+            pde_system.option(1).geometric_update(true);
+            pde_system.option(2).geometric_update(true);
 
-          pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
+            pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
         }
 
         /** 

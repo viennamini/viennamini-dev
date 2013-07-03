@@ -24,6 +24,8 @@ struct config
     local_linear_iterations = 700;
     local_damping = 1.0;
     local_initial_guess_smoothing_iterations = 2;
+    
+    model_drift_diffusion_state = true; // on by default ..
   }
 
   Numeric&  temperature()                         { return local_temperature; }
@@ -50,6 +52,13 @@ struct config
       return segment_contact_workfunctions[segment_index];
   }
 
+  void enable_drift_diffusion(bool state = true)
+  {
+    model_drift_diffusion_state = state;
+  }
+
+  bool has_drift_diffusion() { return model_drift_diffusion_state; }
+
 private:
   Numeric local_temperature;
 
@@ -63,6 +72,8 @@ private:
 
   SegmentValues segment_contact_values;
   SegmentValues segment_contact_workfunctions;
+
+  bool        model_drift_diffusion_state;
 };
 
 
