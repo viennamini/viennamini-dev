@@ -90,9 +90,12 @@ namespace viennamini
         simulator(DeviceT& device, MatlibT& matlib, viennamini::config& config) : 
           device(device), matlib(matlib), config(config)
         {
-          permittivity.wrap_constant( eps_key );
-          donator_doping.wrap_constant( ND_key );
-          acceptor_doping.wrap_constant( NA_key );
+          eps.wrap_constant( eps_key );
+          mu_n.wrap_constant( mu_n_key );
+          mu_p.wrap_constant( mu_p_key );
+          ND.wrap_constant( ND_key );
+          NA.wrap_constant( NA_key );
+          
 
           // check the config object, which model is active. add each active 
           // model to the linear pde system ...
@@ -254,6 +257,9 @@ namespace viennamini
               //
               viennafvm::set_quantity_region(eps_key,     device.get_domain().segments()[*iter], false);
               viennafvm::set_quantity_region(builtin_key, device.get_domain().segments()[*iter], false);
+              
+              viennafvm::set_quantity_region(mu_n_key, device.get_domain().segments()[*iter], false);
+              viennafvm::set_quantity_region(mu_p_key, device.get_domain().segments()[*iter], false);
 
               if(isContactInsulatorInterface(*iter))
               {
@@ -344,6 +350,9 @@ namespace viennamini
                                            matlib.getParameterValue(
                                              device.get_segment_materials()[*iter], "permittivity") * viennamini::eps0::val()); 
 
+            viennafvm::set_quantity_region(mu_n_key, device.get_domain().segments()[*iter], false);
+            viennafvm::set_quantity_region(mu_p_key, device.get_domain().segments()[*iter], false);
+
             viennafvm::set_quantity_region(builtin_key, device.get_domain().segments()[*iter], false);
 
             // disable the electron and hole quantities
@@ -367,7 +376,13 @@ namespace viennamini
             viennafvm::set_quantity_value (eps_key, device.get_domain().segments()[*iter],
                                            matlib.getParameterValue(
                                              device.get_segment_materials()[*iter], "permittivity") * viennamini::eps0::val()); 
+                                             
+            viennafvm::set_quantity_region(mu_n_key, device.get_domain().segments()[*iter], true);
+            viennafvm::set_quantity_value (mu_n_key, device.get_domain().segments()[*iter], 1.0);// TODO
 
+            viennafvm::set_quantity_region(mu_p_key, device.get_domain().segments()[*iter], true);
+            viennafvm::set_quantity_value (mu_p_key, device.get_domain().segments()[*iter], 1.0);// TODO
+            
             viennafvm::set_quantity_region(ND_key, device.get_domain().segments()[*iter], true);
             viennafvm::set_quantity_value (ND_key, device.get_domain().segments()[*iter], device.get_donator(*iter));
 
@@ -440,22 +455,20 @@ namespace viennamini
             // Also I am using different mobilities for electrons/holes
             // We need a ViennaModels/ViennaMaterials approach here. .. obviously
             //
-            const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
-            const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
+//            const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
+//            const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
             const double T  = config.temperature();
-            const double VT = kB * T / q;
-            const double D_n  = mu_n * VT;  //diffusion constant
-            const double D_p  = mu_p * VT;
-
+            viennamath::expr VT = kB * T / q;
+ 
             // here is all the fun: specify DD system
             FunctionSymbol psi = quantity_potential();         // potential, using id=0
             FunctionSymbol n   = quantity_electron_density();  // electron concentration, using id=1
             FunctionSymbol p   = quantity_hole_density();      // hole concentration, using id=2
 
             // Set up the Poisson equation and the two continuity equations
-            Equation poisson_eq = viennamath::make_equation( viennamath::div(permittivity * viennamath::grad(psi)),                     /* = */ q * ((n - donator_doping) - (p - acceptor_doping)));
-            Equation cont_eq_n  = viennamath::make_equation( viennamath::div(D_n * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
-            Equation cont_eq_p  = viennamath::make_equation( viennamath::div(D_p * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
+            Equation poisson_eq = viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)),                                       /* = */ q * ((n - ND) - (p - NA)));
+            Equation cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
+            Equation cont_eq_p  = viennamath::make_equation( viennamath::div(mu_p * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
 
             // Specify the PDE system:
             pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
@@ -515,10 +528,14 @@ namespace viennamini
         viennamini::builtin_potential_key  builtin_key;
         viennamini::donator_doping_key     ND_key;
         viennamini::acceptor_doping_key    NA_key;
+        viennamini::mobility_electrons_key mu_n_key;
+        viennamini::mobility_holes_key     mu_p_key;
 
-        Quantity  permittivity;   
-        Quantity  donator_doping;  
-        Quantity  acceptor_doping; 
+        Quantity  eps;   
+        Quantity  ND;  
+        Quantity  NA;
+        Quantity  mu_n;
+        Quantity  mu_p;
     };
 }
 

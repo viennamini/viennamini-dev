@@ -17,6 +17,18 @@ namespace viennamini
     bool operator<(permittivity_key const & ) const { return false; }
   };
 
+  struct mobility_electrons_key
+  {
+    // Operator< is required for compatibility with std::map
+    bool operator<(mobility_electrons_key const & ) const { return false; }
+  };
+  
+  struct mobility_holes_key
+  {
+    // Operator< is required for compatibility with std::map
+    bool operator<(mobility_holes_key const & ) const { return false; }
+  };  
+
   struct builtin_potential_key
   {
     // Operator< is required for compatibility with std::map
