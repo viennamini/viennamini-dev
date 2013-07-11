@@ -3,22 +3,24 @@
 
 
 // ViennaGrid includes:
-#include "viennagrid/domain.hpp"
-#include "viennagrid/config/simplex.hpp"
+#include "viennagrid/forwards.hpp"
+#include "viennagrid/config/default_configs.hpp"
 
 namespace viennamini {
 
-template<typename DomainT>
+template<typename Domain, typename Segmentation, typename Storage>
 struct device
 {
-  typedef double                              Numeric;
-  typedef std::map<std::size_t, std::string>  IndexKeys;
-  typedef std::vector<std::size_t>            Indices;
-  typedef std::map<std::size_t, Numeric>      IndexValues;
-  typedef DomainT                             Domain;
+  typedef double                              numeric_type;
+  typedef std::map<std::size_t, std::string>  indexkeys_type;
+  typedef std::vector<std::size_t>            indices_type;
+  typedef std::map<std::size_t, numeric_type> index_values_type;
+  typedef Domain                              domain_type;
+  typedef Segmentation                        segmentation_type;
+  typedef Storage                             storage_type;
 
-
-  device(DomainT& domain) : domain(domain) {}
+  device(domain_type& domain, segmentation_type& segments, Storage& storage) 
+    : domain(domain), segments(segments), storage(storage){}
 
   /** 
       @brief Stores a name string for a given segment index
@@ -73,29 +75,33 @@ struct device
     segment_acceptors[segment_index] = NA;
   }
 
-  IndexKeys& get_segment_names()          { return segment_names; }
-  IndexKeys& get_segment_materials()      { return segment_materials; }
-  Indices&   get_contact_segments()       { return contact_segments; }
-  Indices&   get_oxide_segments()         { return oxide_segments; }
-  Indices&   get_semiconductor_segments() { return semiconductor_segments; }
+  indexkeys_type& get_segment_names()          { return segment_names; }
+  indexkeys_type& get_segment_materials()      { return segment_materials; }
+  indices_type&   get_contact_segments()       { return contact_segments; }
+  indices_type&   get_oxide_segments()         { return oxide_segments; }
+  indices_type&   get_semiconductor_segments() { return semiconductor_segments; }
 
-  Numeric get_donator(std::size_t segment_index) { return segment_donators[segment_index]; }
-  Numeric get_acceptor(std::size_t segment_index) { return segment_acceptors[segment_index]; }
+  numeric_type get_donator(std::size_t segment_index)  { return segment_donators[segment_index]; }
+  numeric_type get_acceptor(std::size_t segment_index) { return segment_acceptors[segment_index]; }
 
 
-  DomainT& get_domain() { return domain; }
+  domain_type&       get_domain()   { return domain;   }
+  segmentation_type& get_segments() { return segments; }
+  storage_type&      get_storage()  { return storage;  }
 
   // -----
 private:
-  DomainT& domain;
+  domain_type       & domain;
+  segmentation_type & segments;
+  storage_type      & storage;
 
-  IndexKeys               segment_names;
-  IndexKeys               segment_materials;
-  Indices                 contact_segments;
-  Indices                 oxide_segments;
-  Indices                 semiconductor_segments;
-  IndexValues             segment_donators;
-  IndexValues             segment_acceptors;
+  indexkeys_type               segment_names;
+  indexkeys_type               segment_materials;
+  indices_type                 contact_segments;
+  indices_type                 oxide_segments;
+  indices_type                 semiconductor_segments;
+  index_values_type            segment_donators;
+  index_values_type            segment_acceptors;
 };
 
 } // viennamini

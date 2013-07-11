@@ -18,12 +18,12 @@
 #include "viennafvm/initial_guess.hpp"
 
 // ViennaGrid includes:
-#include "viennagrid/domain.hpp"
-#include <viennagrid/config/simplex.hpp>
+#include "viennagrid/forwards.hpp"
+#include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
-#include "viennagrid/algorithm/voronoi.hpp"
 #include "viennagrid/algorithm/interface.hpp"
+#include "viennagrid/algorithm/voronoi.hpp"
 
 // ViennaData includes:
 #include "viennadata/api.hpp"
@@ -61,17 +61,20 @@ namespace viennamini
       public:
         typedef double                                                                          Numeric;
         typedef boost::numeric::ublas::vector<double>                                           Vector;
-        typedef typename DeviceT::Indices                                                       Indices;
-        typedef typename DeviceT::Domain                                                        Domain;
+        typedef typename DeviceT::indices_type                                                  Indices;
+        typedef typename DeviceT::domain_type                                                   Domain;
+        typedef typename DeviceT::segmentation_type                                             Segmentation;
 
-        typedef typename Domain::config_type                                                    Config;
-        typedef typename Config::cell_tag                                                       CellTag;
-        typedef typename viennagrid::result_of::ncell<Config, CellTag::dim>::type               CellType;
-        typedef typename viennagrid::result_of::segment<Config>::type                           Segment;
-        typedef typename viennagrid::result_of::ncell_range<Segment, CellTag::dim-1>::type      FacetRange;
-        typedef typename viennagrid::result_of::iterator<FacetRange>::type                      FacetIterator;
-        typedef typename viennagrid::result_of::ncell_range<Domain, CellTag::dim>::type         CellContainer;
+        typedef typename viennagrid::result_of::cell_tag<Domain>::type                          CellTag;
+        typedef typename CellTag::facet_tag                                                     FacetTag;
+        typedef typename viennagrid::result_of::element<Domain, CellTag>::type                  CellType;  
+        typedef typename viennagrid::result_of::element<Domain, FacetTag>::type                 FacetType;  
+
+        typedef typename Segmentation::segment_type                                             Segment;
+        typedef typename viennagrid::result_of::element_range<Domain, CellTag>::type            CellContainer;
         typedef typename viennagrid::result_of::iterator<CellContainer>::type                   CellIterator;
+        typedef typename viennagrid::result_of::element_range<Domain, FacetTag>::type           FacetContainer;
+        typedef typename viennagrid::result_of::iterator<FacetContainer>::type                  FacetIterator;
 
         typedef viennamath::function_symbol                                                     FunctionSymbol;
         typedef viennamath::equation                                                            Equation;
@@ -138,10 +141,12 @@ namespace viennamini
         void write_device_doping()
         {
 
-            viennagrid::io::vtk_writer<Domain> my_vtk_writer;
-            viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, Domain>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
-            viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, Domain>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
-            my_vtk_writer(device.get_domain(), "viennamini_doping");
+//            viennagrid::io::vtk_writer<Domain> my_vtk_writer;
+//            my_vtk_writer.add_scalar_data_on_cells( viennagrid::make_accessor<CellType>(potential_point), "donators" ); 
+
+//            viennagrid::io::add_scalar_data_on_cells<viennamini::donator_doping_key,   double, Domain>(my_vtk_writer, viennamini::donator_doping_key(),   "donators");
+//            viennagrid::io::add_scalar_data_on_cells<viennamini::acceptor_doping_key,  double, Domain>(my_vtk_writer, viennamini::acceptor_doping_key(),  "acceptors");
+//            my_vtk_writer(device.get_domain(), "viennamini_doping");
         }
 
         /** 
@@ -149,23 +154,23 @@ namespace viennamini
         */
         void write_device_initial_guesses()
         {
-            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_pot(quantity_potential().id());
-            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_n(quantity_electron_density().id());
-            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_p(quantity_hole_density().id());
+//            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_pot(quantity_potential().id());
+//            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_n(quantity_electron_density().id());
+//            viennamini::initial_guess_accessor<BoundaryKey, IterateKey>     init_guess_p(quantity_hole_density().id());
 
-            CellContainer const& cells = viennagrid::ncells<CellTag::dim>(device.get_domain());
-            for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
-            {
-                viennadata::access<std::string, double>("initial_pot")(*cit) = init_guess_pot(*cit);
-                viennadata::access<std::string, double>("initial_n")(*cit) = init_guess_n(*cit);
-                viennadata::access<std::string, double>("initial_p")(*cit) = init_guess_p(*cit);
-            }
+//            CellContainer const& cells = viennagrid::ncells<CellTag::dim>(device.get_domain());
+//            for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
+//            {
+//                viennadata::access<std::string, double>("initial_pot")(*cit) = init_guess_pot(*cit);
+//                viennadata::access<std::string, double>("initial_n")(*cit) = init_guess_n(*cit);
+//                viennadata::access<std::string, double>("initial_p")(*cit) = init_guess_p(*cit);
+//            }
 
-            viennagrid::io::vtk_writer<Domain> initial_writer;
-            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_pot", "initial_pot");
-            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_n", "initial_n");
-            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_p", "initial_p");
-            initial_writer(device.get_domain(), "viennamini_initial_guesses");
+//            viennagrid::io::vtk_writer<Domain> initial_writer;
+//            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_pot", "initial_pot");
+//            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_n", "initial_n");
+//            viennagrid::io::add_scalar_data_on_cells<std::string,double, Domain>(initial_writer, "initial_p", "initial_p");
+//            initial_writer(device.get_domain(), "viennamini_initial_guesses");
         }
 
     private:
@@ -185,7 +190,7 @@ namespace viennamini
             for(typename Indices::iterator cs_it = contact_segments.begin();
               cs_it != contact_segments.end(); cs_it++)
             {
-                Segment& current_contact_segment = device.get_domain().segments()[*cs_it];
+                Segment& current_contact_segment = device.get_segments()[*cs_it];
 
                 int adjacent_semiconduct_segment_id = find_adjacent_segment(current_contact_segment, semiconductor_segments);
                 if(adjacent_semiconduct_segment_id != NOTFOUND)
@@ -211,7 +216,7 @@ namespace viennamini
         int find_adjacent_segment(SegmentType                 & current_contact_segment,
                                   IndicesT                    & segments_under_test)
         {
-            FacetRange   facets                  = viennagrid::ncells<CellTag::dim-1>(current_contact_segment);
+            FacetContainer & facets = viennagrid::elements<FacetType>(current_contact_segment);  
 
             // segments under test: these are either all oxide or semiconductor segments
             //

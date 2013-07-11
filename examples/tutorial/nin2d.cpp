@@ -30,8 +30,8 @@
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename DomainType>
-void prepare(viennamini::device<DomainType>& device)
+template<typename Domain, typename Segmentation, typename Storage>
+void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
 {
   const int left_contact    = 0;
   const int left_n          = 1;
@@ -83,37 +83,38 @@ void prepare_boundary_conditions(viennamini::config& config)
 template <typename DomainType>
 void scale_domain(DomainType & domain, double factor)
 {
-  typedef typename viennagrid::result_of::ncell_range<DomainType, 0 > ::type VertexContainer;
-  typedef typename viennagrid::result_of::iterator<VertexContainer>::type VertexIterator;
+  typedef typename viennagrid::result_of::element<DomainType, viennagrid::vertex_tag>::type         VertexType;
+  typedef typename viennagrid::result_of::element_range<DomainType, viennagrid::vertex_tag>::type   VertexContainer;
+  typedef typename viennagrid::result_of::iterator<VertexContainer>::type                           VertexIterator;
 
-  VertexContainer vertices = viennagrid::ncells < 0 > (domain);
+  VertexContainer vertices = viennagrid::elements<VertexType>(domain);  
   for ( VertexIterator vit = vertices.begin();
         vit != vertices.end();
         ++vit )
   {
-    vit->point() *= factor; // scale
+    viennagrid::point(domain, *vit) *= factor;
   }
 }
 
 int main()
 {
-  typedef double   numeric_type;
-
-  typedef viennagrid::config::triangular_2d                           ConfigType;
-  typedef viennagrid::result_of::domain<ConfigType>::type             DomainType;
-  typedef typename ConfigType::cell_tag                     CellTag;
-
-  typedef viennagrid::result_of::ncell<ConfigType, CellTag::dim>::type        CellType;
+  typedef double                                                       numeric_type;
+  typedef viennagrid::domain_t< viennagrid::config::triangular_2d >    domain_type;
+  typedef viennagrid::result_of::segmentation<domain_type>::type       segmentation_type;
+  typedef segmentation_type::segment_type                              segment_type;
+  typedef viennadata::storage<>                                        storage_type;
 
   //
   // Create a domain from file
   //
-  DomainType domain;
+  domain_type         domain;
+  segmentation_type   segments(domain);
+  storage_type        storage;
 
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, "../examples/data/nin2d.mesh");
+    my_reader(domain, segments,  "../examples/data/nin2d.mesh");
   }
   catch (...)
   {
@@ -129,15 +130,15 @@ int main()
   //
   // Prepare material library
   //
-  typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibrary;
-  MaterialLibrary matlib;
+  typedef vmat::Library<vmat::tag::pugixml>::type  material_library_type;
+  material_library_type matlib;
   matlib.load("../external/ViennaMaterials/database/materials.xml");
 
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<DomainType>   Device;
-  Device device(domain);
+  typedef viennamini::device<domain_type, segmentation_type, storage_type>   device_type;
+  device_type device(domain, segments, storage);
   viennamini::config config;
 
   // 
@@ -154,8 +155,8 @@ int main()
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<Device, MaterialLibrary>          Simulator;
-  Simulator simulator(device, matlib, config);
+  typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
+  simulator_type simulator(device, matlib, config);
   
   //
   // Set simulation parameters
@@ -184,7 +185,7 @@ int main()
   //
   // TODO:
   //
-  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "nin2d", domain, result_ids);
+//  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "nin2d", domain, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
