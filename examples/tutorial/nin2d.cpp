@@ -44,22 +44,22 @@ void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
   device.assign_name          (left_contact, "left_contact");
   device.assign_material      (left_contact, "Cu");
   device.assign_contact       (left_contact);
-    
+
   // Segment 1:
   device.assign_name          (left_n, "left_n");
   device.assign_material      (left_n, "Si");
-  device.assign_semiconductor (left_n, 1.E24, 1.E8);   
-  
+  device.assign_semiconductor (left_n, 1.E24, 1.E8);
+
   // Segment 2:
   device.assign_name          (intrinsic, "intrinsic");
   device.assign_material      (intrinsic, "Si");
-  device.assign_semiconductor (intrinsic, 1.E21, 1.E11);   
-  
+  device.assign_semiconductor (intrinsic, 1.E21, 1.E11);
+
   // Segment 3:
   device.assign_name          (right_n, "right_n");
   device.assign_material      (right_n, "Si");
-  device.assign_semiconductor (right_n, 1.E24, 1.E8);   
-  
+  device.assign_semiconductor (right_n, 1.E24, 1.E8);
+
   // Segment 4:
   device.assign_name          (right_contact, "right_contact");
   device.assign_material      (right_contact, "Cu");
@@ -72,10 +72,10 @@ void prepare_boundary_conditions(viennamini::config& config)
   const int left_contact    = 0;
   const int right_contact   = 4;
 
-  // Segment 0: 
+  // Segment 0:
   config.assign_contact(left_contact, 0.0, 0.0);  // segment id, contact potential, workfunction
-  
-  // Segment 4: 
+
+  // Segment 4:
   config.assign_contact(right_contact, 0.5, 0.0);
 }
 
@@ -87,7 +87,7 @@ void scale_domain(DomainType & domain, double factor)
   typedef typename viennagrid::result_of::element_range<DomainType, viennagrid::vertex_tag>::type   VertexContainer;
   typedef typename viennagrid::result_of::iterator<VertexContainer>::type                           VertexIterator;
 
-  VertexContainer vertices = viennagrid::elements<VertexType>(domain);  
+  VertexContainer vertices = viennagrid::elements<VertexType>(domain);
   for ( VertexIterator vit = vertices.begin();
         vit != vertices.end();
         ++vit )
@@ -125,7 +125,7 @@ int main()
   //
   // scale to nanometer
   //
-  scale_domain(domain, 1e-9); 
+  scale_domain(domain, 1e-9);
 
   //
   // Prepare material library
@@ -141,37 +141,37 @@ int main()
   device_type device(domain, segments, storage);
   viennamini::config config;
 
-  // 
-  // Prepare device, i.e., assign doping and segment roles, 
+  //
+  // Prepare device, i.e., assign doping and segment roles,
   // e.g., oxide, semiconductor, contact
   //
   prepare(device);
 
   //
-  // Assign contact values 
+  // Assign contact values
   //
   prepare_boundary_conditions(config);
 
   //
-  // Create a simulator object
-  //
-  typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
-  simulator_type simulator(device, matlib, config);
-  
-  //
   // Set simulation parameters
   //
-  config.temperature()                        = 300; 
+  config.temperature()                        = 300;
   config.damping()                            = 1.0;
   config.linear_breaktol()                    = 1.0E-13;
   config.linear_iterations()                  = 700;
   config.nonlinear_iterations()               = 100;
   config.nonlinear_breaktol()                 = 1.0E-3;
   config.initial_guess_smoothing_iterations() = 4;
-  
+
+  //
+  // Create a simulator object
+  //
+  typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
+  simulator_type simulator(device, matlib, config);
+
   //
   // Run the simulation
-  // 
+  //
   simulator();
 
   //
@@ -185,7 +185,7 @@ int main()
   //
   // TODO:
   //
-//  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "nin2d", domain, result_ids);
+  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "nin2d", domain, segments, storage, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;

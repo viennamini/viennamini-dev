@@ -19,10 +19,10 @@ struct device
   typedef Segmentation                        segmentation_type;
   typedef Storage                             storage_type;
 
-  device(domain_type& domain, segmentation_type& segments, Storage& storage) 
+  device(domain_type& domain, segmentation_type& segments, storage_type& storage)
     : domain(domain), segments(segments), storage(storage){}
 
-  /** 
+  /**
       @brief Stores a name string for a given segment index
   */
   void assign_name(std::size_t segment_index, std::string const& name)
@@ -30,7 +30,7 @@ struct device
     segment_names[segment_index] = name;
   }
 
-  /** 
+  /**
       @brief Stores a material ID string for a given segment index
   */
   void assign_material(std::size_t segment_index, std::string const& material_id)
@@ -38,7 +38,7 @@ struct device
     segment_materials[segment_index] = material_id;
   }
 
-  /** 
+  /**
       @brief Identifies the segment to be a contact
   */
   void assign_contact(std::size_t segment_index)
@@ -49,7 +49,7 @@ struct device
     contact_segments.push_back(segment_index);
   }
 
-  /** 
+  /**
       @brief Identifies the segment to be a oxide
   */
   void assign_oxide(std::size_t segment_index)
@@ -60,7 +60,7 @@ struct device
     oxide_segments.push_back(segment_index);
   }
 
-  /** 
+  /**
       @brief Identifies the segment to be a semiconductor
   */
   template<typename NumericT>
@@ -85,9 +85,9 @@ struct device
   numeric_type get_acceptor(std::size_t segment_index) { return segment_acceptors[segment_index]; }
 
 
-  domain_type&       get_domain()   { return domain;   }
-  segmentation_type& get_segments() { return segments; }
-  storage_type&      get_storage()  { return storage;  }
+  inline domain_type&       get_domain()   { return domain;   }
+  inline segmentation_type& get_segments() { return segments; }
+  inline storage_type&      get_storage()  { return storage;  }
 
   // -----
 private:
