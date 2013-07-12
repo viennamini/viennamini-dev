@@ -6,7 +6,7 @@
 namespace viennamini {
 
 
-template<typename Storage, typename Cell, typename ResultVector>
+template<typename Cell, typename Storage, typename ResultVector>
 struct result_accessor
 {
   typedef typename ResultVector::value_type   value_type;
