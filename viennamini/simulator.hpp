@@ -441,19 +441,14 @@ namespace viennamini
           //
           for(int i = 0; i < config.initial_guess_smoothing_iterations(); i++)
           {
-//            viennafvm::smooth_initial_guess(device.get_domain(),
-//                                            quantity_potential(),
-//                                            viennafvm::arithmetic_mean_smoother(),
-//                                            viennadata::accessor<viennamini::builtin_potential_key, Numeric, CellType>(device.get_storage(), viennamini::builtin_potential_key()));
-//            viennafvm::smooth_initial_guess(device.get_domain(),
-//                                            quantity_electron_density(),
-//                                            viennafvm::geometric_mean_smoother(),
-//                                            viennadata::accessor<viennamini::donator_doping_key, Numeric, CellType>(device.get_storage(), viennamini::donator_doping_key()));
-//            viennafvm::smooth_initial_guess(device.get_domain(),
-//                                            quantity_hole_density(),
-//                                            viennafvm::geometric_mean_smoother(),
-//                                            viennadata::accessor<viennamini::acceptor_doping_key, Numeric, CellType>(device.get_storage(), viennamini::acceptor_doping_key()));
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+                                            viennafvm::arithmetic_mean_smoother(), quantity_potential());
 
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+                                            viennafvm::geometric_mean_smoother(), quantity_electron_density());
+
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+                                            viennafvm::geometric_mean_smoother(), quantity_hole_density());
           }
         }
 
