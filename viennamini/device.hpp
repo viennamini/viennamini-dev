@@ -11,16 +11,26 @@ namespace viennamini {
 template<typename Domain, typename Segmentation, typename Storage>
 struct device
 {
-  typedef double                              numeric_type;
-  typedef std::map<std::size_t, std::string>  indexkeys_type;
-  typedef std::vector<std::size_t>            indices_type;
-  typedef std::map<std::size_t, numeric_type> index_values_type;
-  typedef Domain                              domain_type;
-  typedef Segmentation                        segmentation_type;
-  typedef Storage                             storage_type;
+  typedef double                                      numeric_type;
+  typedef std::map<std::size_t, std::string>          indexkeys_type;
+  typedef std::vector<std::size_t>                    indices_type;
+  typedef std::map<std::size_t, numeric_type>         index_values_type;
+  typedef Domain                                      domain_type;
+  typedef Segmentation                                segmentation_type;
+  typedef typename segmentation_type::segment_type    segment_type;
+  typedef Storage                                     storage_type;
+  typedef std::map<std::size_t, std::size_t>          index_map_type;
 
   device(domain_type& domain, segmentation_type& segments, storage_type& storage)
-    : domain(domain), segments(segments), storage(storage){}
+    : domain(domain), segments(segments), storage(storage)
+  {
+    std::size_t global_id = 0;
+    for(typename segmentation_type::iterator sit = segments.begin(); 
+        sit != segments.end(); sit++)
+    {
+      segment_index_map[global_id++] = (*sit).id();
+    }
+  }
 
   /**
       @brief Stores a name string for a given segment index
@@ -88,6 +98,7 @@ struct device
   inline domain_type&       get_domain()   { return domain;   }
   inline segmentation_type& get_segments() { return segments; }
   inline storage_type&      get_storage()  { return storage;  }
+  inline segment_type&      get_segment(std::size_t si) { return segments(segment_index_map[si]); }
 
   // -----
 private:
@@ -102,6 +113,7 @@ private:
   indices_type                 semiconductor_segments;
   index_values_type            segment_donators;
   index_values_type            segment_acceptors;
+  index_map_type               segment_index_map;
 };
 
 } // viennamini
