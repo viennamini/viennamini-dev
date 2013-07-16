@@ -35,7 +35,7 @@ struct result_accessor
     }
     else //use Dirichlet boundary data:
     {
-      std::cout << "dirichlet cell value: " << boundary_acc(cell) << std::endl;
+      //std::cout << "dirichlet cell value: " << boundary_acc(cell) << std::endl;
       //return viennadata::access<boundary_key_type, double>(bnd_key)(cell);
       return boundary_acc(cell);
     }
