@@ -144,13 +144,13 @@ namespace viennamini
         {
             typedef typename viennadata::result_of::accessor<Storage, viennamini::donator_doping_key, double, CellType>::type DonatorAccessor;
             typedef typename viennadata::result_of::accessor<Storage, viennamini::acceptor_doping_key, double, CellType>::type AcceptorAccessor;
-            
+
             DonatorAccessor  donator_acc  = viennadata::acc(device.get_storage(), viennamini::donator_doping_key());
-            AcceptorAccessor acceptor_acc = viennadata::acc(device.get_storage(), viennamini::acceptor_doping_key());            
-        
+            AcceptorAccessor acceptor_acc = viennadata::acc(device.get_storage(), viennamini::acceptor_doping_key());
+
             viennagrid::io::vtk_writer<Domain> my_vtk_writer;
             my_vtk_writer.add_scalar_data_on_cells( donator_acc , "donators" );
-            my_vtk_writer.add_scalar_data_on_cells( acceptor_acc , "acceptors" );            
+            my_vtk_writer.add_scalar_data_on_cells( acceptor_acc , "acceptors" );
             my_vtk_writer(device.get_domain(), device.get_segments(), "viennamini_doping");
         }
 
@@ -160,8 +160,8 @@ namespace viennamini
         void write_device_initial_guesses()
         {
             typedef typename viennadata::result_of::accessor<Storage, BoundaryKey, double, CellType>::type  BoundaryAccessor;
-            typedef typename viennadata::result_of::accessor<Storage, IterateKey, double, CellType>::type   InitGuessAccessor;            
-        
+            typedef typename viennadata::result_of::accessor<Storage, IterateKey, double, CellType>::type   InitGuessAccessor;
+
             BoundaryAccessor  bnd_pot_acc  = viennadata::acc(device.get_storage(), BoundaryKey(quantity_potential().id()));
             InitGuessAccessor init_pot_acc = viennadata::acc(device.get_storage(), IterateKey(quantity_potential().id()));
 
@@ -170,19 +170,32 @@ namespace viennamini
 
             BoundaryAccessor  bnd_p_acc  = viennadata::acc(device.get_storage(), BoundaryKey(quantity_hole_density().id()));
             InitGuessAccessor init_p_acc = viennadata::acc(device.get_storage(), IterateKey(quantity_hole_density().id()));
-            
+
             viennagrid::io::vtk_writer<Domain> bnd_vtk_writer;
             bnd_vtk_writer.add_scalar_data_on_cells( bnd_pot_acc , "potential" );
-            bnd_vtk_writer.add_scalar_data_on_cells( bnd_n_acc ,   "electrons" );            
-            bnd_vtk_writer.add_scalar_data_on_cells( bnd_p_acc ,   "holes" );                        
+            bnd_vtk_writer.add_scalar_data_on_cells( bnd_n_acc ,   "electrons" );
+            bnd_vtk_writer.add_scalar_data_on_cells( bnd_p_acc ,   "holes" );
             bnd_vtk_writer(device.get_domain(), device.get_segments(), "viennamini_boundary_conditions");
 
             viennagrid::io::vtk_writer<Domain> init_vtk_writer;
             init_vtk_writer.add_scalar_data_on_cells( init_pot_acc , "potential" );
-            init_vtk_writer.add_scalar_data_on_cells( init_n_acc ,   "electrons" );            
-            init_vtk_writer.add_scalar_data_on_cells( init_p_acc ,   "holes" );                        
+            init_vtk_writer.add_scalar_data_on_cells( init_n_acc ,   "electrons" );
+            init_vtk_writer.add_scalar_data_on_cells( init_p_acc ,   "holes" );
             init_vtk_writer(device.get_domain(), device.get_segments(), "viennamini_initial_conditions");
         }
+
+        void write_result(std::string filename = "viennamini_result")
+        {
+          // Writing all solution variables back to domain.
+          //
+          std::vector<long> result_ids(3); //TODO: Better way to make potential, electron_density and hole_density accessible
+          result_ids[0] = quantity_potential().id();
+          result_ids[1] = quantity_electron_density().id();
+          result_ids[2] = quantity_hole_density().id();
+
+          viennafvm::io::write_solution_to_VTK_file(result(), filename, device.get_domain(), device.get_segments(), device.get_storage(), result_ids);
+        }
+
 
     private:
 
@@ -452,13 +465,13 @@ namespace viennamini
           //
           for(int i = 0; i < config.initial_guess_smoothing_iterations(); i++)
           {
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
                                             viennafvm::arithmetic_mean_smoother(), quantity_potential());
 
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
                                             viennafvm::geometric_mean_smoother(), quantity_electron_density());
 
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(), 
+            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
                                             viennafvm::geometric_mean_smoother(), quantity_hole_density());
           }
         }

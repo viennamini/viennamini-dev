@@ -200,18 +200,9 @@ int main()
   //
   simulator();
 
-  //
-  // Writing all solution variables back to domain.
-  //
-  std::vector<long> result_ids(3); //TODO: Better way to make potential, electron_density and hole_density accessible
-  result_ids[0] = simulator.quantity_potential().id();
-  result_ids[1] = simulator.quantity_electron_density().id();
-  result_ids[2] = simulator.quantity_hole_density().id();
+  // Write results to vtk files
+  simulator.write_result("mosfet");
 
-  //
-  // TODO:
-  //
-  viennafvm::io::write_solution_to_VTK_file(simulator.result(), "mosfet", domain, segments, storage, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
