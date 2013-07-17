@@ -12,14 +12,14 @@ struct pi
   typedef double        result_type;
   typedef std::string   string_type;
 
-  static result_type val() { 
-    return  3.1415926535897932384626433832795; 
+  static result_type val() {
+    return  3.1415926535897932384626433832795;
   }
-  
+
   static string_type unit() {
     return "1";
   }
-  
+
   static string_type note() {
     return "The ratio of a circle's circumference to its diameter";
   }
@@ -30,14 +30,14 @@ struct c0
   typedef double        result_type;
   typedef std::string   string_type;
 
-  static result_type val() { 
-    return  299792458.0; 
+  static result_type val() {
+    return  299792458.0;
   }
-  
+
   static string_type unit() {
     return "m/s";
   }
-  
+
   static string_type note() {
     return "Speed of light in vacuum";
   }
@@ -48,17 +48,17 @@ struct eps0
   typedef double        result_type;
   typedef std::string   string_type;
 
-  static result_type val() { 
-    return 8.854187817620E-12; 
+  static result_type val() {
+    return 8.854187817620E-12;
   }
-  
+
   static string_type unit() {
     return "As/Vm";
   }
-  
+
   static string_type note() {
     return "Permittivity of vacuum";
-  }  
+  }
 };
 
 struct kB
@@ -66,17 +66,17 @@ struct kB
   typedef double        result_type;
   typedef std::string   string_type;
 
-  static result_type val() { 
-    return 1.3806488e-23; 
+  static result_type val() {
+    return 1.3806488e-23;
   }
-  
+
   static string_type unit() {
     return "J/K";
   }
-  
+
   static string_type note() {
     return "Boltzmann constant";
-  }  
+  }
 };
 
 struct q
@@ -84,17 +84,17 @@ struct q
   typedef double        result_type;
   typedef std::string   string_type;
 
-  static result_type val() { 
-    return 1.602176565e-19; 
+  static result_type val() {
+    return 1.602176565e-19;
   }
-  
+
   static string_type unit() {
     return "As";
   }
-  
+
   static string_type note() {
     return "Elementary charge";
-  }  
+  }
 };
 
 //  /** @brief Implementations. Not intended to be used by a library user. */

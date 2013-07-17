@@ -25,7 +25,7 @@ struct device
     : domain(domain), segments(segments), storage(storage)
   {
     std::size_t global_id = 0;
-    for(typename segmentation_type::iterator sit = segments.begin(); 
+    for(typename segmentation_type::iterator sit = segments.begin();
         sit != segments.end(); sit++)
     {
       segment_index_map[global_id++] = (*sit).id();

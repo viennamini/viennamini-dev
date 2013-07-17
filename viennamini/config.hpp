@@ -24,7 +24,7 @@ struct config
     local_linear_iterations = 700;
     local_damping = 1.0;
     local_initial_guess_smoothing_iterations = 2;
-    
+
     model_drift_diffusion_state = true; // on by default ..
   }
 
@@ -34,7 +34,7 @@ struct config
   Index&    linear_iterations()                   { return local_linear_iterations; }
   Numeric&  linear_breaktol()                     { return local_linear_breaktol; }
   Numeric&  damping()                             { return local_damping; }
-  Index&    initial_guess_smoothing_iterations()  { return local_initial_guess_smoothing_iterations; }  
+  Index&    initial_guess_smoothing_iterations()  { return local_initial_guess_smoothing_iterations; }
 
   void assign_contact(std::size_t segment_index, Numeric value, Numeric workfunction)
   {

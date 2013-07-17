@@ -16,7 +16,7 @@ struct result_accessor
   typedef typename viennadata::result_of::accessor<Storage, mapping_key, long, Cell>::type    mapping_accessor;
   typedef typename viennadata::result_of::accessor<Storage, boundary_key, double, Cell>::type   boundary_accessor;
 
-  result_accessor(Storage& storage, ResultVector const& result, std::size_t const& id) : 
+  result_accessor(Storage& storage, ResultVector const& result, std::size_t const& id) :
     storage(storage), result(result)
   {
     mapping_acc  = viennadata::accessor<mapping_key, long, Cell>(storage, mapping_key(id));
@@ -40,7 +40,7 @@ struct result_accessor
       return boundary_acc(cell);
     }
   }
-  
+
   value_type operator()(Cell const& cell) const
   {
     //long cur_index = viennadata::access<mapping_key_type, long>(map_key)(cell);
@@ -57,7 +57,7 @@ struct result_accessor
       return boundary_acc(cell);
     }
   }
-  
+
   Storage           &   storage;
   ResultVector const&   result;
   mapping_accessor      mapping_acc;
