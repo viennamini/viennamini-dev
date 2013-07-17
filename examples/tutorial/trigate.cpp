@@ -28,6 +28,9 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
+#include "viennagrid/io/vtk_writer.hpp"
+
+
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
 template<typename Domain, typename Segmentation, typename Storage>
@@ -129,10 +132,10 @@ void scale_domain(DomainType & domain, double factor)
   }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     typedef double                                                       numeric_type;
-    typedef viennagrid::domain_t< viennagrid::config::triangular_2d >    domain_type;
+    typedef viennagrid::domain_t< viennagrid::config::tetrahedral_3d >    domain_type;
     typedef viennagrid::result_of::segmentation<domain_type>::type       segmentation_type;
     typedef segmentation_type::segment_type                              segment_type;
     typedef viennadata::storage<>                                        storage_type;
