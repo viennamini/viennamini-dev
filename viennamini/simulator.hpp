@@ -47,7 +47,6 @@
 #include "viennamini/constants.hpp"
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
-#include "viennamini/initial_guess_accessor.hpp"
 #include "viennamini/result_accessor.hpp"
 
 namespace viennamini
@@ -145,8 +144,8 @@ namespace viennamini
             typedef typename viennadata::result_of::accessor<Storage, viennamini::donator_doping_key, double, CellType>::type DonatorAccessor;
             typedef typename viennadata::result_of::accessor<Storage, viennamini::acceptor_doping_key, double, CellType>::type AcceptorAccessor;
 
-            DonatorAccessor  donator_acc  = viennadata::acc(device.get_storage(), viennamini::donator_doping_key());
-            AcceptorAccessor acceptor_acc = viennadata::acc(device.get_storage(), viennamini::acceptor_doping_key());
+            DonatorAccessor  donator_acc  = viennadata::make_accessor(device.get_storage(), viennamini::donator_doping_key());
+            AcceptorAccessor acceptor_acc = viennadata::make_accessor(device.get_storage(), viennamini::acceptor_doping_key());
 
             viennagrid::io::vtk_writer<Domain> my_vtk_writer;
             my_vtk_writer.add_scalar_data_on_cells( donator_acc , "donators" );
@@ -162,14 +161,14 @@ namespace viennamini
             typedef typename viennadata::result_of::accessor<Storage, BoundaryKey, double, CellType>::type  BoundaryAccessor;
             typedef typename viennadata::result_of::accessor<Storage, IterateKey, double, CellType>::type   InitGuessAccessor;
 
-            BoundaryAccessor  bnd_pot_acc  = viennadata::acc(device.get_storage(), BoundaryKey(quantity_potential().id()));
-            InitGuessAccessor init_pot_acc = viennadata::acc(device.get_storage(), IterateKey(quantity_potential().id()));
+            BoundaryAccessor  bnd_pot_acc  = viennadata::make_accessor(device.get_storage(), BoundaryKey(quantity_potential().id()));
+            InitGuessAccessor init_pot_acc = viennadata::make_accessor(device.get_storage(), IterateKey(quantity_potential().id()));
 
-            BoundaryAccessor  bnd_n_acc  = viennadata::acc(device.get_storage(), BoundaryKey(quantity_electron_density().id()));
-            InitGuessAccessor init_n_acc = viennadata::acc(device.get_storage(), IterateKey(quantity_electron_density().id()));
+            BoundaryAccessor  bnd_n_acc  = viennadata::make_accessor(device.get_storage(), BoundaryKey(quantity_electron_density().id()));
+            InitGuessAccessor init_n_acc = viennadata::make_accessor(device.get_storage(), IterateKey(quantity_electron_density().id()));
 
-            BoundaryAccessor  bnd_p_acc  = viennadata::acc(device.get_storage(), BoundaryKey(quantity_hole_density().id()));
-            InitGuessAccessor init_p_acc = viennadata::acc(device.get_storage(), IterateKey(quantity_hole_density().id()));
+            BoundaryAccessor  bnd_p_acc  = viennadata::make_accessor(device.get_storage(), BoundaryKey(quantity_hole_density().id()));
+            InitGuessAccessor init_p_acc = viennadata::make_accessor(device.get_storage(), IterateKey(quantity_hole_density().id()));
 
             viennagrid::io::vtk_writer<Domain> bnd_vtk_writer;
             bnd_vtk_writer.add_scalar_data_on_cells( bnd_pot_acc , "potential" );
