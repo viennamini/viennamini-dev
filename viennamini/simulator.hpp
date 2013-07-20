@@ -1,6 +1,20 @@
 #ifndef VIENNAMINI_SIMULATOR_HPP
 #define VIENNAMINI_SIMULATOR_HPP
 
+/* =======================================================================
+   Copyright (c) 2011, Institute for Microelectronics, TU Wien
+   http://www.iue.tuwien.ac.at
+                             -----------------
+                 ViennaMini - The Vienna Device Simulator
+                             -----------------
+
+   authors:    Karl Rupp                          rupp@iue.tuwien.ac.at
+               Josef Weinbub                   weinbub@iue.tuwien.ac.at
+               (add your name here)
+
+   license:    see file LICENSE in the ViennaFVM base directory
+======================================================================= */
+
 /* Come up with a simulator object similar to ViennaSHE.
    Configuration should happen in a similar manner, allowing for the selection of predefined models (DD, Hydro, ev. ET)
 */
@@ -9,6 +23,8 @@
   #define NDEBUG
 #endif
 
+#define VIENNAFVM_TIMER
+
 // ViennaFVM includes:
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
@@ -16,6 +32,9 @@
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/initial_guess.hpp"
+#ifdef VIENNACL_WITH_OPENCL
+#include "viennafvm/viennacl_support.hpp"
+#endif
 
 // ViennaGrid includes:
 #include "viennagrid/forwards.hpp"
