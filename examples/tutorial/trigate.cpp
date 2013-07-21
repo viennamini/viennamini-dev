@@ -96,7 +96,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
 void prepare_boundary_conditions(viennamini::config& config)
 {
   // Gate Contact
-  config.assign_contact(gate_contact, 0.5, 0.0);  // segment id, contact potential, workfunction
+  config.assign_contact(gate_contact, 0.1, 0.0);  // segment id, contact potential, workfunction
 
   // Body Contact
   config.assign_contact(body_contact, 0.0, 0.0);
@@ -105,7 +105,7 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(source_contact, 0.0, 0.0);
 
   // Drain Contact
-  config.assign_contact(drain_contact, 0.3, 0.0);
+  config.assign_contact(drain_contact, 0.1, 0.0);
 }
 
 /** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
@@ -194,11 +194,11 @@ int main(int argc, char* argv[])
   // Set simulation parameters
   //
   config.temperature()                        = 300;
-  config.damping()                            = 0.25;
-  config.linear_breaktol()                    = 1.0E-14;
-  config.linear_iterations()                  = 500;
+  config.damping()                            = 0.4;
+  config.linear_breaktol()                    = 1.0E-13;
+  config.linear_iterations()                  = 1000;
   config.nonlinear_iterations()               = 100;
-  config.nonlinear_breaktol()                 = 1.0E-3;
+  config.nonlinear_breaktol()                 = 1.0E-2;
   config.initial_guess_smoothing_iterations() = 0;
 
   //
