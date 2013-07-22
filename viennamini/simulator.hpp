@@ -23,9 +23,8 @@
   #define NDEBUG
 #endif
 
-#define VIENNAFVM_TIMER
-
 // ViennaFVM includes:
+#define VIENNAFVM_VERBOSE
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
@@ -96,6 +95,7 @@ namespace viennamini
         typedef viennamath::function_symbol                                                     FunctionSymbol;
         typedef viennamath::equation                                                            Equation;
 
+        typedef viennafvm::linsolv::viennacl                                                    LinerSolverType;
         typedef viennafvm::pde_solver<>                                                         PDESolver;
         typedef viennafvm::linear_pde_system<>                                                  PDESystem;
 
@@ -553,21 +553,21 @@ namespace viennamini
         */
         void run()
         {
-
-            // configure the DD solver
-            pde_solver.set_damping(config.damping());
-            pde_solver.set_linear_breaktol(config.linear_breaktol());
-            pde_solver.set_linear_iterations(config.linear_iterations());
-            pde_solver.set_nonlinear_iterations(config.nonlinear_iterations());
-            pde_solver.set_nonlinear_breaktol(config.nonlinear_breaktol());
+          linear_solver.max_iterations()  = config.linear_iterations();
+          linear_solver.break_tolerance() = config.linear_breaktol();
+        
+          // configure the DD solver
+          pde_solver.set_damping(config.damping());
+          pde_solver.set_nonlinear_iterations(config.nonlinear_iterations());
+          pde_solver.set_nonlinear_breaktol(config.nonlinear_breaktol());
 
 //            std::cout << "starting simulatoin " << std::endl;
 
-        #ifdef VIENNAMINI_DEBUG
-            std::cout << "* starting simulation .. " << std::endl;
-        #endif
-            // run the simulation
-            pde_solver(pde_system, device.get_domain(), device.get_storage());
+      #ifdef VIENNAMINI_DEBUG
+          std::cout << "* starting simulation .. " << std::endl;
+      #endif
+          // run the simulation
+          pde_solver(pde_system, device.get_domain(), device.get_storage(), linear_solver);
         }
 
     public:
@@ -584,6 +584,7 @@ namespace viennamini
 
         PDESystem               pde_system;
         PDESolver               pde_solver;
+        LinerSolverType         linear_solver;
 
         IndexMap contactSemiconductorInterfaces;
         IndexMap contactOxideInterfaces;
