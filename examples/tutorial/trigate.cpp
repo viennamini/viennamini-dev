@@ -29,6 +29,7 @@
 #include "viennamaterials/kernels/pugixml.hpp"
 
 #include "viennagrid/io/vtk_writer.hpp"
+#include "viennagrid/algorithm/scale.hpp"
 
 const int source          = 0;
 const int channel         = 1;
@@ -108,23 +109,6 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(drain_contact, 0.1, 0.0);
 }
 
-/** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
-template <typename DomainT>
-void scale_domain(DomainT & domain, double factor)
-{
-  typedef typename viennagrid::result_of::element<DomainT, viennagrid::vertex_tag>::type            VertexType;
-  typedef typename viennagrid::result_of::element_range<DomainT, viennagrid::vertex_tag>::type      VertexContainerType;
-  typedef typename viennagrid::result_of::iterator<VertexContainerType>::type                       VertexIteratorType;
-
-  VertexContainerType vertices = viennagrid::elements<VertexType>(domain);
-  for ( VertexIteratorType vit = vertices.begin();
-        vit != vertices.end();
-        ++vit )
-  {
-    viennagrid::point(domain, *vit) *= factor;
-  }
-}
-
 int main(int argc, char* argv[])
 {
   if(argc != 2)
@@ -163,7 +147,7 @@ int main(int argc, char* argv[])
   //
   // scale to nanometer
   //
-  scale_domain(domain, 1e-9);
+  viennagrid::scale(domain, 1e-9);
 
   //
   // Prepare material library
