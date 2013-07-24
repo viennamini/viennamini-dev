@@ -49,17 +49,17 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
   // Source
   device.assign_name          (source, "source");
   device.assign_material      (source, "Si");
-  device.assign_semiconductor (source, 1e24, 1.E8);   // ND, NA
+  device.assign_semiconductor (source, 1e24, 1.E8);   // n+
 
   // Channel
   device.assign_name          (channel, "channel");
   device.assign_material      (channel, "Si");
-  device.assign_semiconductor (channel, 1.E18, 1.E14);
+  device.assign_semiconductor (channel, 1.E12, 1.E20);  // p-substrate
 
   // Drain
   device.assign_name          (drain, "drain");
   device.assign_material      (drain, "Si");
-  device.assign_semiconductor (drain, 1.E24, 1.E8);
+  device.assign_semiconductor (drain, 1.E24, 1.E8);     // n+
 
   // Oxide
   device.assign_name          (oxide, "oxide");
@@ -74,7 +74,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
   // Body
   device.assign_name          (body, "body");
   device.assign_material      (body, "Si");
-  device.assign_semiconductor (body, 1.E18, 1.E14);
+  device.assign_semiconductor (body, 1.E12, 1.E20);  // p-substrate
 
   // Body Contact
   device.assign_name          (body_contact, "body_contact");
@@ -97,7 +97,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
 void prepare_boundary_conditions(viennamini::config& config)
 {
   // Gate Contact
-  config.assign_contact(gate_contact, 0.2, 0.4);  // segment id, contact potential, workfunction
+  config.assign_contact(gate_contact, 0.4, 0.4);  // segment id, contact potential, workfunction
 
   // Body Contact
   config.assign_contact(body_contact, 0.0, 0.0);
@@ -106,7 +106,7 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(source_contact, 0.0, 0.0);
 
   // Drain Contact
-  config.assign_contact(drain_contact, 0.2, 0.0);
+  config.assign_contact(drain_contact, 0.4, 0.0);
 }
 
 int main(int argc, char* argv[])
