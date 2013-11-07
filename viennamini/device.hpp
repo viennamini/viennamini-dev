@@ -21,27 +21,37 @@
 
 namespace viennamini {
 
-template<typename Domain, typename Segmentation, typename Storage>
+template<typename MeshT, typename SegmentationT, typename StorageT>
 struct device
 {
-  typedef double                                      numeric_type;
-  typedef std::map<std::size_t, std::string>          indexkeys_type;
-  typedef std::vector<std::size_t>                    indices_type;
-  typedef std::map<std::size_t, numeric_type>         index_values_type;
-  typedef Domain                                      domain_type;
-  typedef Segmentation                                segmentation_type;
-  typedef typename segmentation_type::segment_type    segment_type;
-  typedef Storage                                     storage_type;
-  typedef std::map<std::size_t, std::size_t>          index_map_type;
+  typedef MeshT                                           MeshType;
+  typedef SegmentationT                                   SegmentationType;
+  typedef StorageT                                        StorageType;
+  typedef double                                          NumericType; // TODO derive ..
+  typedef std::map<std::size_t, std::string>              IndexKeysType;
+  typedef std::vector<std::size_t>                        IndicesType;
+  typedef std::map<std::size_t, NumericType>              IndexValuesType;
+  typedef std::map<std::size_t, std::size_t>              IndexMapType;
+  typedef typename SegmentationType::segment_handle_type  SegmentType;
 
-  device(domain_type& domain, segmentation_type& segments, storage_type& storage)
-    : domain(domain), segments(segments), storage(storage)
+  typedef MeshType              mesh_type;
+  typedef SegmentationType      segmentation_type;
+  typedef StorageType           storage_type;
+  typedef NumericType           numeric_type;
+  typedef IndexKeysType         indexkeys_type;
+  typedef IndicesType           indices_type;
+  typedef IndexValuesType       indexvalues_type;
+  typedef IndexMapType          indexmap_type;
+  typedef SegmentType           segment_type;
+
+  device(MeshType& mesh, SegmentationType& segments, StorageType& storage)
+    : mesh_(mesh), segments_(segments), storage_(storage)
   {
     std::size_t global_id = 0;
-    for(typename segmentation_type::iterator sit = segments.begin();
-        sit != segments.end(); sit++)
+    for(typename SegmentationType::iterator sit = segments_.begin();
+        sit != segments_.end(); sit++)
     {
-      segment_index_map[global_id++] = (*sit).id();
+      segment_index_map_[global_id++] = (*sit).id();
     }
   }
 
@@ -50,7 +60,7 @@ struct device
   */
   void assign_name(std::size_t segment_index, std::string const& name)
   {
-    segment_names[segment_index] = name;
+    segment_names_[segment_index] = name;
   }
 
   /**
@@ -58,7 +68,7 @@ struct device
   */
   void assign_material(std::size_t segment_index, std::string const& material_id)
   {
-    segment_materials[segment_index] = material_id;
+    segment_materials_[segment_index] = material_id;
   }
 
   /**
@@ -69,7 +79,7 @@ struct device
   #ifdef VIENNAMINI_DEBUG
     std::cout << "* assign_contact(): segment " << segment_index << std::endl;
   #endif
-    contact_segments.push_back(segment_index);
+    contact_segments_.push_back(segment_index);
   }
 
   /**
@@ -80,7 +90,7 @@ struct device
   #ifdef VIENNAMINI_DEBUG
     std::cout << "* assign_oxide(): segment " << segment_index << std::endl;
   #endif
-    oxide_segments.push_back(segment_index);
+    oxide_segments_.push_back(segment_index);
   }
 
   /**
@@ -92,41 +102,41 @@ struct device
   #ifdef VIENNAMINI_DEBUG
     std::cout << "* assign_semiconductor(): segment " << segment_index << std::endl;
   #endif
-    semiconductor_segments.push_back(segment_index);
+    semiconductor_segments_.push_back(segment_index);
 
-    segment_donators[segment_index] = ND;
-    segment_acceptors[segment_index] = NA;
+    segment_donators_[segment_index] = ND;
+    segment_acceptors_[segment_index] = NA;
   }
 
-  indexkeys_type& get_segment_names()          { return segment_names; }
-  indexkeys_type& get_segment_materials()      { return segment_materials; }
-  indices_type&   get_contact_segments()       { return contact_segments; }
-  indices_type&   get_oxide_segments()         { return oxide_segments; }
-  indices_type&   get_semiconductor_segments() { return semiconductor_segments; }
+  inline IndexKeysType& segment_names()          { return segment_names_; }
+  inline IndexKeysType& segment_materials()      { return segment_materials_; }
+  inline IndicesType&   contact_segments()       { return contact_segments_; }
+  inline IndicesType&   oxide_segments()         { return oxide_segments_; }
+  inline IndicesType&   semiconductor_segments() { return semiconductor_segments_; }
 
-  numeric_type get_donator(std::size_t segment_index)  { return segment_donators[segment_index]; }
-  numeric_type get_acceptor(std::size_t segment_index) { return segment_acceptors[segment_index]; }
+  inline NumericType& donator (std::size_t segment_index)  { return segment_donators_[segment_index]; }
+  inline NumericType& acceptor(std::size_t segment_index)  { return segment_acceptors_[segment_index]; }
 
 
-  inline domain_type&       get_domain()                { return domain;   }
-  inline segmentation_type& get_segments()              { return segments; }
-  inline storage_type&      get_storage()               { return storage;  }
-  inline segment_type&      get_segment(std::size_t si) { return segments(segment_index_map[si]); }
+  inline MeshType&          mesh()                  { return mesh_;   }
+  inline SegmentationType&  segments()              { return segments_; }
+  inline StorageType&       storage()               { return storage_;  }
+  inline SegmentType&       segment(std::size_t si) { return segments_(segment_index_map_[si]); }
 
   // -----
 private:
-  domain_type       & domain;
-  segmentation_type & segments;
-  storage_type      & storage;
+  MeshType                   & mesh_;
+  SegmentationType           & segments_;
+  StorageType                & storage_;
 
-  indexkeys_type               segment_names;
-  indexkeys_type               segment_materials;
-  indices_type                 contact_segments;
-  indices_type                 oxide_segments;
-  indices_type                 semiconductor_segments;
-  index_values_type            segment_donators;
-  index_values_type            segment_acceptors;
-  index_map_type               segment_index_map;
+  IndexKeysType               segment_names_;
+  IndexKeysType               segment_materials_;
+  IndicesType                 contact_segments_;
+  IndicesType                 oxide_segments_;
+  IndicesType                 semiconductor_segments_;
+  IndexValuesType             segment_donators_;
+  IndexValuesType             segment_acceptors_;
+  IndexMapType                segment_index_map_;
 };
 
 } // viennamini

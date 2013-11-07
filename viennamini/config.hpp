@@ -20,74 +20,70 @@
 
 namespace viennamini {
 
-
-
 struct config
 {
-  typedef double Numeric;
-  typedef int Index;
-  typedef std::vector<Numeric> Values;
-  typedef std::map<std::size_t, Numeric > SegmentValues;
+  typedef double                              NumericType;
+  typedef int                                 IndexType;
+  typedef std::vector<NumericType>            ValuesType;
+  typedef std::map<std::size_t, NumericType>  SegmentValuesType;
+
+  typedef NumericType       numeric_type;
+  typedef IndexType         index_type;
+  typedef ValuesType        values_type;
+  typedef SegmentValuesType segmentvalues_type;
 
   config()
   {
-    local_temperature = 300.0; // K
-    local_nonlinear_iterations = 100;
-    local_nonlinear_breaktol = 1.E-3;
-    local_linear_breaktol = 1.E-14;
-    local_linear_iterations = 1000;
-    local_damping = 1.0;
-    local_initial_guess_smoothing_iterations = 0;
-
-    model_drift_diffusion_state = true; // on by default ..
+    temperature_                         = 300.0; 
+    nonlinear_iterations_                = 100;
+    nonlinear_breaktol_                  = 1.E-3;
+    linear_breaktol_                     = 1.E-14;
+    linear_iterations_                   = 1000;
+    damping_                             = 1.0;
+    initial_guess_smoothing_iterations_  = 0;
+    model_drift_diffusion_state_         = true; 
   }
 
-  Numeric&  temperature()                         { return local_temperature; }
-  Index&    nonlinear_iterations()                { return local_nonlinear_iterations; }
-  Numeric&  nonlinear_breaktol()                  { return local_nonlinear_breaktol; }
-  Index&    linear_iterations()                   { return local_linear_iterations; }
-  Numeric&  linear_breaktol()                     { return local_linear_breaktol; }
-  Numeric&  damping()                             { return local_damping; }
-  Index&    initial_guess_smoothing_iterations()  { return local_initial_guess_smoothing_iterations; }
+  NumericType&  temperature()                         { return temperature_; }
+  IndexType&    nonlinear_iterations()                { return nonlinear_iterations_; }
+  NumericType&  nonlinear_breaktol()                  { return nonlinear_breaktol_; }
+  IndexType&    linear_iterations()                   { return linear_iterations_; }
+  NumericType&  linear_breaktol()                     { return linear_breaktol_; }
+  NumericType&  damping()                             { return damping_; }
+  IndexType&    initial_guess_smoothing_iterations()  { return initial_guess_smoothing_iterations_; }
 
-  void assign_contact(std::size_t segment_index, Numeric value, Numeric workfunction)
+  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction)
   {
-    segment_contact_values[segment_index] = value;
-    segment_contact_workfunctions[segment_index] = workfunction;
+    segment_contact_values_       [segment_index] = value;
+    segment_contact_workfunctions_[segment_index] = workfunction;
   }
 
-  Numeric get_contact_value(std::size_t segment_index)
+  NumericType& contact_value(std::size_t segment_index)
   {
-    return segment_contact_values[segment_index];
+    return segment_contact_values_[segment_index];
   }
 
-  Numeric get_workfunction(std::size_t segment_index)
+  NumericType& workfunction(std::size_t segment_index)
   {
-      return segment_contact_workfunctions[segment_index];
+      return segment_contact_workfunctions_[segment_index];
   }
 
-  void enable_drift_diffusion(bool state = true)
+  bool& drift_diffusion_state()
   {
-    model_drift_diffusion_state = state;
+    return model_drift_diffusion_state_;
   }
-
-  bool has_drift_diffusion() { return model_drift_diffusion_state; }
 
 private:
-  Numeric local_temperature;
-
-  Index       local_nonlinear_iterations;
-  Numeric     local_nonlinear_breaktol;
-  Index       local_linear_iterations;
-  Numeric     local_linear_breaktol;
-  Numeric     local_damping;
-
-  Index       local_initial_guess_smoothing_iterations;
-
-  SegmentValues segment_contact_values;
-  SegmentValues segment_contact_workfunctions;
-
-  bool        model_drift_diffusion_state;
+  IndexType         nonlinear_iterations_;
+  IndexType         linear_iterations_;
+  IndexType         initial_guess_smoothing_iterations_;
+  NumericType       temperature_;
+  NumericType       nonlinear_breaktol_;
+  NumericType       linear_breaktol_;
+  NumericType       damping_;
+  SegmentValuesType segment_contact_values_;
+  SegmentValuesType segment_contact_workfunctions_;
+  bool              model_drift_diffusion_state_;
 };
 
 

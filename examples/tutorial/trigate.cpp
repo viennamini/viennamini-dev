@@ -28,9 +28,6 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
-#include "viennagrid/io/vtk_writer.hpp"
-#include "viennagrid/algorithm/scale.hpp"
-
 const int source          = 0;
 const int channel         = 1;
 const int drain           = 2;
@@ -43,8 +40,8 @@ const int drain_contact   = 8;
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename DomainT, typename SegmentationT, typename StorageT>
-void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
+template<typename MeshT, typename SegmentationT, typename StorageT>
+void prepare(viennamini::device<MeshT, SegmentationT, StorageT>& device)
 {
   // Source
   device.assign_name          (source, "source");
@@ -111,43 +108,34 @@ void prepare_boundary_conditions(viennamini::config& config)
 
 int main(int argc, char* argv[])
 {
-  if(argc != 2)
-  {
-      std::cerr << "Missing parameters - Usage: " << argv[0] << " path/to/trigate.mesh" << std::endl;
-      return -1;
-  }
-#ifdef VIENNACL_WITH_OPENMP
-  viennafvm::print_platform_devices();
-#endif
-
   typedef double                                                       NumericType;
-  typedef viennagrid::domain_t< viennagrid::config::tetrahedral_3d >   DomainType;
-  typedef viennagrid::result_of::segmentation<DomainType>::type        SegmentationType;
-  typedef SegmentationType::segment_type                               SegmentType;
+  typedef viennagrid::mesh< viennagrid::config::triangular_2d >        MeshType;
+  typedef viennagrid::result_of::segmentation<MeshType>::type          SegmentationType;
+  typedef SegmentationType::segment_handle_type                        SegmentType;
   typedef viennadata::storage<>                                        StorageType;
 
   //
   // Create a domain from file
   //
-  DomainType         domain;
-  SegmentationType   segments(domain);
+  MeshType           mesh;
+  SegmentationType   segments(mesh);
   StorageType        storage;
 
   try
   {
-  viennagrid::io::netgen_reader my_reader;
-  my_reader(domain, segments, argv[1]);
+    viennagrid::io::netgen_reader my_reader;
+    my_reader(mesh, segments, "../examples/data/mosfet.mesh");
   }
   catch (...)
   {
-  std::cerr << "File-Reader failed. Aborting program..." << std::endl;
-  return EXIT_FAILURE;
+    std::cerr << "File-Reader failed. Aborting program..." << std::endl;
+    return EXIT_FAILURE;
   }
 
   //
   // scale to nanometer
   //
-  viennagrid::scale(domain, 1e-9);
+  viennagrid::scale(mesh, 1e-9);
 
   //
   // Prepare material library
@@ -159,8 +147,8 @@ int main(int argc, char* argv[])
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<DomainType, SegmentationType, StorageType>   DeviceType;
-  DeviceType device(domain, segments, storage);
+  typedef viennamini::device<MeshType, SegmentationType, StorageType>   DeviceType;
+  DeviceType device(mesh, segments, storage);
   viennamini::config config;
 
   //
@@ -201,7 +189,7 @@ int main(int argc, char* argv[])
 
 
   std::cout << "********************************************" << std::endl;
-  std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
+  std::cout << "* TRIGATE simulation finished successfully! *" << std::endl;
   std::cout << "********************************************" << std::endl;
   return EXIT_SUCCESS;
 }
