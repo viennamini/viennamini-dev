@@ -115,14 +115,14 @@ namespace viennamini
     // Operator< is required for compatibility with std::map
     bool operator<(hole_key const & ) const { return false; }
   };
-  
-  
+
+
   template<typename DeviceT, typename MatlibT>
   class simulator;
-  
+
   template<typename MeshT, typename SegmentationT, typename StorageT>
   class device;
-  
+
   typedef ::viennadata::storage<>                                                                   StorageType;
   typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MatLibPugixmlType;
 
@@ -137,7 +137,7 @@ namespace viennamini
 
   typedef ::viennamini::simulator<DeviceTriangular2DType,  MatLibPugixmlType>                       SimulatorTriangular2DType;
   typedef ::viennamini::simulator<DeviceTetrahedral3DType,  MatLibPugixmlType>                      SimulatorTetrahedral3DType;
-  
+
 } // viennamini
 
 #endif

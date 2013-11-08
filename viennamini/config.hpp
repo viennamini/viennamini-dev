@@ -34,14 +34,14 @@ struct config
 
   config()
   {
-    temperature_                         = 300.0; 
+    temperature_                         = 300.0;
     nonlinear_iterations_                = 100;
     nonlinear_breaktol_                  = 1.E-3;
     linear_breaktol_                     = 1.E-14;
     linear_iterations_                   = 1000;
     damping_                             = 1.0;
     initial_guess_smoothing_iterations_  = 0;
-    model_drift_diffusion_state_         = true; 
+    model_drift_diffusion_state_         = true;
   }
 
   NumericType&  temperature()                         { return temperature_; }

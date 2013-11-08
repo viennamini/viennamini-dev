@@ -212,7 +212,7 @@ void simulator<DeviceT, MatlibT>::prepare()
 //                            << " :: contact potential: " << config.get_contact_value(*iter) <<
 //                               " workfunction: " << config.get_workfunction(*iter) << std::endl;
 
-      // a contact segment needs the permittivity as well. we use the 
+      // a contact segment needs the permittivity as well. we use the
       // permittivity from the adjacent segment
       //
       viennafvm::set_quantity_region(device_.segment(*iter), storage, eps_key_, true);
@@ -241,7 +241,7 @@ void simulator<DeviceT, MatlibT>::prepare()
       NumericType NA_value = device_.acceptor(adjacent_semiconductor_segment);
       NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
 
-      // a contact segment needs the permittivity as well. we use the 
+      // a contact segment needs the permittivity as well. we use the
       // permittivity from the adjacent segment
       //
       viennafvm::set_quantity_region(device_.segment(*iter), storage, eps_key_, true);
@@ -458,19 +458,19 @@ void simulator<DeviceT, MatlibT>::run()
 template <typename DeviceT, typename MatlibT>
 typename simulator<DeviceT, MatlibT>::FunctionSymbolType simulator<DeviceT, MatlibT>::quantity_potential() const
 {
-  return FunctionSymbolType(0); 
+  return FunctionSymbolType(0);
 }
 
 template <typename DeviceT, typename MatlibT>
 typename simulator<DeviceT, MatlibT>::FunctionSymbolType simulator<DeviceT, MatlibT>::quantity_electron_density() const
 {
-  return FunctionSymbolType(1); 
+  return FunctionSymbolType(1);
 }
 
 template <typename DeviceT, typename MatlibT>
 typename simulator<DeviceT, MatlibT>::FunctionSymbolType simulator<DeviceT, MatlibT>::quantity_hole_density() const
 {
-  return FunctionSymbolType(2); 
+  return FunctionSymbolType(2);
 }
 
 template <typename DeviceT, typename MatlibT>

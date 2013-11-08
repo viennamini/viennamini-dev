@@ -174,9 +174,9 @@ namespace viennamini
         void run();
 
     public:
-        FunctionSymbolType quantity_potential()        const; 
-        FunctionSymbolType quantity_electron_density() const; 
-        FunctionSymbolType quantity_hole_density()     const; 
+        FunctionSymbolType quantity_potential()        const;
+        FunctionSymbolType quantity_electron_density() const;
+        FunctionSymbolType quantity_hole_density()     const;
 
         VectorType const& result();
 
