@@ -22,11 +22,11 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
-const int left_contact    = 0;
-const int left_n          = 1;
-const int intrinsic       = 2;
-const int right_n         = 3;
-const int right_contact   = 4;
+const int left_contact    = 1;
+const int left_n          = 2;
+const int intrinsic       = 3;
+const int right_n         = 4;
+const int right_contact   = 5;
 
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.

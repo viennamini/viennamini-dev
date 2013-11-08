@@ -47,14 +47,7 @@ struct device
   device(MeshType& mesh, SegmentationType& segments, StorageType& storage)
     : mesh_(mesh), segments_(segments), storage_(storage)
   {
-    std::size_t global_id = 0;
-    for(typename SegmentationType::iterator sit = segments_.begin();
-        sit != segments_.end(); sit++)
-    {
-      segment_index_map_[global_id++] = (*sit).id();
-    }
   }
-
   /**
       @brief Stores a name string for a given segment index
   */
@@ -121,7 +114,7 @@ struct device
   inline MeshType&          mesh()                  { return mesh_;   }
   inline SegmentationType&  segments()              { return segments_; }
   inline StorageType&       storage()               { return storage_;  }
-  inline SegmentType&       segment(std::size_t si) { return segments_(segment_index_map_[si]); }
+  inline SegmentType&       segment(std::size_t si) { return segments_(si); }
 
   // -----
 private:
@@ -136,7 +129,6 @@ private:
   IndicesType                 semiconductor_segments_;
   IndexValuesType             segment_donators_;
   IndexValuesType             segment_acceptors_;
-  IndexMapType                segment_index_map_;
 };
 
 } // viennamini

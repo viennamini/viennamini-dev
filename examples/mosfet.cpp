@@ -22,14 +22,14 @@
 #include "viennamaterials/kernels/pugixml.hpp"
 
 
-const int gate_contact    = 0;
-const int source_contact  = 1;
-const int oxide           = 2;
-const int drain_contact   = 3;
-const int source          = 4;
-const int drain           = 5;
-const int body            = 6;
-const int body_contact    = 7;
+const int gate_contact    = 1;
+const int source_contact  = 2;
+const int oxide           = 3;
+const int drain_contact   = 4;
+const int source          = 5;
+const int drain           = 6;
+const int body            = 7;
+const int body_contact    = 8;
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
