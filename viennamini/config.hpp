@@ -32,46 +32,44 @@ struct config
   typedef ValuesType        values_type;
   typedef SegmentValuesType segmentvalues_type;
 
-  config()
-  {
-    temperature_                         = 300.0;
-    nonlinear_iterations_                = 100;
-    nonlinear_breaktol_                  = 1.E-3;
-    linear_breaktol_                     = 1.E-14;
-    linear_iterations_                   = 1000;
-    damping_                             = 1.0;
-    initial_guess_smoothing_iterations_  = 0;
-    model_drift_diffusion_state_         = true;
-  }
+  config();
 
-  NumericType&  temperature()                         { return temperature_; }
-  IndexType&    nonlinear_iterations()                { return nonlinear_iterations_; }
-  NumericType&  nonlinear_breaktol()                  { return nonlinear_breaktol_; }
-  IndexType&    linear_iterations()                   { return linear_iterations_; }
-  NumericType&  linear_breaktol()                     { return linear_breaktol_; }
-  NumericType&  damping()                             { return damping_; }
-  IndexType&    initial_guess_smoothing_iterations()  { return initial_guess_smoothing_iterations_; }
+  NumericType&  temperature();
+  IndexType&    nonlinear_iterations();
+  NumericType&  nonlinear_breaktol();
+  IndexType&    linear_iterations();
+  NumericType&  linear_breaktol();
+  NumericType&  damping();
+  IndexType&    initial_guess_smoothing_iterations();
 
-  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction)
-  {
-    segment_contact_values_       [segment_index] = value;
-    segment_contact_workfunctions_[segment_index] = workfunction;
-  }
+//  NumericType&  temperature()                         { return temperature_; }
+//  IndexType&    nonlinear_iterations()                { return nonlinear_iterations_; }
+//  NumericType&  nonlinear_breaktol()                  { return nonlinear_breaktol_; }
+//  IndexType&    linear_iterations()                   { return linear_iterations_; }
+//  NumericType&  linear_breaktol()                     { return linear_breaktol_; }
+//  NumericType&  damping()                             { return damping_; }
+//  IndexType&    initial_guess_smoothing_iterations()  { return initial_guess_smoothing_iterations_; }
 
-  NumericType& contact_value(std::size_t segment_index)
-  {
-    return segment_contact_values_[segment_index];
-  }
+  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction);
+//  {
+//    segment_contact_values_       [segment_index] = value;
+//    segment_contact_workfunctions_[segment_index] = workfunction;
+//  }
 
-  NumericType& workfunction(std::size_t segment_index)
-  {
-      return segment_contact_workfunctions_[segment_index];
-  }
+  NumericType& contact_value(std::size_t segment_index);
+//  {
+//    return segment_contact_values_[segment_index];
+//  }
 
-  bool& drift_diffusion_state()
-  {
-    return model_drift_diffusion_state_;
-  }
+  NumericType& workfunction(std::size_t segment_index);
+//  {
+//      return segment_contact_workfunctions_[segment_index];
+//  }
+
+  bool& drift_diffusion_state();
+//  {
+//    return model_drift_diffusion_state_;
+//  }
 
 private:
   IndexType         nonlinear_iterations_;
