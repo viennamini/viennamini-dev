@@ -18,7 +18,16 @@
 /** Forward declarations */
 
 
-#include "viennamini/device.hpp"
+//#include "viennamini/device.hpp"
+
+// ViennaData includes:
+#include "viennadata/api.hpp"
+
+#include "viennagrid/forwards.hpp"
+
+// ViennaMaterials includes:
+#include "viennamaterials/library.hpp"
+#include "viennamaterials/kernels/pugixml.hpp"
 
 namespace viennamini
 {
@@ -111,6 +120,8 @@ namespace viennamini
   template<typename DeviceT, typename MatlibT>
   class simulator;
   
+  template<typename MeshT, typename SegmentationT, typename StorageT>
+  class device;
   
   typedef ::viennadata::storage<>                                                                   StorageType;
   typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MatLibPugixmlType;

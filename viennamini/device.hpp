@@ -19,6 +19,8 @@
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/config/default_configs.hpp"
 
+#include "viennamini/fwd.h"
+
 namespace viennamini {
 
 template<typename MeshT, typename SegmentationT, typename StorageT>
@@ -44,77 +46,89 @@ struct device
   typedef IndexMapType          indexmap_type;
   typedef SegmentType           segment_type;
 
-  device(MeshType& mesh, SegmentationType& segments, StorageType& storage)
-    : mesh_(mesh), segments_(segments), storage_(storage)
-  {
-  }
+  device(MeshT& mesh, SegmentationT& segments, StorageT& storage);
+
   /**
       @brief Stores a name string for a given segment index
   */
-  void assign_name(std::size_t segment_index, std::string const& name)
-  {
-    segment_names_[segment_index] = name;
-  }
+  void assign_name(std::size_t segment_index, std::string const& name);
+//  {
+//    segment_names_[segment_index] = name;
+//  }
 
   /**
       @brief Stores a material ID string for a given segment index
   */
-  void assign_material(std::size_t segment_index, std::string const& material_id)
-  {
-    segment_materials_[segment_index] = material_id;
-  }
+  void assign_material(std::size_t segment_index, std::string const& material_id);
+//  {
+//    segment_materials_[segment_index] = material_id;
+//  }
 
   /**
       @brief Identifies the segment to be a contact
   */
-  void assign_contact(std::size_t segment_index)
-  {
-  #ifdef VIENNAMINI_DEBUG
-    std::cout << "* assign_contact(): segment " << segment_index << std::endl;
-  #endif
-    contact_segments_.push_back(segment_index);
-  }
+  void assign_contact(std::size_t segment_index);
+//  {
+//  #ifdef VIENNAMINI_DEBUG
+//    std::cout << "* assign_contact(): segment " << segment_index << std::endl;
+//  #endif
+//    contact_segments_.push_back(segment_index);
+//  }
 
   /**
       @brief Identifies the segment to be a oxide
   */
-  void assign_oxide(std::size_t segment_index)
-  {
-  #ifdef VIENNAMINI_DEBUG
-    std::cout << "* assign_oxide(): segment " << segment_index << std::endl;
-  #endif
-    oxide_segments_.push_back(segment_index);
-  }
+  void assign_oxide(std::size_t segment_index);
+//  {
+//  #ifdef VIENNAMINI_DEBUG
+//    std::cout << "* assign_oxide(): segment " << segment_index << std::endl;
+//  #endif
+//    oxide_segments_.push_back(segment_index);
+//  }
 
   /**
       @brief Identifies the segment to be a semiconductor
   */
-  template<typename NumericT>
-  void assign_semiconductor(std::size_t segment_index, NumericT const& ND, NumericT const& NA)
-  {
-  #ifdef VIENNAMINI_DEBUG
-    std::cout << "* assign_semiconductor(): segment " << segment_index << std::endl;
-  #endif
-    semiconductor_segments_.push_back(segment_index);
+  void assign_semiconductor(std::size_t segment_index, NumericType const& ND, NumericType const& NA);
+//  {
+//  #ifdef VIENNAMINI_DEBUG
+//    std::cout << "* assign_semiconductor(): segment " << segment_index << std::endl;
+//  #endif
+//    semiconductor_segments_.push_back(segment_index);
 
-    segment_donators_[segment_index] = ND;
-    segment_acceptors_[segment_index] = NA;
-  }
+//    segment_donators_[segment_index] = ND;
+//    segment_acceptors_[segment_index] = NA;
+//  }
 
-  inline IndexKeysType& segment_names()          { return segment_names_; }
-  inline IndexKeysType& segment_materials()      { return segment_materials_; }
-  inline IndicesType&   contact_segments()       { return contact_segments_; }
-  inline IndicesType&   oxide_segments()         { return oxide_segments_; }
-  inline IndicesType&   semiconductor_segments() { return semiconductor_segments_; }
+IndexKeysType& segment_names();
+IndexKeysType& segment_materials();
+IndicesType&   contact_segments();
+IndicesType&   oxide_segments();
+IndicesType&   semiconductor_segments();
 
-  inline NumericType& donator (std::size_t segment_index)  { return segment_donators_[segment_index]; }
-  inline NumericType& acceptor(std::size_t segment_index)  { return segment_acceptors_[segment_index]; }
+NumericType& donator (std::size_t segment_index);
+NumericType& acceptor(std::size_t segment_index);
 
 
-  inline MeshType&          mesh()                  { return mesh_;   }
-  inline SegmentationType&  segments()              { return segments_; }
-  inline StorageType&       storage()               { return storage_;  }
-  inline SegmentType&       segment(std::size_t si) { return segments_(si); }
+MeshType&          mesh();
+SegmentationType&  segments();
+StorageType&       storage();
+SegmentType&       segment(std::size_t si);
+
+//  inline IndexKeysType& segment_names()          { return segment_names_; }
+//  inline IndexKeysType& segment_materials()      { return segment_materials_; }
+//  inline IndicesType&   contact_segments()       { return contact_segments_; }
+//  inline IndicesType&   oxide_segments()         { return oxide_segments_; }
+//  inline IndicesType&   semiconductor_segments() { return semiconductor_segments_; }
+
+//  inline NumericType& donator (std::size_t segment_index)  { return segment_donators_[segment_index]; }
+//  inline NumericType& acceptor(std::size_t segment_index)  { return segment_acceptors_[segment_index]; }
+
+
+//  inline MeshType&          mesh()                  { return mesh_;   }
+//  inline SegmentationType&  segments()              { return segments_; }
+//  inline StorageType&       storage()               { return storage_;  }
+//  inline SegmentType&       segment(std::size_t si) { return segments_(si); }
 
   // -----
 private:
