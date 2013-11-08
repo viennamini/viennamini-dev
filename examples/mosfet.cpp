@@ -118,7 +118,7 @@ int main()
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(mesh, segments, "../examples/data/mosfet.mesh");
+    my_reader(mesh, segments, "../external/ViennaDeviceCollection/mosfet2d/mosfet2d.mesh");
   }
   catch (...)
   {
