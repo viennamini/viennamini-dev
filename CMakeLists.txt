@@ -55,6 +55,11 @@ IF(ENABLE_OPENMP)
   ENDIF(OPENMP_FOUND)
 ENDIF(ENABLE_OPENMP)
 
+# build the ViennaMini library
+AUX_SOURCE_DIRECTORY(src/ LIBSOURCES) 
+ADD_LIBRARY(viennamini STATIC ${LIBSOURCES})
+SET(LIBRARIES ${LIBRARIES} viennamini)
+
 #list all source files here
 ADD_EXECUTABLE(mosfet     examples/tutorial/mosfet.cpp)
 TARGET_LINK_LIBRARIES(mosfet ${LIBRARIES})
@@ -70,3 +75,6 @@ TARGET_LINK_LIBRARIES(nin2d ${LIBRARIES})
 file( GLOB_RECURSE QtCreatorCompatibility_SRC
     viennamini/*.hpp viennamini/*.h)
 add_custom_target( QtCreatorCompatibility SOURCES ${QtCreatorCompatibility_SRC} )
+
+
+

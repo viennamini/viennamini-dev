@@ -18,6 +18,8 @@
 /** Forward declarations */
 
 
+#include "viennamini/device.hpp"
+
 namespace viennamini
 {
 
@@ -104,6 +106,22 @@ namespace viennamini
     // Operator< is required for compatibility with std::map
     bool operator<(hole_key const & ) const { return false; }
   };
-}
+  
+typedef viennadata::storage<>                                                                 StorageType;
+typedef vmat::Library<vmat::tag::pugixml>::type                                               MatLibPugixmlType;
+
+typedef viennagrid::mesh< viennagrid::config::triangular_2d >                                 MeshTriangular2DType;
+typedef viennagrid::mesh< viennagrid::config::triangular_3d >                                 MeshTriangular3DType;
+typedef viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                MeshTetrahedral3DType;
+
+typedef viennagrid::result_of::segmentation<MeshTriangular2DType>::type                       SegmentationTriangular2DType;
+typedef viennagrid::result_of::segmentation<MeshTriangular3DType>::type                       SegmentationTriangular3DType;
+typedef viennagrid::result_of::segmentation<MeshTetrahedral3DType>::type                      SegmentationTetrahedral3DType;
+
+typedef viennamini::device<MeshTriangular2DType,  SegmentationTriangular2DType,  StorageType>   DeviceTriangular2DType;
+typedef viennamini::device<MeshTriangular3DType,  SegmentationTriangular3DType,  StorageType>   DeviceTriangular3DType;
+typedef viennamini::device<MeshTetrahedral3DType, SegmentationTetrahedral3DType, StorageType>   DeviceTetrahedral3DType;
+  
+} // viennamini
 
 #endif
