@@ -11,13 +11,6 @@
    license:    To be discussed, see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-//#define VIENNAFVM_DEBUG
-
-// Define NDEBUG to get any reasonable performance with ublas:
-#define NDEBUG
-
-#define VIENNAMINI_DEBUG
-
 // include necessary system headers
 #include <iostream>
 
@@ -102,18 +95,12 @@ void prepare_boundary_conditions(viennamini::config& config)
 
 int main()
 {
-  typedef double                                                       NumericType;
-  typedef viennagrid::mesh< viennagrid::config::triangular_2d >        MeshType;
-  typedef viennagrid::result_of::segmentation<MeshType>::type          SegmentationType;
-  typedef SegmentationType::segment_handle_type                        SegmentType;
-  typedef viennadata::storage<>                                        StorageType;
-
   //
   // Create a domain from file
   //
-  MeshType           mesh;
-  SegmentationType   segments(mesh);
-  StorageType        storage;
+  viennamini::MeshTriangular2DType           mesh;
+  viennamini::SegmentationTriangular2DType   segments(mesh);
+  viennamini::StorageType                    storage;
 
   try
   {
@@ -134,15 +121,13 @@ int main()
   //
   // Prepare material library
   //
-  typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibraryType;
-  MaterialLibraryType matlib;
+  viennamini::MatLibPugixmlType matlib;
   matlib.load("../external/ViennaMaterials/database/materials.xml");
 
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<MeshType, SegmentationType, StorageType>   DeviceType;
-  DeviceType device(mesh, segments, storage);
+  viennamini::DeviceTriangular2DType device(mesh, segments, storage);
   viennamini::config config;
 
   //
@@ -170,16 +155,15 @@ int main()
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<DeviceType, MaterialLibraryType>     SimulatorType;
-  SimulatorType simulator(device, matlib, config);
+  viennamini::SimulatorTriangular2DType sim(device, matlib, config);
 
   //
   // Run the simulation
   //
-  simulator();
+  sim();
 
   // Write results to vtk files
-  simulator.write_result("mosfet");
+  sim.write_result("mosfet");
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;

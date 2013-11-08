@@ -24,9 +24,9 @@
 #endif
 
 // ViennaFVM includes:
-#ifdef VIENNAMINI_DEBUG
-  #define VIENNAFVM_VERBOSE
-#endif
+
+#define VIENNAFVM_VERBOSE
+
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"

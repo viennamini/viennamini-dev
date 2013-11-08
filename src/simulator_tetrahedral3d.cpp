@@ -20,7 +20,7 @@ namespace viennamini
 {
 
 // Explicit instantiation
-template class simulator<DeviceTetrahedral3DType, MatLibPugixmlType>;
+template class ::viennamini::simulator<DeviceTetrahedral3DType,  MatLibPugixmlType>;
 
 } // viennamini
 

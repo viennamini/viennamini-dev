@@ -57,7 +57,7 @@ ENDIF(ENABLE_OPENMP)
 
 # build the ViennaMini library
 AUX_SOURCE_DIRECTORY(src/ LIBSOURCES) 
-ADD_LIBRARY(viennamini STATIC ${LIBSOURCES})
+ADD_LIBRARY(viennamini SHARED ${LIBSOURCES})
 SET(LIBRARIES ${LIBRARIES} viennamini)
 
 #list all source files here

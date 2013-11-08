@@ -11,13 +11,6 @@
    license:    To be discussed, see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-//#define VIENNAFVM_DEBUG
-
-// Define NDEBUG to get any reasonable performance with ublas:
-#define NDEBUG
-
-#define VIENNAMINI_DEBUG
-
 // include necessary system headers
 #include <iostream>
 
@@ -108,18 +101,12 @@ void prepare_boundary_conditions(viennamini::config& config)
 
 int main(int argc, char* argv[])
 {
-  typedef double                                                       NumericType;
-  typedef viennagrid::mesh< viennagrid::config::tetrahedral_3d >        MeshType;
-  typedef viennagrid::result_of::segmentation<MeshType>::type          SegmentationType;
-  typedef SegmentationType::segment_handle_type                        SegmentType;
-  typedef viennadata::storage<>                                        StorageType;
-
   //
   // Create a domain from file
   //
-  MeshType           mesh;
-  SegmentationType   segments(mesh);
-  StorageType        storage;
+  viennamini::MeshTetrahedral3DType           mesh;
+  viennamini::SegmentationTetrahedral3DType   segments(mesh);
+  viennamini::StorageType                     storage;
 
   try
   {
@@ -140,15 +127,13 @@ int main(int argc, char* argv[])
   //
   // Prepare material library
   //
-  typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibraryType;
-  MaterialLibraryType matlib;
+  viennamini::MatLibPugixmlType matlib;
   matlib.load("../external/ViennaMaterials/database/materials.xml");
 
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<MeshType, SegmentationType, StorageType>   DeviceType;
-  DeviceType device(mesh, segments, storage);
+  viennamini::DeviceTetrahedral3DType device(mesh, segments, storage);
   viennamini::config config;
 
   //
@@ -176,16 +161,15 @@ int main(int argc, char* argv[])
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<DeviceType, MaterialLibraryType>     SimulatorType;
-  SimulatorType simulator(device, matlib, config);
+  viennamini::SimulatorTetrahedral3DType sim(device, matlib, config);
 
   //
   // Run the simulation
   //
-  simulator();
+  sim();
 
   // Write results to vtk files
-  simulator.write_result("trigate");
+  sim.write_result("trigate");
 
 
   std::cout << "********************************************" << std::endl;

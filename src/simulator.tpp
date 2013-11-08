@@ -23,6 +23,11 @@ template <typename DeviceT, typename MatlibT>
 simulator<DeviceT, MatlibT>::simulator(DeviceT& device, MatlibT& matlib, viennamini::config& config) :
           device_(device), matlib_(matlib), config_(config), notfound_(-1)
 {
+  eps_.wrap_constant ( device_.storage(), eps_key_  );
+  mu_n_.wrap_constant( device_.storage(), mu_n_key_ );
+  mu_p_.wrap_constant( device_.storage(), mu_p_key_ );
+  ND_.wrap_constant  ( device_.storage(), ND_key_   );
+  NA_.wrap_constant  ( device_.storage(), NA_key_   );
 }
 
 template <typename DeviceT, typename MatlibT>
