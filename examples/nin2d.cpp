@@ -18,6 +18,7 @@
 // ViennaMini main include:
 #include "viennamini/simulator.hpp"
 #include "viennamini/io.hpp"
+#include "viennamini/scale.hpp"
 
 // Vienna Includes
 #include "viennamaterials/library.hpp"
@@ -78,6 +79,7 @@ int main()
 
   viennamini::io::read_vtk(mydevice, "../external/ViennaDeviceCollection/nin2d/nin2d.mesh", viennagrid::config::triangular_2d());
 
+  viennamini::scale(mydevice, 1.0E-9);
 
 //  //
 //  // Create a domain from file
