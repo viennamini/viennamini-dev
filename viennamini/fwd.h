@@ -24,6 +24,7 @@
 #include "viennadata/api.hpp"
 
 #include "viennagrid/forwards.hpp"
+#include "viennagrid/config/default_configs.hpp"
 
 // ViennaMaterials includes:
 #include "viennamaterials/library.hpp"
@@ -117,11 +118,6 @@ namespace viennamini
   };
 
 
-  template<typename DeviceT, typename MatlibT>
-  class simulator;
-
-  template<typename MeshT, typename SegmentationT, typename StorageT>
-  class device;
 
   typedef ::viennadata::storage<>                                                                   StorageType;
   typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MatLibPugixmlType;
@@ -132,11 +128,21 @@ namespace viennamini
   typedef ::viennagrid::result_of::segmentation<MeshTriangular2DType>::type                         SegmentationTriangular2DType;
   typedef ::viennagrid::result_of::segmentation<MeshTetrahedral3DType>::type                        SegmentationTetrahedral3DType;
 
-  typedef ::viennamini::device<MeshTriangular2DType,  SegmentationTriangular2DType,  StorageType>   DeviceTriangular2DType;
-  typedef ::viennamini::device<MeshTetrahedral3DType, SegmentationTetrahedral3DType, StorageType>   DeviceTetrahedral3DType;
+//  template<typename DeviceT, typename MatlibT>
+//  class simulator;
 
-  typedef ::viennamini::simulator<DeviceTriangular2DType,  MatLibPugixmlType>                       SimulatorTriangular2DType;
-  typedef ::viennamini::simulator<DeviceTetrahedral3DType,  MatLibPugixmlType>                      SimulatorTetrahedral3DType;
+//  template<typename MeshT, typename SegmentationT, typename StorageT>
+//  class device;
+
+//  typedef ::viennamini::device<MeshTriangular2DType,  SegmentationTriangular2DType,  StorageType>   DeviceTriangular2DType;
+//  typedef ::viennamini::device<MeshTetrahedral3DType, SegmentationTetrahedral3DType, StorageType>   DeviceTetrahedral3DType;
+
+//  typedef ::viennamini::simulator<DeviceTriangular2DType,  MatLibPugixmlType>                       SimulatorTriangular2DType;
+//  typedef ::viennamini::simulator<DeviceTetrahedral3DType,  MatLibPugixmlType>                      SimulatorTetrahedral3DType;
+
+  class null_mesh {};  
+  class null_segmentation {};
+  class device;
 
 } // viennamini
 

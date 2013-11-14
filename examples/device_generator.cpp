@@ -16,18 +16,35 @@
 // include necessary system headers
 #include <iostream>
 
-#include "viennamini/device_template.hpp"
 #include "viennamini/device_template_capacitor2d.hpp"
-
+#include "viennamini/io.hpp"
 
 int main()
 {
-  viennamini::device_template* device = new viennamini::capacitor2d;
+  viennamini::StorageType storage;
+  viennamini::device_template* device_generator = new viennamini::capacitor2d(storage);
 
-  device->generate();
+  device_generator->generate();
   
+  viennamini::device & device = device_generator->device();
   
-  delete device;  
+  viennamini::io::write_vtk(device, "output");
+  
+//  mydevice = device_generator->generate();
+
+//  viennamini::config config;
+//  config.temperature()                        = 300;
+//  config.damping()                            = 1.0;
+//  config.linear_breaktol()                    = 1.0E-13;
+//  config.linear_iterations()                  = 700;
+//  config.nonlinear_iterations()               = 100;
+//  config.nonlinear_breaktol()                 = 1.0E-3;
+//  config.initial_guess_smoothing_iterations() = 4;
+
+//  viennamini::SimulatorTriangular2DType sim(device, matlib, config);
+//  sim();    
+  
+  delete device_generator;  
   return 0;
 }
 
