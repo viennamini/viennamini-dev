@@ -20,6 +20,8 @@
 
 //#include "viennamini/device.hpp"
 
+#include <iostream>
+
 // ViennaData includes:
 #include "viennadata/api.hpp"
 

@@ -12,23 +12,10 @@
 ======================================================================= */
 
 
-// include necessary system headers
-#include <iostream>
-
-// ViennaMini main include:
+// ViennaMini includes
 #include "viennamini/simulator.hpp"
-#include "viennamini/io.hpp"
 #include "viennamini/scale.hpp"
-
-// Vienna Includes
-#include "viennamaterials/library.hpp"
-#include "viennamaterials/kernels/pugixml.hpp"
-
-const int left_contact     = 1;
-const int left             = 2;
-const int intrinsic        = 3;
-const int right            = 4;
-const int right_contact    = 5;
+#include "viennamini/io.hpp"
 
 
 int main()
@@ -43,6 +30,12 @@ int main()
   viennamini::scale(mydevice, 1.0E-9);
 
   // identify segments
+  const int left_contact     = 1;
+  const int left             = 2;
+  const int intrinsic        = 3;
+  const int right            = 4;
+  const int right_contact    = 5;
+
   mydevice.make_contact(left_contact);
   mydevice.name(left_contact)     = "left_contact";
   mydevice.material(left_contact) = "Cu";
