@@ -19,13 +19,11 @@
 namespace viennamini
 {
 
-template<typename MatlibT>
-simulator<MatlibT>::simulator(MatlibT& matlib) : matlib_(matlib) 
+simulator::simulator(viennamini::material_library& matlib) : matlib_(matlib) 
 {
 }
 
-template<typename MatlibT>
-void simulator<MatlibT>::operator()(viennamini::device& device, viennamini::config& config)
+void simulator::operator()(viennamini::device& device, viennamini::config& config)
 {
   
 }

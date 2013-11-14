@@ -61,6 +61,8 @@ public:
   void make_oxide(int id);
   void make_semiconductor(int id);
   
+  NumericType& contact_potential(int id);
+  NumericType& workfunction(int id);
   NumericType& NA_max(int id);
   NumericType& ND_max(int id);
 

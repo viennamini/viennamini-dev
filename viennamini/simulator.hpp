@@ -64,14 +64,15 @@
 
 namespace viennamini
 {
-  template<typename MatlibT>
   class simulator
   {
-    simulator(MatlibT& matlib);
+  public:
+    simulator(viennamini::material_library& matlib);
 
     void operator()(viennamini::device& device, viennamini::config& config);
-
-    MatlibT& matlib_;
+  
+  private:
+    viennamini::material_library& matlib_;
   };
 }
 

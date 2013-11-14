@@ -76,6 +76,16 @@ void device::make_semiconductor(int id)
   mesh_parameters_[id].is_semiconductor() = true;
 }
 
+device::NumericType& device::contact_potential(int id)
+{
+  return mesh_parameters_[id].contact_potential();
+}
+
+device::NumericType& device::workfunction(int id)
+{
+  return mesh_parameters_[id].workfunction();
+}
+
 device::NumericType& device::NA_max(int id)
 {
   return mesh_parameters_[id].NA_max();

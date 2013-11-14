@@ -120,7 +120,7 @@ namespace viennamini
 
 
   typedef ::viennadata::storage<>                                                                   StorageType;
-  typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MatLibPugixmlType;
+  typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MaterialLibraryType;
 
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                   MeshTriangular2DType;
   typedef ::viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                  MeshTetrahedral3DType;
@@ -130,7 +130,7 @@ namespace viennamini
 
   // class-like typedefs
   typedef StorageType           storage;
-  typedef MatLibPugixmlType     material_library_pugixml;
+  typedef MaterialLibraryType   material_library;
   
 
 //  template<typename DeviceT, typename MatlibT>

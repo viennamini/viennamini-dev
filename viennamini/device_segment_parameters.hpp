@@ -45,10 +45,10 @@ public:
   inline bool& is_oxide()             { return is_oxide_; }
   inline bool& is_semiconductor()     { return is_semiconductor_; }
 
-  inline numeric_type& contact()      { return contact_; }
-  inline numeric_type& workfunction() { return workfunction_; }
-  inline numeric_type& NA_max()       { return NA_max_; }
-  inline numeric_type& ND_max()       { return ND_max_; }  
+  inline numeric_type& contact_potential()  { return contact_; }
+  inline numeric_type& workfunction()       { return workfunction_; }
+  inline numeric_type& NA_max()             { return NA_max_; }
+  inline numeric_type& ND_max()             { return ND_max_; }  
 
 private:
   std::string name_;
