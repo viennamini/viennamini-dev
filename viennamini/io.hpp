@@ -52,6 +52,39 @@ void write_vtk(viennamini::device& device, std::string const& filename)
   }
 }
 
+
+void read_vtk(viennamini::device& device, std::string const& filename, viennagrid::config::triangular_2d const&)
+{
+  device.make_triangular2d();
+  viennamini::SegmentationTriangular2DType & segmentation = boost::get<viennamini::SegmentationTriangular2DType>(device.generic_segmentation());
+  viennamini::MeshTriangular2DType         & mesh         = boost::get<viennamini::MeshTriangular2DType>        (device.generic_mesh());
+  try
+  {
+    viennagrid::io::netgen_reader my_reader;
+    my_reader(mesh, segmentation, filename);
+  }
+  catch (...)
+  {
+    std::cerr << "VTK File-Reader failed. Aborting program..." << std::endl;
+  }
+}
+
+void read_vtk(viennamini::device& device, std::string const& filename, viennagrid::config::tetrahedral_3d const&)
+{
+  device.make_tetrahedral3d();
+  viennamini::SegmentationTetrahedral3DType & segmentation = boost::get<viennamini::SegmentationTetrahedral3DType>(device.generic_segmentation());
+  viennamini::MeshTetrahedral3DType         & mesh         = boost::get<viennamini::MeshTetrahedral3DType>        (device.generic_mesh());
+  try
+  {
+    viennagrid::io::netgen_reader my_reader;
+    my_reader(mesh, segmentation, filename);
+  }
+  catch (...)
+  {
+    std::cerr << "VTK File-Reader failed. Aborting program..." << std::endl;
+  }
+}
+
 } // io
 } // viennamini
 

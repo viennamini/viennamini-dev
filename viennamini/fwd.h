@@ -128,6 +128,11 @@ namespace viennamini
   typedef ::viennagrid::result_of::segmentation<MeshTriangular2DType>::type                         SegmentationTriangular2DType;
   typedef ::viennagrid::result_of::segmentation<MeshTetrahedral3DType>::type                        SegmentationTetrahedral3DType;
 
+  // class-like typedefs
+  typedef StorageType           storage;
+  typedef MatLibPugixmlType     material_library_pugixml;
+  
+
 //  template<typename DeviceT, typename MatlibT>
 //  class simulator;
 
@@ -143,6 +148,7 @@ namespace viennamini
   class null_mesh {};  
   class null_segmentation {};
   class device;
+
 
 } // viennamini
 

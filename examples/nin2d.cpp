@@ -17,6 +17,7 @@
 
 // ViennaMini main include:
 #include "viennamini/simulator.hpp"
+#include "viennamini/io.hpp"
 
 // Vienna Includes
 #include "viennamaterials/library.hpp"
@@ -72,6 +73,12 @@ const int right_contact   = 5;
 
 int main()
 {
+  viennamini::storage   mystorage;
+  viennamini::device    mydevice(mystorage);
+
+  viennamini::io::read_vtk(mydevice, "../external/ViennaDeviceCollection/nin2d/nin2d.mesh", viennagrid::config::triangular_2d());
+
+
 //  //
 //  // Create a domain from file
 //  //

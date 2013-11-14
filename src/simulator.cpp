@@ -27,10 +27,9 @@ simulator<MatlibT>::simulator(MatlibT& matlib) : matlib_(matlib)
 template<typename MatlibT>
 void simulator<MatlibT>::operator()(viennamini::device& device, viennamini::config& config)
 {
-
+  
 }
 
 } // viennamini
 
-      
 
