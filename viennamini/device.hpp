@@ -44,7 +44,7 @@ public:
   typedef SegmentParametersType                                                                                         segment_parameters_type;
   typedef MeshParametersType                                                                                            mesh_parameters_type;
 
-  device(viennamini::StorageType& storage) : storage_(storage) {};
+  device(viennamini::StorageType& storage);
 
   void make_triangular2d();
 

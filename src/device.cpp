@@ -19,7 +19,9 @@
 namespace viennamini
 {
 
-device::device(viennamini::StorageType& storage) : storage_(storage) {};
+device::device(viennamini::StorageType& storage) : storage_(storage) 
+{
+}
 
 void device::make_triangular2d()
 {

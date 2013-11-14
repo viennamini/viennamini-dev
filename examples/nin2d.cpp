@@ -139,7 +139,6 @@ int main()
 //  // Run the simulation
 //  //
 //  sim();
-
 //  // Write results to vtk files
 //  sim.write_result("nin2d");
 

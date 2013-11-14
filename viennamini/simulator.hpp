@@ -69,11 +69,9 @@ namespace viennamini
   {
     simulator(MatlibT& matlib);
 
-    void operator()(viennamini::device& device, viennamini::config& config)
-    {
-    }
+    void operator()(viennamini::device& device, viennamini::config& config);
 
-    MatlibT& matlib;
+    MatlibT& matlib_;
   };
 }
 
