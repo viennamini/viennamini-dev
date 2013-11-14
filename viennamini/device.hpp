@@ -44,6 +44,8 @@ public:
   typedef SegmentParametersType                                                                                         segment_parameters_type;
   typedef MeshParametersType                                                                                            mesh_parameters_type;
 
+  device(viennamini::StorageType& storage) : storage_(storage) {};
+
   void make_triangular2d();
 
   void make_tetrahedral3d();
@@ -67,11 +69,14 @@ public:
   GenericSegmentationType & generic_segmentation();
 
   SegmentParametersType   & segment_parameters(int id);
+  
+  viennamini::StorageType& storage();
 
 private:
-  GenericMeshType         generic_mesh_;
-  GenericSegmentationType generic_segmentation_;
-  MeshParametersType      mesh_parameters_;
+  viennamini::StorageType&  storage_;
+  GenericMeshType           generic_mesh_;
+  GenericSegmentationType   generic_segmentation_;
+  MeshParametersType        mesh_parameters_;
 };
 
 

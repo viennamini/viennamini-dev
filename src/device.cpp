@@ -19,6 +19,8 @@
 namespace viennamini
 {
 
+device::device(viennamini::StorageType& storage) : storage_(storage) {};
+
 void device::make_triangular2d()
 {
   generic_mesh_         = viennamini::MeshTriangular2DType();
@@ -95,6 +97,11 @@ device::GenericSegmentationType& device::generic_segmentation()
 device::SegmentParametersType& device::segment_parameters(int id)
 {
   return mesh_parameters_[id];
+}
+
+viennamini::StorageType& device::storage()
+{
+  return storage_;
 }
 
 } // viennamini

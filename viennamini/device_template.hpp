@@ -43,7 +43,7 @@ public:
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
 
-  device_template(viennamini::StorageType& storage) : storage_(storage) {}
+  device_template(viennamini::StorageType& storage) : storage_(storage), device_(storage) {}
   
   geometry_properties_type& geometry_properties()   { return geometry_properties_;  }
   std::string&              description()           { return description_; }
