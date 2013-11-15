@@ -22,19 +22,23 @@
 
 #include <iostream>
 
-// ViennaData includes:
+// ViennaData includes
 #include "viennadata/api.hpp"
 
+// ViennaGrid includes
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/config/default_configs.hpp"
 
-// ViennaMaterials includes:
-#include "viennamaterials/library.hpp"
-#include "viennamaterials/kernels/pugixml.hpp"
+// ViennaMesh includes
+#include "viennamesh/core/parameter.hpp"
+
+// ViennaMaterials includes
+//#include "viennamaterials/library.hpp"
+//#include "viennamaterials/kernels/pugixml.hpp"
+
 
 namespace viennamini
 {
-
   //
   // TODO: Think about where to move the following keys.
   //
@@ -120,36 +124,26 @@ namespace viennamini
   };
 
 
+  // public typedefs
+  //
+  typedef ::viennadata::storage<>                                                                                 data_storage;
 
-  typedef ::viennadata::storage<>                                                                   StorageType;
-  typedef ::vmat::Library<vmat::tag::pugixml>::type                                                 MaterialLibraryType;
+  typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;
+  typedef ::viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                                mesh_tetrahedral_3d;
 
-  typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                   MeshTriangular2DType;
-  typedef ::viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                  MeshTetrahedral3DType;
-
-  typedef ::viennagrid::result_of::segmentation<MeshTriangular2DType>::type                         SegmentationTriangular2DType;
-  typedef ::viennagrid::result_of::segmentation<MeshTetrahedral3DType>::type                        SegmentationTetrahedral3DType;
-
-  // class-like typedefs
-  typedef StorageType           storage;
-  typedef MaterialLibraryType   material_library;
+  typedef ::viennagrid::result_of::segmentation<mesh_triangular_2d>::type                                         segmentation_triangular_2d;
+  typedef ::viennagrid::result_of::segmentation<mesh_tetrahedral_3d>::type                                        segmentation_tetrahedral_3d;
   
+  typedef ::viennamesh::MeshWrapper<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>      segmesh_triangular_2d;
+  typedef ::viennamesh::MeshWrapper<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>     segmesh_tetrahedral_3d;
 
-//  template<typename DeviceT, typename MatlibT>
-//  class simulator;
+  typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
+  typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
 
-//  template<typename MeshT, typename SegmentationT, typename StorageT>
-//  class device;
-
-//  typedef ::viennamini::device<MeshTriangular2DType,  SegmentationTriangular2DType,  StorageType>   DeviceTriangular2DType;
-//  typedef ::viennamini::device<MeshTetrahedral3DType, SegmentationTetrahedral3DType, StorageType>   DeviceTetrahedral3DType;
-
-//  typedef ::viennamini::simulator<DeviceTriangular2DType,  MatLibPugixmlType>                       SimulatorTriangular2DType;
-//  typedef ::viennamini::simulator<DeviceTetrahedral3DType,  MatLibPugixmlType>                      SimulatorTetrahedral3DType;
+  class triangular_2d  {};
+  class tetrahedral_3d {};
 
   class null_mesh {};  
-  class null_segmentation {};
-  class device;
 
 
 } // viennamini

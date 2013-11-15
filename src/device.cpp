@@ -15,39 +15,39 @@
 
 #include "viennamini/device.hpp"
 
+//#include "viennamesh/algorithm/file_reader.hpp"
+#include "viennagrid/io/vtk_writer.hpp"
+#include "viennagrid/algorithm/scale.hpp"
+
 
 namespace viennamini
 {
 
-device::device(viennamini::StorageType& storage) : storage_(storage) 
+device::device(viennamini::data_storage& storage) : storage_(storage) 
 {
 }
 
 void device::make_triangular2d()
 {
-  generic_mesh_         = viennamini::MeshTriangular2DType();
-  generic_segmentation_ = viennamini::SegmentationTriangular2DType(boost::get<viennamini::MeshTriangular2DType>(generic_mesh_));
+  generic_mesh_ = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
 }
 
 void device::make_tetrahedral3d()
 {
-  generic_mesh_         = viennamini::MeshTetrahedral3DType();
-  generic_segmentation_ = viennamini::SegmentationTetrahedral3DType(boost::get<viennamini::MeshTetrahedral3DType>(generic_mesh_)); 
+  generic_mesh_ = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
 }
 
 bool device::is_triangular2d()
 {
-  viennamini::MeshTriangular2DType         * mesh_pnt = boost::get<viennamini::MeshTriangular2DType>        ( &generic_mesh_ );
-  viennamini::SegmentationTriangular2DType * seg_pnt  = boost::get<viennamini::SegmentationTriangular2DType>( &generic_segmentation_ );
-  if(mesh_pnt && seg_pnt) return true;
+  segmesh_triangular_2d_ptr pnt = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+  if(pnt) return true;
   else    return false;
 }
 
 bool device::is_tetrahedral3d()
 {
-  viennamini::MeshTetrahedral3DType         * mesh_pnt = boost::get<viennamini::MeshTetrahedral3DType>        ( &generic_mesh_ );
-  viennamini::SegmentationTetrahedral3DType * seg_pnt  = boost::get<viennamini::SegmentationTetrahedral3DType>( &generic_segmentation_ );
-  if(mesh_pnt && seg_pnt) return true;
+  segmesh_tetrahedral_3d_ptr pnt = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
+  if(pnt) return true;
   else    return false;
 }
 
@@ -101,19 +101,75 @@ device::GenericMeshType& device::generic_mesh()
   return generic_mesh_; 
 }
 
-device::GenericSegmentationType& device::generic_segmentation() 
-{ 
-  return generic_segmentation_; 
-}
-
 device::SegmentParametersType& device::segment_parameters(int id)
 {
   return mesh_parameters_[id];
 }
 
-viennamini::StorageType& device::storage()
+viennamini::data_storage& device::storage()
 {
   return storage_;
+}
+
+void device::read(std::string const& filename, viennamini::triangular_2d const&)
+{
+//  viennamesh::AlgorithmHandle reader = viennamesh::AlgorithmHandle( new viennamesh::FileReader() );
+//  reader->set_input( "filename", filename );
+////  reader->set_output();
+////  if(this->is_triangular2d())
+////    reader->get_output( "default" )->convert_to( boost::get<segmesh_triangular_2d_ptr>(generic_mesh_));
+
+////  segmesh_triangular_2d_ptr temp (new segmesh_triangular_2d_ptr::element_type);
+////  reader->get_output( "default" )->convert_to( temp );
+
+//  //boost::get<segmesh_triangular_2d_ptr>(generic_mesh_) = 
+//  segmesh_triangular_2d_ptr temp = reader->get_output( "default" )->get_converted<segmesh_triangular_2d_ptr::element_type>();
+
+//  reader->run();
+//  viennamini::io::read_vtk(mydevice, "../external/ViennaDeviceCollection/nin2d/nin2d.mesh", viennagrid::config::triangular_2d());
+
+  this->make_triangular2d();
+  segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+  viennagrid::io::vtk_writer<mesh_triangular_2d> vtk_writer;
+  vtk_writer(segmesh->mesh, segmesh->segmentation, filename);  
+}
+
+void device::read(std::string const& filename, viennamini::tetrahedral_3d const&)
+{
+  this->make_tetrahedral3d();
+  segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
+  viennagrid::io::vtk_writer<mesh_tetrahedral_3d> vtk_writer;
+  vtk_writer(segmesh->mesh, segmesh->segmentation, filename);  
+}
+
+void device::write(std::string const& filename)
+{
+  if(this->is_triangular2d())
+  {
+    segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+    viennagrid::io::vtk_writer<mesh_triangular_2d> vtk_writer;
+    vtk_writer(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else if(this->is_tetrahedral3d())
+  {
+    segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
+    viennagrid::io::vtk_writer<mesh_tetrahedral_3d> vtk_writer;
+    vtk_writer(segmesh->mesh, segmesh->segmentation, filename);
+  }
+}
+
+void device::scale(numeric_type factor)
+{
+  if(this->is_triangular2d())
+  {
+    segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+    viennagrid::scale(segmesh->mesh, factor);  
+  }
+  else if(this->is_tetrahedral3d())
+  {
+    segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
+    viennagrid::scale(segmesh->mesh, factor);  
+  }
 }
 
 } // viennamini

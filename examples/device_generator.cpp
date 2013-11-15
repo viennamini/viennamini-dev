@@ -17,32 +17,33 @@
 #include <iostream>
 
 #include "viennamini/device_template_capacitor2d.hpp"
-#include "viennamini/io.hpp"
+//#include "viennamini/simulator.hpp"
+//#include "viennamini/io.hpp"
 
 int main()
 {
-  viennamini::StorageType storage;
+  viennamini::data_storage storage;
+
   viennamini::device_template* device_generator = new viennamini::capacitor2d(storage);
 
-  device_generator->generate();
-  
-  viennamini::device & device = device_generator->device();
-  
-  viennamini::io::write_vtk(device, "output");
-  
-//  mydevice = device_generator->generate();
+//  device_generator->generate();
+//  
+//  viennamini::device & mydevice = device_generator->device();
+//  
+//  viennamini::io::write_vtk(mydevice, "output");
+//  
+//  // prepare material library
+//  viennamini::material_library mymatlib;
+//  mymatlib.load("../external/ViennaMaterials/database/materials.xml");
 
-//  viennamini::config config;
-//  config.temperature()                        = 300;
-//  config.damping()                            = 1.0;
-//  config.linear_breaktol()                    = 1.0E-13;
-//  config.linear_iterations()                  = 700;
-//  config.nonlinear_iterations()               = 100;
-//  config.nonlinear_breaktol()                 = 1.0E-3;
-//  config.initial_guess_smoothing_iterations() = 4;
+//  // setup simulation configuration
+//  viennamini::config myconfig;
 
-//  viennamini::SimulatorTriangular2DType sim(device, matlib, config);
-//  sim();    
+//  // create a simulator object
+//  viennamini::simulator   mysim(mymatlib /*, observer here? */);
+
+//  // run the simulation
+//  mysim(mydevice, myconfig);
   
   delete device_generator;  
   return 0;

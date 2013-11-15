@@ -19,13 +19,45 @@
 namespace viennamini
 {
 
-simulator::simulator(viennamini::material_library& matlib) : matlib_(matlib) 
+simulator::simulator() : device_(storage_), device_changed(true)
 {
 }
 
-void simulator::operator()(viennamini::device& device, viennamini::config& config)
+viennamini::data_storage  const& simulator::storage() const
 {
-  
+  return storage_;
+}
+
+viennamini::data_storage       & simulator::storage()
+{
+  storage_changed = true;
+  return storage_;
+}
+
+viennamini::device const& simulator::device() const
+{
+  return device_;
+}
+
+viennamini::device      & simulator::device()
+{
+  device_changed = true; 
+  return device_;
+}
+
+viennamini::config const& simulator::config() const
+{
+  return config_;
+}
+
+viennamini::config      & simulator::config()
+{
+  config_changed = true; 
+  return config_;
+}
+
+void simulator::run()
+{
 }
 
 } // viennamini

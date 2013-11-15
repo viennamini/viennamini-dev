@@ -43,11 +43,10 @@ public:
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
 
-  device_template(viennamini::StorageType& storage) : storage_(storage), device_(storage) {}
+  device_template(viennamini::data_storage& storage) : storage_(storage), device_(storage) {}
   
   geometry_properties_type& geometry_properties()   { return geometry_properties_;  }
-  std::string&              description()           { return description_; }
-  viennamini::StorageType&  storage()               { return storage_;     }
+  viennamini::data_storage& storage()               { return storage_;     }
   viennamini::device&       device()                { return device_;      }
   
   void set_geometry_property(std::string const& key, numeric_type x, numeric_type y = 0, numeric_type z = 0)
@@ -55,12 +54,13 @@ public:
     geometry_properties_[key] = point_type(x, y, z);
   }
 
-  virtual void     generate()         = 0;
+  virtual void        generate()         = 0;
+  virtual std::string description()      = 0;
 
 private:
-  viennamini::StorageType&  storage_;
-  geometry_properties_type  geometry_properties_;
-  viennamini::device        device_;
+  viennamini::data_storage&  storage_;
+  geometry_properties_type   geometry_properties_;
+  viennamini::device         device_;
 };
 
 } // viennamini

@@ -27,59 +27,57 @@
 namespace viennamini 
 {
 
-struct device
-{
-public:
-  // [JW] note that the first type in a boost::variant must be a default constructible object
-  //
-  typedef boost::variant<viennamini::null_segmentation, SegmentationTriangular2DType, SegmentationTetrahedral3DType>    GenericSegmentationType;
-  typedef boost::variant<viennamini::null_mesh,         MeshTriangular2DType,         MeshTetrahedral3DType>            GenericMeshType;
-  typedef double                                                                                                        NumericType;
-  typedef viennamini::segment_parameters<NumericType>                                                                   SegmentParametersType;
-  typedef std::map<int, SegmentParametersType >                                                                         MeshParametersType;
+  class device
+  {
+  public:
+    // [JW] note that the first type in a boost::variant must be a default constructible object
+    typedef boost::variant<null_mesh, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>                              GenericMeshType;
+    typedef double                                                                                                        NumericType;
+    typedef viennamini::segment_parameters<NumericType>                                                                   SegmentParametersType;
+    typedef std::map<int, SegmentParametersType >                                                                         MeshParametersType;
 
-  typedef GenericSegmentationType                                                                                       generic_segmentation_type;
-  typedef GenericMeshType                                                                                               generic_mesh_type;
-  typedef NumericType                                                                                                   numeric_type;
-  typedef SegmentParametersType                                                                                         segment_parameters_type;
-  typedef MeshParametersType                                                                                            mesh_parameters_type;
+    typedef GenericMeshType                                                                                               generic_mesh_type;
+    typedef NumericType                                                                                                   numeric_type;
+    typedef SegmentParametersType                                                                                         segment_parameters_type;
+    typedef MeshParametersType                                                                                            mesh_parameters_type;
 
-  device(viennamini::StorageType& storage);
+    device(viennamini::data_storage& storage);
 
-  void make_triangular2d();
+    void make_triangular2d();
+    void make_tetrahedral3d();
+    
+    bool is_triangular2d();
+    bool is_tetrahedral3d();
+    
+    std::string& name(int id);
+    std::string& material(int id);
 
-  void make_tetrahedral3d();
-  
-  bool is_triangular2d();
+    void make_contact(int id);
+    void make_oxide(int id);
+    void make_semiconductor(int id);
+    
+    NumericType& contact_potential(int id);
+    NumericType& workfunction(int id);
+    NumericType& NA_max(int id);
+    NumericType& ND_max(int id);
 
-  bool is_tetrahedral3d();
-  
-  std::string& name(int id);
-  std::string& material(int id);
+    GenericMeshType         & generic_mesh();
+    SegmentParametersType   & segment_parameters(int id);
+    viennamini::data_storage& storage();
 
-  void make_contact(int id);
-  void make_oxide(int id);
-  void make_semiconductor(int id);
-  
-  NumericType& contact_potential(int id);
-  NumericType& workfunction(int id);
-  NumericType& NA_max(int id);
-  NumericType& ND_max(int id);
+    void read(std::string const& filename, viennamini::triangular_2d const&);
+    void read(std::string const& filename, viennamini::tetrahedral_3d const&);
+    
+    void write(std::string const& filename);
+  //  void generate(viennamini::device_template* new_device);
 
-  GenericMeshType         & generic_mesh();
-  
-  GenericSegmentationType & generic_segmentation();
+    void scale(numeric_type factor);
 
-  SegmentParametersType   & segment_parameters(int id);
-  
-  viennamini::StorageType& storage();
-
-private:
-  viennamini::StorageType&  storage_;
-  GenericMeshType           generic_mesh_;
-  GenericSegmentationType   generic_segmentation_;
-  MeshParametersType        mesh_parameters_;
-};
+  private:
+    viennamini::data_storage&  storage_;
+    GenericMeshType            generic_mesh_;
+    MeshParametersType         mesh_parameters_;
+  };
 
 
 } // viennamini

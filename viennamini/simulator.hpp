@@ -56,23 +56,40 @@
 
 // ViennaMini includes:
 #include "viennamini/fwd.h"
-#include "viennamini/physics.hpp"
-#include "viennamini/constants.hpp"
+//#include "viennamini/physics.hpp"
+//#include "viennamini/constants.hpp"
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
-#include "viennamini/result_accessor.hpp"
+#include "viennamini/material_library.hpp"
+//#include "viennamini/result_accessor.hpp"
+
 
 namespace viennamini
 {
   class simulator
   {
   public:
-    simulator(viennamini::material_library& matlib);
+    simulator();
 
-    void operator()(viennamini::device& device, viennamini::config& config);
+    void run();
+
+    viennamini::data_storage  const& storage() const;
+    viennamini::data_storage       & storage();
+
+    viennamini::device        const& device() const;
+    viennamini::device             & device();
+
+    viennamini::config        const& config() const;
+    viennamini::config             & config();
   
   private:
-    viennamini::material_library& matlib_;
+    viennamini::data_storage  storage_;
+    viennamini::device        device_;
+    viennamini::config        config_;
+    
+    bool storage_changed;
+    bool device_changed;
+    bool config_changed;
   };
 }
 
