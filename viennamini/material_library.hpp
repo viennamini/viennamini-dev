@@ -16,8 +16,7 @@
 ======================================================================= */
 
 // ViennaMaterials includes
-#include "viennamaterials/library.hpp"
-#include "viennamaterials/kernels/pugixml.hpp"
+#include "viennamaterials/pugixml.hpp"
 
 namespace viennamini {
 
