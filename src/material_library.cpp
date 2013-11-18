@@ -15,12 +15,33 @@
 
 #include "viennamini/material_library.hpp"
 
+#include "viennamaterials/generator.hpp"
 
 namespace viennamini {
 
+material_library::material_library()
+{
+  lib_ = NULL;
+}
+
+material_library::~material_library()
+{
+  if(lib_) delete lib_;
+}
+
 void material_library::read(std::string const& filename)
 {
+  // if a new file should be imported although another one has 
+  // already been imported, reset the database 
+  if(lib_) this->reset();
+  // create the library by guessing the type from the file ending
+  lib_ = viennamaterials::generator(filename);
+}
 
+void material_library::reset()
+{
+  if(lib_) delete lib_;
+  lib_ = NULL;
 }
 
 } // viennamini

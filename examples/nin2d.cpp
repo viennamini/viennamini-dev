@@ -70,9 +70,8 @@ int main()
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
   mysim.config().initial_guess_smoothing_iterations() = 4;
 
-  /*
-  mysim.material_library().read();
-  */
+
+  mysim.material_library().read("../external/ViennaMaterials/database/materials.xml");
 
   mysim.run();
 

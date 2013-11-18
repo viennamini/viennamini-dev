@@ -73,23 +73,28 @@ namespace viennamini
 
     void run();
 
-    viennamini::data_storage  const& storage() const;
-    viennamini::data_storage       & storage();
+    viennamini::data_storage      const& storage() const;
+    viennamini::data_storage           & storage();
 
-    viennamini::device        const& device() const;
-    viennamini::device             & device();
+    viennamini::device            const& device() const;
+    viennamini::device                 & device();
 
-    viennamini::config        const& config() const;
-    viennamini::config             & config();
+    viennamini::config            const& config() const;
+    viennamini::config                 & config();
+  
+    viennamini::material_library  const& material_library() const;
+    viennamini::material_library       & material_library();
   
   private:
-    viennamini::data_storage  storage_;
-    viennamini::device        device_;
-    viennamini::config        config_;
+    viennamini::data_storage      storage_;
+    viennamini::device            device_;
+    viennamini::config            config_;
+    viennamini::material_library  matlib_;
     
-    bool storage_changed;
-    bool device_changed;
-    bool config_changed;
+    bool storage_changed_;
+    bool device_changed_;
+    bool config_changed_;
+    bool matlib_changed_;
   };
 }
 

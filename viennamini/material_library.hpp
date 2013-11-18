@@ -22,7 +22,14 @@ namespace viennamini {
 
   class material_library
   {
+  public:
+    material_library();
+    ~material_library();
     void read(std::string const& filename);
+    void reset();
+    
+  private:
+    viennamaterials::library* lib_;
   };
 } // viennamini
 

@@ -19,7 +19,8 @@
 namespace viennamini
 {
 
-simulator::simulator() : device_(storage_), device_changed(true)
+simulator::simulator() : device_(storage_), storage_changed_(true), device_changed_(true), 
+  config_changed_(true), matlib_changed_(true)
 {
 }
 
@@ -30,7 +31,7 @@ viennamini::data_storage  const& simulator::storage() const
 
 viennamini::data_storage       & simulator::storage()
 {
-  storage_changed = true;
+  storage_changed_ = true;
   return storage_;
 }
 
@@ -41,7 +42,7 @@ viennamini::device const& simulator::device() const
 
 viennamini::device      & simulator::device()
 {
-  device_changed = true; 
+  device_changed_ = true; 
   return device_;
 }
 
@@ -52,8 +53,19 @@ viennamini::config const& simulator::config() const
 
 viennamini::config      & simulator::config()
 {
-  config_changed = true; 
+  config_changed_ = true; 
   return config_;
+}
+
+viennamini::material_library const& simulator::material_library() const
+{
+  return matlib_;
+}
+
+viennamini::material_library      & simulator::material_library()
+{
+  matlib_changed_ = true; 
+  return matlib_;
 }
 
 void simulator::run()
