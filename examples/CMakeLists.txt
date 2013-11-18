@@ -1,5 +1,4 @@
 
-message("libraries: " ${LIBRARIES})
 
 ADD_EXECUTABLE(nin2d     nin2d.cpp)
 TARGET_LINK_LIBRARIES(nin2d ${LIBRARIES})

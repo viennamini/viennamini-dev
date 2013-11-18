@@ -8,7 +8,7 @@ include(FindPackageHandleStandardArgs)
 cmake_minimum_required(VERSION 2.8.2)
 
 #if you don't want the full compiler output, remove the following line
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 SET(VIENNASTAR "Local" CACHE STRING "Use local ViennaStar libraries or download them automatically, supported values are: Local,Download")
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
@@ -106,6 +106,7 @@ ENDIF()
 # build the ViennaMini library
 AUX_SOURCE_DIRECTORY(src/ LIBSOURCES) 
 ADD_LIBRARY(viennamini SHARED ${LIBSOURCES})
+ADD_DEPENDENCIES(viennamini viennamaterials)
 TARGET_LINK_LIBRARIES(viennamini ${LIBRARIES})
 SET(LIBRARIES ${LIBRARIES} viennamini)
 
