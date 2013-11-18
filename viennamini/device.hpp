@@ -17,6 +17,7 @@
 ======================================================================= */
 
 #include <map>
+#include <vector>
 
 #include "viennamini/fwd.h"
 #include "viennamini/device_segment_parameters.hpp"
@@ -35,11 +36,15 @@ namespace viennamini
     typedef double                                                                                                        NumericType;
     typedef viennamini::segment_parameters<NumericType>                                                                   SegmentParametersType;
     typedef std::map<int, SegmentParametersType >                                                                         MeshParametersType;
+    typedef std::vector<std::size_t>                                                                                      IndicesType;  
+    typedef std::map<std::size_t, std::size_t>                                                                            IndexMapType;
 
     typedef GenericMeshType                                                                                               generic_mesh_type;
     typedef NumericType                                                                                                   numeric_type;
     typedef SegmentParametersType                                                                                         segment_parameters_type;
     typedef MeshParametersType                                                                                            mesh_parameters_type;
+    typedef IndicesType                                                                                                   indices_type;
+    typedef IndexMapType                                                                                                  index_map_type;
 
     device(viennamini::data_storage& storage);
 
@@ -48,6 +53,9 @@ namespace viennamini
     
     bool is_triangular2d();
     bool is_tetrahedral3d();
+
+    segmesh_triangular_2d&  get_segmesh_triangular_2d();
+    segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
     
     std::string& name(int id);
     std::string& material(int id);
@@ -61,6 +69,8 @@ namespace viennamini
     NumericType& NA_max(int id);
     NumericType& ND_max(int id);
 
+    void update();
+
     GenericMeshType         & generic_mesh();
     SegmentParametersType   & segment_parameters(int id);
     viennamini::data_storage& storage();
@@ -73,10 +83,21 @@ namespace viennamini
 
     void scale(numeric_type factor);
 
+    IndicesType&   contact_segments_indices();
+    IndicesType&   oxide_segments_indices();
+    IndicesType&   semiconductor_segments_indices();
+
   private:
     viennamini::data_storage&  storage_;
     GenericMeshType            generic_mesh_;
     MeshParametersType         mesh_parameters_;
+
+    IndicesType                 contact_segments_indices_;
+    IndicesType                 oxide_segments_indices_;
+    IndicesType                 semiconductor_segments_indices_;
+
+    IndexMapType contactSemiconductorInterfaces_;
+    IndexMapType contactOxideInterfaces_;
   };
 
 

@@ -23,10 +23,11 @@
   #define NDEBUG
 #endif
 
+// System includes
+
+
 // ViennaFVM includes:
-
 #define VIENNAFVM_VERBOSE
-
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
@@ -41,7 +42,6 @@
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
-#include "viennagrid/algorithm/interface.hpp"
 #include "viennagrid/algorithm/voronoi.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
@@ -86,6 +86,7 @@ namespace viennamini
     viennamini::material_library       & material_library();
   
   private:
+
     viennamini::data_storage      storage_;
     viennamini::device            device_;
     viennamini::config            config_;

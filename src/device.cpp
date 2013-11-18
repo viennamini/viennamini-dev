@@ -20,6 +20,7 @@
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
+#include "viennamini/detect_interfaces.hpp"
 
 namespace viennamini
 {
@@ -50,6 +51,16 @@ bool device::is_tetrahedral3d()
   segmesh_tetrahedral_3d_ptr pnt = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
   if(pnt) return true;
   else    return false;
+}
+
+segmesh_triangular_2d& device::get_segmesh_triangular_2d()
+{
+  return *boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+}
+
+segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
+{
+  return *boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
 }
 
 std::string& device::name(int id)
@@ -95,6 +106,27 @@ device::NumericType& device::NA_max(int id)
 device::NumericType& device::ND_max(int id)
 {
   return mesh_parameters_[id].ND_max();
+}
+
+void device::update()
+{
+  oxide_segments_indices_.clear();
+  contact_segments_indices_.clear();
+  semiconductor_segments_indices_.clear();
+  contactSemiconductorInterfaces_.clear();
+  contactOxideInterfaces_.clear();
+
+  for(MeshParametersType::iterator siter = mesh_parameters_.begin();
+      siter != mesh_parameters_.end(); siter++)
+  {
+    if(siter->second.is_oxide()) oxide_segments_indices_.push_back(siter->first);
+    else
+    if(siter->second.is_contact()) contact_segments_indices_.push_back(siter->first);
+    else
+    if(siter->second.is_semiconductor()) semiconductor_segments_indices_.push_back(siter->first);
+  }
+
+  viennamini::detect_interfaces(*this, contactSemiconductorInterfaces_, contactOxideInterfaces_);
 }
 
 device::GenericMeshType& device::generic_mesh()
@@ -171,6 +203,21 @@ void device::scale(numeric_type factor)
     segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
     viennagrid::scale(segmesh->mesh, factor);  
   }
+}
+
+device::IndicesType&   device::contact_segments_indices()
+{
+  return contact_segments_indices_;
+}
+
+device::IndicesType&   device::oxide_segments_indices()
+{
+  return oxide_segments_indices_;
+}
+
+device::IndicesType&   device::semiconductor_segments_indices()
+{
+  return semiconductor_segments_indices_;
 }
 
 } // viennamini

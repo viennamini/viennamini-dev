@@ -14,7 +14,7 @@
 
 
 #include "viennamini/simulator.hpp"
-
+#include "viennamini/prepare_poisson_drift_diffusion_np.hpp"
 
 namespace viennamini
 {
@@ -70,11 +70,19 @@ viennamini::material_library      & simulator::material_library()
 
 void simulator::run()
 {
+  if(device_changed_)
+  {
+    std::cout << "updating device .." << std::endl;
+    device_.update();
+
+  }
+
   if(config_changed_)
   {
+    std::cout << "updating configuration .." << std::endl;
     if(config_.problem() == viennamini::poisson_drift_diffusion_np)
     {
-
+      viennamini::prepare_poisson_drift_diffusion_np(device_);
     }
   }
 }
