@@ -35,3 +35,16 @@ $> make -j4  # adjust to your CPU core count for efficient parallel building
 $> make install
 </pre>
 
+4. Authors and Contact
+------------------------
+
+Karl Rupp (rupp@iue.tuwien.ac.at)
+Josef Weinbub (weinbub@iue.tuwien.ac.at)
+
+ViennaMini was developed under the aegis of the 'Institute for Microelectronics' and the 'Institute for Analysis and Scientific Computing' at the 'Vienna University of Technology'.
+
+
+License
+--------------------------
+ViennaMini is distributed under the MIT (X11) License. See file LICENSE.
+
