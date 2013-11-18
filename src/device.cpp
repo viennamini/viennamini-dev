@@ -16,6 +16,7 @@
 #include "viennamini/device.hpp"
 
 //#include "viennamesh/algorithm/file_reader.hpp"
+#include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
@@ -130,16 +131,16 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
 
   this->make_triangular2d();
   segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
-  viennagrid::io::vtk_writer<mesh_triangular_2d> vtk_writer;
-  vtk_writer(segmesh->mesh, segmesh->segmentation, filename);  
+  viennagrid::io::netgen_reader   reader;
+  reader(segmesh->mesh, segmesh->segmentation, filename);  
 }
 
 void device::read(std::string const& filename, viennamini::tetrahedral_3d const&)
 {
   this->make_tetrahedral3d();
   segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
-  viennagrid::io::vtk_writer<mesh_tetrahedral_3d> vtk_writer;
-  vtk_writer(segmesh->mesh, segmesh->segmentation, filename);  
+  viennagrid::io::netgen_reader reader;
+  reader(segmesh->mesh, segmesh->segmentation, filename);  
 }
 
 void device::write(std::string const& filename)

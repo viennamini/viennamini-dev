@@ -15,6 +15,7 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
+#include <iostream>
 #include <map>
 #include <vector>
 
@@ -48,7 +49,7 @@ struct config
 
   NumericType& workfunction(std::size_t segment_index);
 
-  bool& drift_diffusion_state();
+  std::string& problem();
 
 private:
   IndexType         nonlinear_iterations_;
@@ -60,7 +61,7 @@ private:
   NumericType       damping_;
   SegmentValuesType segment_contact_values_;
   SegmentValuesType segment_contact_workfunctions_;
-  bool              model_drift_diffusion_state_;
+  std::string       problem_;
 };
 
 

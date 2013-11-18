@@ -27,7 +27,7 @@ config::config()
   linear_iterations_                   = 1000;
   damping_                             = 1.0;
   initial_guess_smoothing_iterations_  = 0;
-  model_drift_diffusion_state_         = true;
+  problem_                             = "";
 }
 
 
@@ -82,10 +82,9 @@ config::NumericType& config::workfunction(std::size_t segment_index)
     return segment_contact_workfunctions_[segment_index];
 }
 
-bool& config::drift_diffusion_state()
+std::string& config::problem()
 {
-  return model_drift_diffusion_state_;
+  return problem_;
 }
-
 } // viennamini
 

@@ -72,6 +72,7 @@ int main()
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
   mysim.config().initial_guess_smoothing_iterations() = 4;
+  mysim.config().problem()                            = viennamini::poisson_drift_diffusion_np;
 
   mysim.run();
 

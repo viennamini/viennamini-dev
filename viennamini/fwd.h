@@ -28,14 +28,9 @@
 // ViennaGrid includes
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/config/default_configs.hpp"
+#include "viennagrid/mesh/segmented_mesh.hpp"
 
-// ViennaMesh includes
-#include "viennamesh/core/parameter.hpp"
-
-// ViennaMaterials includes
-//#include "viennamaterials/library.hpp"
-//#include "viennamaterials/kernels/pugixml.hpp"
-
+#include "boost/shared_ptr.hpp"
 
 namespace viennamini
 {
@@ -123,6 +118,11 @@ namespace viennamini
     bool operator<(hole_key const & ) const { return false; }
   };
 
+  static std::string laplace                    = "laplace";
+  static std::string poisson                    = "poisson";
+  static std::string poisson_drift_diffusion_n  = "poisson_drift_diffusion_n";
+  static std::string poisson_drift_diffusion_p  = "poisson_drift_diffusion_p";
+  static std::string poisson_drift_diffusion_np = "poisson_drift_diffusion_np";
 
   // public typedefs
   //
@@ -134,8 +134,8 @@ namespace viennamini
   typedef ::viennagrid::result_of::segmentation<mesh_triangular_2d>::type                                         segmentation_triangular_2d;
   typedef ::viennagrid::result_of::segmentation<mesh_tetrahedral_3d>::type                                        segmentation_tetrahedral_3d;
   
-  typedef ::viennamesh::MeshWrapper<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>      segmesh_triangular_2d;
-  typedef ::viennamesh::MeshWrapper<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>     segmesh_tetrahedral_3d;
+  typedef ::viennagrid::segmented_mesh<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>     segmesh_triangular_2d;
+  typedef ::viennagrid::segmented_mesh<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>    segmesh_tetrahedral_3d;
 
   typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
   typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;

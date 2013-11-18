@@ -70,6 +70,13 @@ viennamini::material_library      & simulator::material_library()
 
 void simulator::run()
 {
+  if(config_changed_)
+  {
+    if(config_.problem() == viennamini::poisson_drift_diffusion_np)
+    {
+
+    }
+  }
 }
 
 } // viennamini
