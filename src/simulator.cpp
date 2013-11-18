@@ -74,7 +74,7 @@ void simulator::run()
   {
     std::cout << "updating device .." << std::endl;
     device_.update();
-
+    config_changed_ = true;
   }
 
   if(config_changed_)
