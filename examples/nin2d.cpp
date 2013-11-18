@@ -14,13 +14,16 @@
 
 // ViennaMini includes
 #include "viennamini/simulator.hpp"
+#include "viennamini/device_collection.hpp"
 
 
 int main()
 {
   viennamini::simulator  mysim;
 
-  mysim.device().read("../external/ViennaDeviceCollection/nin2d/nin2d.mesh", viennamini::triangular_2d());
+  mysim.material_library().read("../../examples/materials.xml");
+
+  mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().scale(1.0E-9);
   
   mysim.device().write("output");
@@ -69,9 +72,6 @@ int main()
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
   mysim.config().initial_guess_smoothing_iterations() = 4;
-
-
-  mysim.material_library().read("../external/ViennaMaterials/database/materials.xml");
 
   mysim.run();
 
