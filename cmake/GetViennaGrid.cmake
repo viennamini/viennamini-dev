@@ -8,5 +8,7 @@ ExternalProject_Add(viennagrid
   GIT_REPOSITORY https://github.com/viennagrid/viennagrid-dev.git
   GIT_TAG master
   CMAKE_ARGS ${VIENNAGRID_CMAKE_ARGS}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
   INSTALL_COMMAND ""
 )
