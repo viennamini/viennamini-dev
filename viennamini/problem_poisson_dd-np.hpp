@@ -221,8 +221,6 @@ private:
 
     pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
-    viennafvm::io::write_solution_to_VTK_file(problem_description.quantities(), "initial", segmesh.mesh, segmesh.segmentation);
-
     // -------------------------------------------------------------------------
     //
     // Assemble and solve the problem
@@ -237,15 +235,27 @@ private:
     pde_solver.set_nonlinear_breaktol(config_.nonlinear_breaktol());
     pde_solver.set_damping(config_.damping());
     pde_solver(problem_description, pde_system, linear_solver);
-    
-    viennafvm::io::write_solution_to_VTK_file(problem_description.quantities(), "result", segmesh.mesh, segmesh.segmentation);
   }
 
   void write(std::string const& filename)
   {
-  
-  
-//    viennafvm::io::write_solution_to_VTK_file(problem_description.quantities(), "device", segmesh.mesh, segmesh.segmentation);
+    if(device_.is_triangular2d())
+    {
+      viennafvm::io::write_solution_to_VTK_file(
+        boost::get<problem_description_triangular_2d>(problem_description_).quantities(), 
+        filename, 
+        device_.get_segmesh_triangular_2d().mesh, 
+        device_.get_segmesh_triangular_2d().segmentation);
+    }
+    else 
+    if(device_.is_tetrahedral3d())
+    {
+      viennafvm::io::write_solution_to_VTK_file(
+        boost::get<problem_description_tetrahedral_3d>(problem_description_).quantities(), 
+        filename, 
+        device_.get_segmesh_tetrahedral_3d().mesh, 
+        device_.get_segmesh_tetrahedral_3d().segmentation);
+    }
   }
 
 

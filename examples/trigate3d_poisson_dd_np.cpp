@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
 
   mysim.device().read(viennamini::device_collection_path()+"/half-trigate3d/half-trigate3d.mesh", viennamini::tetrahedral_3d());
   mysim.device().scale(1.0E-9);
-  mysim.device().write("device");
 
   const int source          = 1;
   const int channel         = 2;
@@ -98,10 +97,12 @@ int main(int argc, char* argv[])
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
 
   mysim.run();
+  
+  mysim.write("trigate3d_result");
 
-  std::cout << "********************************************" << std::endl;
-  std::cout << "* TRIGATE simulation finished successfully! *" << std::endl;
-  std::cout << "********************************************" << std::endl;
+  std::cout << "************************************************" << std::endl;
+  std::cout << "* TRIGATE 3D simulation finished successfully! *" << std::endl;
+  std::cout << "************************************************" << std::endl;
   return EXIT_SUCCESS;
 }
 

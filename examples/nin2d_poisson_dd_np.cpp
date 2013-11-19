@@ -26,7 +26,6 @@ int main()
 
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().scale(1.0E-9);
-  mysim.device().write("device");
 
   // identify segments
   const int left_contact     = 1;
@@ -75,9 +74,11 @@ int main()
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
 
   mysim.run();
+  
+  mysim.write("nin2d_result");
 
   std::cout << "********************************************" << std::endl;
-  std::cout << "* NIN2D simulation finished successfully! *" << std::endl;
+  std::cout << "* NIN 2D simulation finished successfully! *" << std::endl;
   std::cout << "********************************************" << std::endl;
   return EXIT_SUCCESS;
 }

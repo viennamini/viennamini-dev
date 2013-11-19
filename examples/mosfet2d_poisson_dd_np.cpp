@@ -24,7 +24,6 @@ int main()
 
   mysim.device().read(viennamini::device_collection_path()+"/mosfet2d/mosfet2d.mesh", viennamini::triangular_2d());
   mysim.device().scale(1.0E-9);
-  mysim.device().write("device");
 
   const int gate_contact    = 1;
   const int source_contact  = 2;
@@ -92,9 +91,11 @@ int main()
 
   mysim.run();
 
-  std::cout << "********************************************" << std::endl;
-  std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
-  std::cout << "********************************************" << std::endl;
+  mysim.write("mosfet2d_result");
+
+  std::cout << "***********************************************" << std::endl;
+  std::cout << "* MOSFET 2D simulation finished successfully! *" << std::endl;
+  std::cout << "***********************************************" << std::endl;
 
   return EXIT_SUCCESS;
 }

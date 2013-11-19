@@ -95,8 +95,7 @@ void simulator::run()
 
 void simulator::write(std::string const filename)
 {
-  if(problem_)
-    problem_->write(filename);
+  if(problem_) problem_->write(filename);
 }
 
 } // viennamini
