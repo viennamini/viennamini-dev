@@ -78,62 +78,77 @@ segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
 
 std::string& device::name(int id)
 {
-  return mesh_parameters_[id].name();
+  return parameters_[id].name();
 }
 
 std::string& device::material(int id)
 {
-  return mesh_parameters_[id].material();
+  return parameters_[id].material();
 }
 
 void device::make_contact(int id)
 {
-  mesh_parameters_[id].is_contact() = true;
+  parameters_[id].is_contact() = true;
 }
 
 void device::make_oxide(int id)
 {
-  mesh_parameters_[id].is_oxide() = true;
+  parameters_[id].is_oxide() = true;
 }
 
 void device::make_semiconductor(int id)
 {
-  mesh_parameters_[id].is_semiconductor() = true;
+  parameters_[id].is_semiconductor() = true;
+}
+
+void device::make_manual(int id)
+{
+  parameters_[id].is_manual() = true;
 }
 
 device::NumericType& device::contact_potential(int id)
 {
-  return mesh_parameters_[id].contact_potential();
+  return parameters_[id].contact_potential();
 }
 
 device::NumericType& device::workfunction(int id)
 {
-  return mesh_parameters_[id].workfunction();
+  return parameters_[id].workfunction();
 }
 
 device::NumericType& device::NA_max(int id)
 {
-  return mesh_parameters_[id].NA_max();
+  return parameters_[id].NA_max();
 }
 
 device::NumericType& device::ND_max(int id)
 {
-  return mesh_parameters_[id].ND_max();
+  return parameters_[id].ND_max();
+}
+
+device::NumericType& device::epsr(int id)
+{
+  return parameters_[id].epsr();
 }
 
 bool device::is_contact(int id)
 {
-  return mesh_parameters_[id].is_contact();
+  return parameters_[id].is_contact();
 }
 
 bool device::is_oxide(int id)
 {
-  return mesh_parameters_[id].is_oxide();
+  return parameters_[id].is_oxide();
 }
 
 bool device::is_semiconductor(int id)
 {
-  return mesh_parameters_[id].is_semiconductor();
+  return parameters_[id].is_semiconductor();
+}
+
+bool device::is_manual(int id)
+{
+  return parameters_[id].is_manual();
 }
 
 bool device::is_contact_at_oxide(int id)
@@ -164,8 +179,8 @@ void device::update()
   contact_semiconductor_interfaces_.clear();
   contact_oxide_interfaces_.clear();
 
-  for(MeshParametersType::iterator siter = mesh_parameters_.begin();
-      siter != mesh_parameters_.end(); siter++)
+  for(ParametersType::iterator siter = parameters_.begin();
+      siter != parameters_.end(); siter++)
   {
     if(siter->second.is_oxide())         oxide_segments_indices_.push_back(siter->first);
     else
@@ -184,7 +199,7 @@ device::GenericMeshType& device::generic_mesh()
 
 device::SegmentParametersType& device::segment_parameters(int id)
 {
-  return mesh_parameters_[id];
+  return parameters_[id];
 }
 
 viennamini::data_storage& device::storage()

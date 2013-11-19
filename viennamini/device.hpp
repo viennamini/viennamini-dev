@@ -32,19 +32,19 @@ namespace viennamini
   {
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>                                  GenericMeshType;
-    typedef double                                                                                                        NumericType;
-    typedef viennamini::segment_parameters<NumericType>                                                                   SegmentParametersType;
-    typedef std::map<int, SegmentParametersType >                                                                         MeshParametersType;
-    typedef std::vector<std::size_t>                                                                                      IndicesType;  
-    typedef std::map<std::size_t, std::size_t>                                                                            IndexMapType;
+    typedef boost::variant<null, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>    GenericMeshType;
+    typedef double                                                                         NumericType;
+    typedef viennamini::segment_parameters<NumericType>                                    SegmentParametersType;
+    typedef std::map<int, SegmentParametersType >                                          ParametersType;
+    typedef std::vector<std::size_t>                                                       IndicesType;  
+    typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
 
-    typedef GenericMeshType                                                                                               generic_mesh_type;
-    typedef NumericType                                                                                                   numeric_type;
-    typedef SegmentParametersType                                                                                         segment_parameters_type;
-    typedef MeshParametersType                                                                                            mesh_parameters_type;
-    typedef IndicesType                                                                                                   indices_type;
-    typedef IndexMapType                                                                                                  index_map_type;
+    typedef GenericMeshType                                                                generic_mesh_type;
+    typedef NumericType                                                                    numeric_type;
+    typedef SegmentParametersType                                                          segment_parameters_type;
+    typedef ParametersType                                                                 parameters_type;
+    typedef IndicesType                                                                    indices_type;
+    typedef IndexMapType                                                                   index_map_type;
 
     device(viennamini::data_storage& storage);
 
@@ -63,17 +63,20 @@ namespace viennamini
     void make_contact(int id);
     void make_oxide(int id);
     void make_semiconductor(int id);
+    void make_manual(int id);
     
     NumericType& contact_potential(int id);
     NumericType& workfunction(int id);
     NumericType& NA_max(int id);
     NumericType& ND_max(int id);
+    NumericType& epsr(int id);
 
     bool is_contact(int id);
     bool is_contact_at_oxide(int id);
     bool is_contact_at_semiconductor(int id);
     bool is_oxide(int id);
     bool is_semiconductor(int id);
+    bool is_manual(int id);
 
     std::size_t get_adjacent_semiconductor_segment_for_contact(int id);
     std::size_t get_adjacent_oxide_segment_for_contact(int id);
@@ -99,7 +102,7 @@ namespace viennamini
   private:
     viennamini::data_storage&  storage_;
     GenericMeshType            generic_mesh_;
-    MeshParametersType         mesh_parameters_;
+    ParametersType             parameters_;
 
     IndicesType                contact_segments_indices_;
     IndicesType                oxide_segments_indices_;

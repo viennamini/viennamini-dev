@@ -107,8 +107,25 @@
     <name>SiliconDioxide</name>
     <category>oxide</category>
     <parameters>
+      <parameter>
+        <name>permittivity</name>
+        <value>3.9</value>
+        <unit></unit>
+      </parameter>      
     </parameters>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=d5c906beded84f18a394afec8735c2a4</source>-->
+  </material>    
+  <material>
+    <id>InP</id>
+    <name>IndiumPhosphide</name>
+    <category>oxide</category>
+    <parameters>
+      <parameter>
+        <name>permittivity</name>
+        <value>12.4</value>
+        <unit></unit>
+      </parameter>      
+    </parameters>
   </material>    
   <material>
     <id>HfO2</id>

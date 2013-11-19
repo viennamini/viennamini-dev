@@ -84,7 +84,10 @@ private:
         {
           // permittivity
           std::size_t adjacent_oxide_segment_index = device_.get_adjacent_oxide_segment_for_contact(current_segment_index);
-          NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
+          NumericType epsr = 0.0;
+          if(device_.is_manual(adjacent_oxide_segment_index))
+            epsr = device_.epsr(adjacent_oxide_segment_index);
+          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
 
@@ -106,13 +109,17 @@ private:
           std::size_t adjacent_semiconductor_segment_index = device_.get_adjacent_semiconductor_segment_for_contact(current_segment_index);
 
           // permittivity
-          NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
+          NumericType epsr = 0.0;
+          if(device_.is_manual(adjacent_semiconductor_segment_index))
+            epsr = device_.epsr(adjacent_semiconductor_segment_index);
+          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
 
         #ifdef VIENNAMINI_DEBUG
           std::cout << "segment " << current_segment_index << " is a contact (-semiconductor) segment " << std::endl;
           std::cout << "  contact value: " << device_.contact_potential(current_segment_index) << " workfunction: " << device_.workfunction(current_segment_index) << std::endl;
+          std::cout << "  @semiconductor neighbor: epsr: " << epsr << std::endl;
         #endif
 
           // potential dirichlet boundary
@@ -130,7 +137,10 @@ private:
       if(device_.is_oxide(current_segment_index))
       {
         // permittivity
-        numeric epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
+        NumericType epsr = 0.0;
+        if(device_.is_manual(current_segment_index))
+          epsr = device_.epsr(current_segment_index);
+        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
         viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
           epsr * viennamini::eps0::val());
 
@@ -143,7 +153,10 @@ private:
       }
       if(device_.is_semiconductor(current_segment_index))
       {
-        NumericType epsr        = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
+        NumericType epsr = 0.0;
+        if(device_.is_manual(current_segment_index))
+          epsr = device_.epsr(current_segment_index);
+        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
       
       #ifdef VIENNAMINI_DEBUG
         std::cout << "segment " << current_segment_index << " is a semiconductor segment " << std::endl;

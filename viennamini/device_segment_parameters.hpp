@@ -30,12 +30,14 @@ public:
     is_contact_       = false;
     is_oxide_         = false;
     is_semiconductor_ = false;
+    is_manual_        = false;
     name_             = "";
     material_         = "";
     contact_          = 0.0;
     workfunction_     = 0.0;
     NA_max_           = 0.0;
     ND_max_           = 0.0;
+    epsr_             = 0.0;
   }
 
   inline std::string& name()          { return name_; }
@@ -44,11 +46,13 @@ public:
   inline bool& is_contact()           { return is_contact_; }
   inline bool& is_oxide()             { return is_oxide_; }
   inline bool& is_semiconductor()     { return is_semiconductor_; }
+  inline bool& is_manual()            { return is_manual_; }
 
   inline numeric_type& contact_potential()  { return contact_; }
   inline numeric_type& workfunction()       { return workfunction_; }
   inline numeric_type& NA_max()             { return NA_max_; }
   inline numeric_type& ND_max()             { return ND_max_; }  
+  inline numeric_type& epsr()               { return epsr_; }  
 
 private:
   std::string name_;
@@ -57,11 +61,13 @@ private:
   bool is_contact_;
   bool is_oxide_;
   bool is_semiconductor_;
+  bool is_manual_;
 
   numeric_type contact_;
   numeric_type workfunction_;
   numeric_type NA_max_;
   numeric_type ND_max_;
+  numeric_type epsr_;
 };
 
 } // viennamini

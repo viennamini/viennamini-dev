@@ -92,7 +92,10 @@ private:
         {
           // permittivity
           std::size_t adjacent_oxide_segment_index = device_.get_adjacent_oxide_segment_for_contact(current_segment_index);
-          NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
+          NumericType epsr = 0.0;
+          if(device_.is_manual(adjacent_oxide_segment_index))
+            epsr = device_.epsr(adjacent_oxide_segment_index);
+          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
 
@@ -117,7 +120,10 @@ private:
           NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
 
           // permittivity
-          NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
+          NumericType epsr = 0.0;
+          if(device_.is_manual(adjacent_semiconductor_segment_index))
+            epsr = device_.epsr(adjacent_semiconductor_segment_index);
+          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
 
@@ -148,7 +154,10 @@ private:
       if(device_.is_oxide(current_segment_index))
       {
         // permittivity
-        numeric epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
+        NumericType epsr = 0.0;
+        if(device_.is_manual(current_segment_index))
+          epsr = device_.epsr(current_segment_index);
+        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
         viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
           epsr * viennamini::eps0::val());
 
@@ -164,7 +173,10 @@ private:
         NumericType ND_value    = device_.ND_max(current_segment_index);
         NumericType NA_value    = device_.NA_max(current_segment_index);
         NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
-        NumericType epsr        = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
+        NumericType epsr = 0.0;
+        if(device_.is_manual(current_segment_index))
+          epsr = device_.epsr(current_segment_index);
+        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
       
       #ifdef VIENNAMINI_DEBUG
         std::cout << "segment " << current_segment_index << " is a semiconductor segment " << std::endl;
