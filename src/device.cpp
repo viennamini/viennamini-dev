@@ -108,25 +108,60 @@ device::NumericType& device::ND_max(int id)
   return mesh_parameters_[id].ND_max();
 }
 
+bool device::is_contact(int id)
+{
+  return mesh_parameters_[id].is_contact();
+}
+
+bool device::is_oxide(int id)
+{
+  return mesh_parameters_[id].is_oxide();
+}
+
+bool device::is_semiconductor(int id)
+{
+  return mesh_parameters_[id].is_semiconductor();
+}
+
+bool device::is_contact_at_oxide(int id)
+{
+  return !(contact_oxide_interfaces_.find(id) == contact_oxide_interfaces_.end());
+}
+
+bool device::is_contact_at_semiconductor(int id)
+{
+  return !(contact_semiconductor_interfaces_.find(id) == contact_semiconductor_interfaces_.end());
+}
+
+std::size_t device::get_adjacent_semiconductor_segment_for_contact(int id)
+{
+  return contact_semiconductor_interfaces_[id];
+}
+
+std::size_t device::get_adjacent_oxide_segment_for_contact(int id)
+{
+  return contact_oxide_interfaces_[id];
+}
+
 void device::update()
 {
   oxide_segments_indices_.clear();
   contact_segments_indices_.clear();
   semiconductor_segments_indices_.clear();
-  contactSemiconductorInterfaces_.clear();
-  contactOxideInterfaces_.clear();
+  contact_semiconductor_interfaces_.clear();
+  contact_oxide_interfaces_.clear();
 
   for(MeshParametersType::iterator siter = mesh_parameters_.begin();
       siter != mesh_parameters_.end(); siter++)
   {
-    if(siter->second.is_oxide()) oxide_segments_indices_.push_back(siter->first);
+    if(siter->second.is_oxide())         oxide_segments_indices_.push_back(siter->first);
     else
-    if(siter->second.is_contact()) contact_segments_indices_.push_back(siter->first);
+    if(siter->second.is_contact())       contact_segments_indices_.push_back(siter->first);
     else
     if(siter->second.is_semiconductor()) semiconductor_segments_indices_.push_back(siter->first);
   }
 
-  viennamini::detect_interfaces(*this, contactSemiconductorInterfaces_, contactOxideInterfaces_);
+  viennamini::detect_interfaces(*this, contact_semiconductor_interfaces_, contact_oxide_interfaces_);
 }
 
 device::GenericMeshType& device::generic_mesh()

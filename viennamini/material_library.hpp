@@ -27,6 +27,7 @@ namespace viennamini {
     ~material_library();
     void read(std::string const& filename);
     void reset();
+    viennamaterials::library* operator()();
     
   private:
     viennamaterials::library* lib_;

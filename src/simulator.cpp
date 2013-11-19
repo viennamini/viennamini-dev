@@ -14,14 +14,19 @@
 
 
 #include "viennamini/simulator.hpp"
-#include "viennamini/prepare_poisson_drift_diffusion_np.hpp"
+#include "viennamini/problem_poisson_dd-np.hpp"
 
 namespace viennamini
 {
 
-simulator::simulator() : device_(storage_), storage_changed_(true), device_changed_(true), 
-  config_changed_(true), matlib_changed_(true)
+simulator::simulator() : device_(storage_), problem_(NULL), 
+  storage_changed_(true), device_changed_(true), config_changed_(true), matlib_changed_(true) 
 {
+}
+
+simulator::~simulator()
+{
+  if(problem_) delete problem_;
 }
 
 viennamini::data_storage  const& simulator::storage() const
@@ -74,17 +79,24 @@ void simulator::run()
   {
     std::cout << "updating device .." << std::endl;
     device_.update();
-    config_changed_ = true;
   }
 
-  if(config_changed_)
+  if(config_changed_ || device_changed_ || matlib_changed_)
   {
     std::cout << "updating configuration .." << std::endl;
-    if(config_.problem() == viennamini::poisson_drift_diffusion_np)
+    if(config_.problem() == viennamini::id::poisson_drift_diffusion_np())
     {
-      viennamini::prepare_poisson_drift_diffusion_np(device_);
+      if(problem_) delete problem_;
+      problem_ = new viennamini::problem_poisson_dd_np(device_, config_, matlib_);
+      problem_->run();
     }
   }
+}
+
+void simulator::write(std::string const filename)
+{
+  if(problem_)
+    problem_->write(filename);
 }
 
 } // viennamini

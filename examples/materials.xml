@@ -11,6 +11,11 @@
         <unit>eV</unit>
       </parameter>
       <parameter>
+        <name>intrinsic_carrier_concentration</name>
+        <value>1.45E10</value>
+        <unit>1/cm3</unit>
+      </parameter>
+      <parameter>
         <name>permittivity</name>
         <value>11.8</value>
         <unit></unit>
@@ -38,6 +43,11 @@
         <name>bandgap</name>
         <value>0.67</value>
         <unit>eV</unit>
+      </parameter>
+      <parameter>
+        <name>intrinsic_carrier_concentration</name>
+        <value>2.4E13</value>
+        <unit>1/cm3</unit>
       </parameter>
       <parameter>
         <name>permittivity</name>
@@ -68,6 +78,11 @@
         <name>bandgap</name>
         <value>1.35</value>
         <unit>eV</unit>
+      </parameter>
+      <parameter>
+        <name>intrinsic_carrier_concentration</name>
+        <value>1.79E6</value>
+        <unit>1/cm3</unit>
       </parameter>
       <parameter>
         <name>permittivity</name>

@@ -44,5 +44,10 @@ void material_library::reset()
   lib_ = NULL;
 }
 
+viennamaterials::library* material_library::operator()()
+{
+  return lib_;
+}
+
 } // viennamini
 

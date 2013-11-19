@@ -62,7 +62,7 @@
 #include "viennamini/device.hpp"
 #include "viennamini/material_library.hpp"
 //#include "viennamini/result_accessor.hpp"
-
+#include "viennamini/problem.hpp"
 
 namespace viennamini
 {
@@ -70,8 +70,9 @@ namespace viennamini
   {
   public:
     simulator();
+    ~simulator();
 
-    void run();
+    void                                 run();
 
     viennamini::data_storage      const& storage() const;
     viennamini::data_storage           & storage();
@@ -85,12 +86,16 @@ namespace viennamini
     viennamini::material_library  const& material_library() const;
     viennamini::material_library       & material_library();
   
+    void                                 write(std::string const filename);
+  
   private:
 
     viennamini::data_storage      storage_;
     viennamini::device            device_;
     viennamini::config            config_;
     viennamini::material_library  matlib_;
+
+    viennamini::problem*          problem_;
     
     bool storage_changed_;
     bool device_changed_;

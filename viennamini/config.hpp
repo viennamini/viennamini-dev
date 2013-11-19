@@ -19,11 +19,13 @@
 #include <map>
 #include <vector>
 
+#include "viennamini/fwd.h"
+
 namespace viennamini {
 
 struct config
 {
-  typedef double                              NumericType;
+  typedef viennamini::numeric                 NumericType;
   typedef int                                 IndexType;
   typedef std::vector<NumericType>            ValuesType;
   typedef std::map<std::size_t, NumericType>  SegmentValuesType;

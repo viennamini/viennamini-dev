@@ -32,7 +32,7 @@ namespace viennamini
   {
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null_mesh, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>                              GenericMeshType;
+    typedef boost::variant<null, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>                                  GenericMeshType;
     typedef double                                                                                                        NumericType;
     typedef viennamini::segment_parameters<NumericType>                                                                   SegmentParametersType;
     typedef std::map<int, SegmentParametersType >                                                                         MeshParametersType;
@@ -69,6 +69,15 @@ namespace viennamini
     NumericType& NA_max(int id);
     NumericType& ND_max(int id);
 
+    bool is_contact(int id);
+    bool is_contact_at_oxide(int id);
+    bool is_contact_at_semiconductor(int id);
+    bool is_oxide(int id);
+    bool is_semiconductor(int id);
+
+    std::size_t get_adjacent_semiconductor_segment_for_contact(int id);
+    std::size_t get_adjacent_oxide_segment_for_contact(int id);
+
     void update();
 
     GenericMeshType         & generic_mesh();
@@ -92,12 +101,12 @@ namespace viennamini
     GenericMeshType            generic_mesh_;
     MeshParametersType         mesh_parameters_;
 
-    IndicesType                 contact_segments_indices_;
-    IndicesType                 oxide_segments_indices_;
-    IndicesType                 semiconductor_segments_indices_;
+    IndicesType                contact_segments_indices_;
+    IndicesType                oxide_segments_indices_;
+    IndicesType                semiconductor_segments_indices_;
 
-    IndexMapType contactSemiconductorInterfaces_;
-    IndexMapType contactOxideInterfaces_;
+    IndexMapType               contact_semiconductor_interfaces_;
+    IndexMapType               contact_oxide_interfaces_;
   };
 
 
