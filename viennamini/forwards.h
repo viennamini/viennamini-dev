@@ -136,6 +136,9 @@ namespace viennamini
   inline std::string potential()                  { return "Potential"; }
   inline std::string electron_density()           { return "Electron Density"; }
   inline std::string hole_density()               { return "Hole Density"; }
+  inline std::string electron_mobility()          { return "Electron Mobility"; }
+  inline std::string hole_mobility()              { return "Hole Mobility"; }
+
   } // id
 
   namespace mat {

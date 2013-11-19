@@ -28,9 +28,7 @@ struct problem_laplace : public problem
 {
 public:
   problem_laplace(viennamini::device& device, viennamini::config& config, viennamini::material_library& matlib) :
-    problem         (device, config, matlib),
-    psi_            (0),
-    permittivity_   (1)
+    problem         (device, config, matlib)
   {
     
   }
@@ -177,12 +175,15 @@ private:
     //
     // -------------------------------------------------------------------------
 
+    FunctionSymbolType psi  (potential.id());
+    FunctionSymbolType epsr (permittivity.id());
+
     // here is all the fun: specify DD system
-    EquationType laplace_eq = viennamath::make_equation( viennamath::div(permittivity_ * viennamath::grad(psi_)), /* = */ 0);
+    EquationType laplace_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)), /* = */ 0);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
-    pde_system.add_pde(laplace_eq, psi_); 
+    pde_system.add_pde(laplace_eq, psi); 
     pde_system.is_linear(true); 
 
     // -------------------------------------------------------------------------
@@ -221,14 +222,6 @@ private:
         device_.get_segmesh_tetrahedral_3d().segmentation);
     }
   }
-
-
-  FunctionSymbolType psi_;
-  FunctionSymbolType n_;
-  FunctionSymbolType p_;
-  FunctionSymbolType permittivity_;
-  FunctionSymbolType donator_doping_;
-  FunctionSymbolType acceptor_doping_;
 };
 
 } // viennamini

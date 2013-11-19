@@ -28,15 +28,8 @@ struct problem_poisson_dd_np : public problem
 {
 public:
   problem_poisson_dd_np(viennamini::device& device, viennamini::config& config, viennamini::material_library& matlib) :
-    problem         (device, config, matlib),
-    psi_            (0),
-    n_              (1),
-    p_              (2),
-    permittivity_   (3),
-    donator_doping_ (4),
-    acceptor_doping_(5)
+    problem         (device, config, matlib)
   {
-    
   }
 
   void run()
@@ -71,6 +64,8 @@ private:
     QuantityType & potential         = problem_description.add_quantity(viennamini::id::potential());
     QuantityType & electron_density  = problem_description.add_quantity(viennamini::id::electron_density());
     QuantityType & hole_density      = problem_description.add_quantity(viennamini::id::hole_density());
+    QuantityType & electron_mobility = problem_description.add_quantity(viennamini::id::electron_mobility());
+    QuantityType & hole_mobility     = problem_description.add_quantity(viennamini::id::hole_mobility());
     QuantityType & permittivity      = problem_description.add_quantity(viennamini::id::permittivity());
     QuantityType & donator_doping    = problem_description.add_quantity(viennamini::id::donator_doping());
     QuantityType & acceptor_doping   = problem_description.add_quantity(viennamini::id::acceptor_doping());
@@ -198,6 +193,12 @@ private:
         viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), NA_value);
         viennafvm::set_unknown(hole_density, segmesh.segmentation(current_segment_index));
         
+        // electrons mobility
+        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), 1.0);
+
+        // holes mobility
+        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index), 1.0);
+        
         // donator doping
         viennafvm::set_initial_value(donator_doping, segmesh.segmentation(current_segment_index), ND_value);
 
@@ -212,24 +213,33 @@ private:
     //
     // -------------------------------------------------------------------------
 
+    FunctionSymbolType psi  (potential.id());
+    FunctionSymbolType n    (electron_density.id());
+    FunctionSymbolType p    (hole_density.id());
+    FunctionSymbolType mu_n (electron_mobility.id());
+    FunctionSymbolType mu_p (hole_mobility.id());
+    FunctionSymbolType epsr (permittivity.id());
+    FunctionSymbolType ND   (donator_doping.id());
+    FunctionSymbolType NA   (acceptor_doping.id());
+
     // TODO: outsource to constants.hpp and physics.hpp
-    NumericType q  = 1.6e-19;
-    NumericType kB = 1.38e-23;
+    NumericType q  = viennamini::q::val();
+    NumericType kB = viennamini::kB::val();
     NumericType mu = 1;
-    NumericType T  = 300;
+    NumericType T  = config_.temperature();
     NumericType VT = kB * T / q;
     NumericType D  = mu * VT;
 
     // here is all the fun: specify DD system
-    EquationType poisson_eq = viennamath::make_equation( viennamath::div(permittivity_ * viennamath::grad(psi_)),                     /* = */ q * ((n_ - donator_doping_) - (p_ - acceptor_doping_)));
-    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n_) - mu * viennamath::grad(psi_) * n_), /* = */ 0);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p_) + mu * viennamath::grad(psi_) * p_), /* = */ 0);
+    EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                               /* = */ q * ((n - ND) - (p - NA)));
+    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
-    pde_system.add_pde(poisson_eq, psi_); pde_system.option(0).damping_term( (n_ + p_) * (-q / VT) );
-    pde_system.add_pde(cont_eq_n,  n_);   pde_system.option(1).geometric_update(true);
-    pde_system.add_pde(cont_eq_p,  p_);   pde_system.option(2).geometric_update(true);
+    pde_system.add_pde(poisson_eq, psi); pde_system.option(0).damping_term( (n + p) * (-q / VT) );
+    pde_system.add_pde(cont_eq_n,  n);   pde_system.option(1).geometric_update(true);
+    pde_system.add_pde(cont_eq_p,  p);   pde_system.option(2).geometric_update(true);
 
     pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
@@ -269,14 +279,6 @@ private:
         device_.get_segmesh_tetrahedral_3d().segmentation);
     }
   }
-
-
-  FunctionSymbolType psi_;
-  FunctionSymbolType n_;
-  FunctionSymbolType p_;
-  FunctionSymbolType permittivity_;
-  FunctionSymbolType donator_doping_;
-  FunctionSymbolType acceptor_doping_;
 };
 
 } // viennamini

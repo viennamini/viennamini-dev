@@ -25,7 +25,7 @@ struct pi
   typedef std::string   string_type;
 
   static result_type val() {
-    return  3.1415926535897932384626433832795;
+    return  result_type(3.1415926535897932384626433832795);
   }
 
   static string_type unit() {
@@ -43,7 +43,7 @@ struct c0
   typedef std::string   string_type;
 
   static result_type val() {
-    return  299792458.0;
+    return  result_type(299792458.0);
   }
 
   static string_type unit() {
@@ -61,7 +61,7 @@ struct eps0
   typedef std::string   string_type;
 
   static result_type val() {
-    return 8.854187817620E-12;
+    return result_type(8.854187817620E-12);
   }
 
   static string_type unit() {
@@ -79,7 +79,7 @@ struct kB
   typedef std::string   string_type;
 
   static result_type val() {
-    return 1.3806488e-23;
+    return result_type(1.3806488e-23);
   }
 
   static string_type unit() {
@@ -97,7 +97,7 @@ struct q
   typedef std::string   string_type;
 
   static result_type val() {
-    return 1.602176565e-19;
+    return result_type(1.602176565e-19);
   }
 
   static string_type unit() {
