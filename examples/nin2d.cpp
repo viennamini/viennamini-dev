@@ -6,6 +6,7 @@
                              -----------------
 
    authors:    Karl Rupp                          rupp@iue.tuwien.ac.at
+               Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
    license:    To be discussed, see file LICENSE in the ViennaFVM base directory
@@ -65,9 +66,9 @@ int main()
   mysim.device().workfunction(right_contact) = 0.0;
 
   mysim.config().temperature()                        = 300;
-  mysim.config().damping()                            = 0.8;
-  mysim.config().linear_breaktol()                    = 1.0E-13;
-  mysim.config().linear_iterations()                  = 700;
+  mysim.config().damping()                            = 1.0;
+  mysim.config().linear_breaktol()                    = 1.0E-14;
+  mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
   mysim.config().initial_guess_smoothing_iterations() = 4;

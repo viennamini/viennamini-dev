@@ -25,6 +25,23 @@
 namespace viennamini
 {
 
+struct is_triangle_2d_visitor : public boost::static_visitor<bool>
+{
+  bool operator()(segmesh_triangular_2d_ptr & ptr) const { return true; }
+
+  template<typename T>
+  bool operator()(T & ptr) const { return false; }
+};
+
+struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
+{
+  bool operator()(segmesh_tetrahedral_3d_ptr & ptr) const { return true; }
+
+  template<typename T>
+  bool operator()(T & ptr) const { return false; }
+};
+
+
 device::device(viennamini::data_storage& storage) : storage_(storage) 
 {
 }
@@ -41,16 +58,12 @@ void device::make_tetrahedral3d()
 
 bool device::is_triangular2d()
 {
-  segmesh_triangular_2d_ptr pnt = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
-  if(pnt) return true;
-  else    return false;
+  return boost::apply_visitor(is_triangle_2d_visitor(), generic_mesh_);
 }
 
 bool device::is_tetrahedral3d()
 {
-  segmesh_tetrahedral_3d_ptr pnt = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
-  if(pnt) return true;
-  else    return false;
+  return boost::apply_visitor(is_tetrahedral_3d_visitor(), generic_mesh_);
 }
 
 segmesh_triangular_2d& device::get_segmesh_triangular_2d()
