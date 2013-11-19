@@ -225,15 +225,13 @@ private:
     // TODO: outsource to constants.hpp and physics.hpp
     NumericType q  = viennamini::q::val();
     NumericType kB = viennamini::kB::val();
-    NumericType mu = 1;
     NumericType T  = config_.temperature();
-    NumericType VT = kB * T / q;
-    NumericType D  = mu * VT;
+    viennamath::expr VT = kB * T / q;
 
     // here is all the fun: specify DD system
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                               /* = */ q * ((n - ND) - (p - NA)));
-    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
+    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
