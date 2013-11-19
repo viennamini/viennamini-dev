@@ -66,21 +66,21 @@ config::IndexType&    config::initial_guess_smoothing_iterations()
   return initial_guess_smoothing_iterations_;
 }
 
-void config::assign_contact(std::size_t segment_index, config::NumericType value, config::NumericType workfunction)
-{
-  segment_contact_values_       [segment_index] = value;
-  segment_contact_workfunctions_[segment_index] = workfunction;
-}
+//void config::assign_contact(std::size_t segment_index, config::NumericType value, config::NumericType workfunction)
+//{
+//  segment_contact_values_       [segment_index] = value;
+//  segment_contact_workfunctions_[segment_index] = workfunction;
+//}
 
-config::NumericType& config::contact_value(std::size_t segment_index)
-{
-  return segment_contact_values_[segment_index];
-}
+//config::NumericType& config::contact_value(std::size_t segment_index)
+//{
+//  return segment_contact_values_[segment_index];
+//}
 
-config::NumericType& config::workfunction(std::size_t segment_index)
-{
-    return segment_contact_workfunctions_[segment_index];
-}
+//config::NumericType& config::workfunction(std::size_t segment_index)
+//{
+//    return segment_contact_workfunctions_[segment_index];
+//}
 
 std::string& config::problem()
 {

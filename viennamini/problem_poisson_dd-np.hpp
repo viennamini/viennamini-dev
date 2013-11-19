@@ -87,39 +87,47 @@ private:
       {
         if(device_.is_contact_at_oxide(current_segment_index))
         {
-//          std::cout << "segment " << current_segment_index << " is a contact (-oxide) segment " << std::endl;
           // permittivity
           std::size_t adjacent_oxide_segment_index = device_.get_adjacent_oxide_segment_for_contact(current_segment_index);
           NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
+
+        #ifdef VIENNAMINI_DEBUG
+          std::cout << "segment " << current_segment_index << " is a contact (-oxide) segment " << std::endl;
+          std::cout << "  contact value: " << device_.contact_potential(current_segment_index) << " workfunction: " << device_.workfunction(current_segment_index) << std::endl;
+          std::cout << "  @oxide neighbor: epsr: " << epsr << std::endl;
+        #endif
+
         
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, 
                                             segmesh.segmentation(current_segment_index), 
-                                            config_.contact_value(current_segment_index) + config_.workfunction(current_segment_index));
+                                            device_.contact_potential(current_segment_index) + device_.workfunction(current_segment_index));
         }
         else
         if(device_.is_contact_at_semiconductor(current_segment_index))
         {
-//          std::cout << "segment " << current_segment_index << " is a contact (-semiconductor) segment " << std::endl;
-        
           std::size_t adjacent_semiconductor_segment_index = device_.get_adjacent_semiconductor_segment_for_contact(current_segment_index);
           NumericType ND_value    = device_.ND_max(adjacent_semiconductor_segment_index);
           NumericType NA_value    = device_.NA_max(adjacent_semiconductor_segment_index);
           NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
-
-//          std::cout << "@semiconductor neighbor: ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << std::endl;
 
           // permittivity
           NumericType epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
           viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
             epsr * viennamini::eps0::val());
 
+        #ifdef VIENNAMINI_DEBUG
+          std::cout << "segment " << current_segment_index << " is a contact (-semiconductor) segment " << std::endl;
+          std::cout << "  contact value: " << device_.contact_potential(current_segment_index) << " workfunction: " << device_.workfunction(current_segment_index) << std::endl;
+          std::cout << "  @semiconductor neighbor: ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << " epsr: " << epsr << std::endl;
+        #endif
+
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, 
                                             segmesh.segmentation(current_segment_index), 
-                                            config_.contact_value(current_segment_index) + config_.workfunction(current_segment_index) + builtin_pot);
+                                            device_.contact_potential(current_segment_index) + device_.workfunction(current_segment_index) + builtin_pot);
 
           // electrons dirichlet boundary
           viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index), ND_value);
@@ -136,28 +144,29 @@ private:
       }
       if(device_.is_oxide(current_segment_index))
       {
-//        std::cout << "segment " << current_segment_index << " is an oxide segment " << std::endl;
-
         // permittivity
         numeric epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
         viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
           epsr * viennamini::eps0::val());
 
-//        std::cout << "eps: " << epsr * viennamini::eps0::val() << std::endl;
+      #ifdef VIENNAMINI_DEBUG
+        std::cout << "segment " << current_segment_index << " is an oxide segment " << std::endl;
+        std::cout << "  epsr: " << epsr << std::endl;
+      #endif
       
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
       if(device_.is_semiconductor(current_segment_index))
       {
-//        std::cout << "segment " << current_segment_index << " is a semiconductor segment " << std::endl;
-      
         NumericType ND_value    = device_.ND_max(current_segment_index);
         NumericType NA_value    = device_.NA_max(current_segment_index);
         NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
         NumericType epsr        = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
       
-//        std::cout << "ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << " epsr " << epsr << std::endl;
-      
+      #ifdef VIENNAMINI_DEBUG
+        std::cout << "segment " << current_segment_index << " is a semiconductor segment " << std::endl;
+        std::cout << "  ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << " epsr " << epsr << std::endl;
+      #endif
         // potential
         viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), builtin_pot);
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));

@@ -45,11 +45,11 @@ struct config
   NumericType&  damping();
   IndexType&    initial_guess_smoothing_iterations();
 
-  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction);
+//  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction);
 
-  NumericType& contact_value(std::size_t segment_index);
+//  NumericType& contact_value(std::size_t segment_index);
 
-  NumericType& workfunction(std::size_t segment_index);
+//  NumericType& workfunction(std::size_t segment_index);
 
   std::string& problem();
 
@@ -61,8 +61,8 @@ private:
   NumericType       nonlinear_breaktol_;
   NumericType       linear_breaktol_;
   NumericType       damping_;
-  SegmentValuesType segment_contact_values_;
-  SegmentValuesType segment_contact_workfunctions_;
+//  SegmentValuesType segment_contact_values_;
+//  SegmentValuesType segment_contact_workfunctions_;
   std::string       problem_;
 };
 
