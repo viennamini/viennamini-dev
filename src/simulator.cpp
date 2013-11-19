@@ -15,6 +15,7 @@
 
 #include "viennamini/simulator.hpp"
 #include "viennamini/problem_poisson_dd-np.hpp"
+#include "viennamini/problem_laplace.hpp"
 
 namespace viennamini
 {
@@ -88,6 +89,13 @@ void simulator::run()
     {
       if(problem_) delete problem_;
       problem_ = new viennamini::problem_poisson_dd_np(device_, config_, matlib_);
+      problem_->run();
+    }
+    else
+    if(config_.problem() == viennamini::id::laplace())
+    {
+      if(problem_) delete problem_;
+      problem_ = new viennamini::problem_laplace(device_, config_, matlib_);
       problem_->run();
     }
   }

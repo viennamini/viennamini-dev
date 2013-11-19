@@ -91,11 +91,11 @@ int main()
 
   mysim.run();
 
-  mysim.write("mosfet2d_result");
+  mysim.write("mosfet2d_dd_np_result");
 
-  std::cout << "***********************************************" << std::endl;
-  std::cout << "* MOSFET 2D simulation finished successfully! *" << std::endl;
-  std::cout << "***********************************************" << std::endl;
+  std::cout << "**********************************************************" << std::endl;
+  std::cout << "* MOSFET 2D DD Bipolar simulation finished successfully! *" << std::endl;
+  std::cout << "**********************************************************" << std::endl;
 
   return EXIT_SUCCESS;
 }

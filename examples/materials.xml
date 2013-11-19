@@ -123,6 +123,18 @@
     </parameters>
   </material>    
   <material>
+    <id>Air</id>
+    <name>air</name>
+    <category>air</category>
+    <parameters>
+      <parameter>
+        <name>permittivity</name>
+        <value>1.0</value>
+        <unit></unit>
+      </parameter>      
+    </parameters>
+  </material>    
+  <material>
     <id>Cu</id>
     <name>Copper</name>
     <category>metal</category>

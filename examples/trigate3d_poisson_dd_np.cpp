@@ -98,11 +98,11 @@ int main(int argc, char* argv[])
 
   mysim.run();
   
-  mysim.write("trigate3d_result");
+  mysim.write("trigate3d_dd_np_result");
 
-  std::cout << "************************************************" << std::endl;
-  std::cout << "* TRIGATE 3D simulation finished successfully! *" << std::endl;
-  std::cout << "************************************************" << std::endl;
+  std::cout << "***********************************************************" << std::endl;
+  std::cout << "* TRIGATE 3D DD Bipolar simulation finished successfully! *" << std::endl;
+  std::cout << "***********************************************************" << std::endl;
   return EXIT_SUCCESS;
 }
 
