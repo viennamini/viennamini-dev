@@ -21,15 +21,15 @@
         <unit></unit>
       </parameter>      
       <parameter>
-        <name>electron_mobility</name>
-        <value>1900</value>
+        <name>mu_n_0</name>
+        <value>1430</value>
         <unit>cm^2/V*s</unit>
       </parameter>
       <parameter>
-        <name>hole_mobility</name>
-        <value>500</value>
+        <name>mu_p_0</name>
+        <value>460</value>
         <unit>cm^2/V*s</unit>
-      </parameter>    
+      </parameter>
     </parameters>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=7d1b56e9e0c54ac5bb9cd433a0991e27&ckck=1</source>-->
   </material>

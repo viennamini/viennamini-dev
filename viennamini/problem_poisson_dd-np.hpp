@@ -223,10 +223,8 @@ private:
     FunctionSymbolType NA   (acceptor_doping.id());
 
     // TODO: outsource to constants.hpp and physics.hpp
-    NumericType q  = viennamini::q::val();
-    NumericType kB = viennamini::kB::val();
-    NumericType T  = config_.temperature();
-    viennamath::expr VT = kB * T / q;
+    NumericType q       = viennamini::q::val();
+    viennamath::expr VT = viennamini::get_thermal_potential(config_.temperature());
 
     // here is all the fun: specify DD system
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                               /* = */ q * ((n - ND) - (p - NA)));
