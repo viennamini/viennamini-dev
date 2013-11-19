@@ -15,7 +15,7 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include "viennamini/fwd.h"
+#include "viennamini/forwards.h"
 
 #include "viennagrid/algorithm/interface.hpp"
 

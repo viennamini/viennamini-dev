@@ -55,7 +55,7 @@
 #include <boost/numeric/ublas/operation_sparse.hpp>
 
 // ViennaMini includes:
-#include "viennamini/fwd.h"
+#include "viennamini/forwards.h"
 //#include "viennamini/physics.hpp"
 //#include "viennamini/constants.hpp"
 #include "viennamini/config.hpp"

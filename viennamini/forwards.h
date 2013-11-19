@@ -32,7 +32,7 @@
 
 // ViennaFVM includes
 #include "viennafvm/forwards.h"
-#include "viennafvm/pde_solver.hpp"
+#include "viennafvm/problem_description.hpp"
 
 
 #include "boost/shared_ptr.hpp"
@@ -160,8 +160,8 @@ namespace viennamini
   typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
   typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
 
-  typedef ::viennafvm::pde_solver<mesh_triangular_2d>                                                             pde_solver_triangular_2d;
-  typedef ::viennafvm::pde_solver<mesh_tetrahedral_3d>                                                            pde_solver_tetrahedral_3d;
+  typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;
+  typedef ::viennafvm::problem_description<mesh_tetrahedral_3d>                                                   problem_description_tetrahedral_3d;
 
   class triangular_2d  {};
   class tetrahedral_3d {};

@@ -18,6 +18,10 @@
 #include "viennamini/problem.hpp"
 #include "viennamini/physics.hpp"
 
+// ViennaFVM includes:
+#include "viennafvm/pde_solver.hpp"
+#include "viennafvm/problem_description.hpp"
+
 namespace viennamini {
 
 struct problem_poisson_dd_np : public problem
@@ -39,12 +43,14 @@ public:
   {
     if(device_.is_triangular2d())
     {
-      this->run_impl(device_.get_segmesh_triangular_2d());
+      problem_description_ = problem_description_triangular_2d();
+      this->run_impl(device_.get_segmesh_triangular_2d(), boost::get<problem_description_triangular_2d>(problem_description_));
     }
     else 
     if(device_.is_tetrahedral3d())
     {
-      this->run_impl(device_.get_segmesh_tetrahedral_3d());
+      problem_description_ = problem_description_tetrahedral_3d();
+      this->run_impl(device_.get_segmesh_tetrahedral_3d(), boost::get<problem_description_tetrahedral_3d>(problem_description_));
     }
     else
       std::cout << "detect_interfaces: segmented mesh type not supported" << std::endl;
@@ -53,24 +59,21 @@ public:
   
 private:
   
-  template<typename SegmentedMeshT>
-  void run_impl(SegmentedMeshT& segmesh)
+  template<typename SegmentedMeshT, typename ProblemDescriptionT>
+  void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
   {
     typedef typename SegmentedMeshT::mesh_type                MeshType;
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
-    typedef viennafvm::pde_solver<MeshType>                   ProblemDescriptionType;
-    typedef typename ProblemDescriptionType::quantity_type    QuantityType;
+    typedef typename ProblemDescriptionT::quantity_type       QuantityType;
 
-    ProblemDescriptionType pde_solver(segmesh.mesh);
+    problem_description = segmesh.mesh;
     
-    std::size_t cell_num = viennagrid::cells(segmesh.mesh).size();
-    
-    QuantityType potential        (viennamini::id::potential(),        cell_num);
-    QuantityType electron_density (viennamini::id::electron_density(), cell_num);
-    QuantityType hole_density     (viennamini::id::hole_density(),     cell_num);
-    QuantityType permittivity     (viennamini::id::permittivity(),     cell_num);
-    QuantityType donator_doping   (viennamini::id::donator_doping(),   cell_num);
-    QuantityType acceptor_doping  (viennamini::id::acceptor_doping(),  cell_num);
+    QuantityType & potential         = problem_description.add_quantity(viennamini::id::potential());
+    QuantityType & electron_density  = problem_description.add_quantity(viennamini::id::electron_density());
+    QuantityType & hole_density      = problem_description.add_quantity(viennamini::id::hole_density());
+    QuantityType & permittivity      = problem_description.add_quantity(viennamini::id::permittivity());
+    QuantityType & donator_doping    = problem_description.add_quantity(viennamini::id::donator_doping());
+    QuantityType & acceptor_doping   = problem_description.add_quantity(viennamini::id::acceptor_doping());
     
     // -------------------------------------------------------------------------
     //
@@ -190,12 +193,6 @@ private:
         viennafvm::set_initial_value(acceptor_doping, segmesh.segmentation(current_segment_index), NA_value);
       }
     }
-    pde_solver.add_quantity(potential);
-    pde_solver.add_quantity(electron_density);
-    pde_solver.add_quantity(hole_density);
-    pde_solver.add_quantity(permittivity);
-    pde_solver.add_quantity(donator_doping);
-    pde_solver.add_quantity(acceptor_doping);
 
     // -------------------------------------------------------------------------
     //
@@ -224,7 +221,7 @@ private:
 
     pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
-    viennafvm::io::write_solution_to_VTK_file(pde_solver.quantities(), "initial", segmesh.mesh, segmesh.segmentation);
+    viennafvm::io::write_solution_to_VTK_file(problem_description.quantities(), "initial", segmesh.mesh, segmesh.segmentation);
 
     // -------------------------------------------------------------------------
     //
@@ -234,12 +231,14 @@ private:
     viennafvm::linsolv::viennacl  linear_solver;
     linear_solver.break_tolerance() = config_.linear_breaktol();
     linear_solver.max_iterations()  = config_.linear_iterations();
+    
+    viennafvm::pde_solver pde_solver;
     pde_solver.set_nonlinear_iterations(config_.nonlinear_iterations());
     pde_solver.set_nonlinear_breaktol(config_.nonlinear_breaktol());
     pde_solver.set_damping(config_.damping());
-    pde_solver(pde_system, linear_solver);
+    pde_solver(problem_description, pde_system, linear_solver);
     
-    viennafvm::io::write_solution_to_VTK_file(pde_solver.quantities(), "result", segmesh.mesh, segmesh.segmentation);
+    viennafvm::io::write_solution_to_VTK_file(problem_description.quantities(), "result", segmesh.mesh, segmesh.segmentation);
   }
 
   void write(std::string const& filename)

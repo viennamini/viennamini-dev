@@ -19,7 +19,7 @@
 #include <map>
 #include <vector>
 
-#include "viennamini/fwd.h"
+#include "viennamini/forwards.h"
 
 namespace viennamini {
 

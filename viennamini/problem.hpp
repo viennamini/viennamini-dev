@@ -18,17 +18,19 @@
 // ViennaMath includes:
 #include "viennamath/expression.hpp"
 
-#include "viennamini/fwd.h"
+#include "viennamini/forwards.h"
 
 namespace viennamini {
 
 struct problem
 {
 public:
+  typedef boost::variant<null, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
   typedef viennamini::numeric           NumericType;
   typedef viennamath::function_symbol   FunctionSymbolType;
   typedef viennamath::equation          EquationType;
   
+  typedef GenericProblemDescriptionType generic_problem_description_type;
   typedef FunctionSymbolType            function_symbol_type;
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
@@ -45,6 +47,7 @@ public:
   viennamini::device&           device_;
   viennamini::config&           config_;
   viennamini::material_library& matlib_;
+  GenericProblemDescriptionType problem_description_;
 };
 
 } // viennamini
