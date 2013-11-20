@@ -18,7 +18,7 @@
 #include <vector>
 #include <map>
 
-#include "viennamini/fwd.h"
+#include "viennamini/forwards.h"
 #include "viennamini/device.hpp"
 
 #include "viennagrid/forwards.hpp"
@@ -33,7 +33,7 @@ namespace viennamini
 class device_template
 {
 private:
-  typedef double                                                                NumericType;
+  typedef viennamini::numeric                                                   NumericType;
   typedef viennagrid::spatial_point<NumericType, viennagrid::cartesian_cs<3> >  PointType;
   typedef std::map<std::string, PointType>                                      GeometryPropertiesType;
 

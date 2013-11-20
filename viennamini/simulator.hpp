@@ -56,12 +56,9 @@
 
 // ViennaMini includes:
 #include "viennamini/forwards.h"
-//#include "viennamini/physics.hpp"
-//#include "viennamini/constants.hpp"
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
 #include "viennamini/material_library.hpp"
-//#include "viennamini/result_accessor.hpp"
 #include "viennamini/problem.hpp"
 
 namespace viennamini
@@ -76,31 +73,40 @@ namespace viennamini
 
     viennamini::data_storage      const& storage() const;
     viennamini::data_storage           & storage();
+    void                                 set_storage(viennamini::data_storage& new_storage);
 
     viennamini::device            const& device() const;
     viennamini::device                 & device();
+    void                                 set_device(viennamini::device& new_device);
 
     viennamini::config            const& config() const;
     viennamini::config                 & config();
-  
+    void                                 set_config(viennamini::config& new_config);
+
     viennamini::material_library  const& material_library() const;
     viennamini::material_library       & material_library();
-  
+    void                                 set_material_library(viennamini::material_library& new_material_library);
+
     void                                 write(std::string const filename);
   
   private:
 
-    viennamini::data_storage      storage_;
-    viennamini::device            device_;
-    viennamini::config            config_;
-    viennamini::material_library  matlib_;
+    viennamini::data_storage      * storage_;
+    viennamini::device            * device_;
+    viennamini::config            * config_;
+    viennamini::material_library  * matlib_;
 
-    viennamini::problem*          problem_;
+    viennamini::problem           * problem_;
     
     bool storage_changed_;
     bool device_changed_;
     bool config_changed_;
     bool matlib_changed_;
+    
+    bool external_storage_;
+    bool external_device_;
+    bool external_config_;
+    bool external_matlib_;
   };
 }
 

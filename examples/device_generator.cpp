@@ -17,14 +17,25 @@
 #include <iostream>
 
 #include "viennamini/device_template_capacitor2d.hpp"
-//#include "viennamini/simulator.hpp"
+#include "viennamini/simulator.hpp"
 //#include "viennamini/io.hpp"
 
 int main()
 {
-  viennamini::data_storage storage;
+  viennamini::data_storage mystorage;
 
-  viennamini::device_template* device_generator = new viennamini::capacitor2d(storage);
+  viennamini::device_template* device_generator = new viennamini::capacitor2d(mystorage);
+
+
+  viennamini::device      mydevice(mystorage);
+  viennamini::config      myconfig;
+  viennamini::simulator   mysim;
+
+  mysim.set_device(mydevice);
+  mysim.set_config(myconfig);
+
+  
+
 
 //  device_generator->generate();
 //  
