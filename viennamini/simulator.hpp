@@ -15,44 +15,9 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-/* Come up with a simulator object similar to ViennaSHE.
-   Configuration should happen in a similar manner, allowing for the selection of predefined models (DD, Hydro, ev. ET)
-*/
-
 #ifndef NDEBUG
   #define NDEBUG
 #endif
-
-// System includes
-
-
-// ViennaFVM includes:
-#define VIENNAFVM_VERBOSE
-#include "viennafvm/forwards.h"
-#include "viennafvm/linear_assembler.hpp"
-#include "viennafvm/io/vtk_writer.hpp"
-#include "viennafvm/boundary.hpp"
-#include "viennafvm/pde_solver.hpp"
-#include "viennafvm/initial_guess.hpp"
-#ifdef VIENNACL_WITH_OPENCL
-#include "viennafvm/viennacl_support.hpp"
-#endif
-
-// ViennaGrid includes:
-#include "viennagrid/config/default_configs.hpp"
-#include "viennagrid/io/netgen_reader.hpp"
-#include "viennagrid/io/vtk_writer.hpp"
-#include "viennagrid/algorithm/voronoi.hpp"
-#include "viennagrid/algorithm/scale.hpp"
-
-// ViennaMath includes:
-#include "viennamath/expression.hpp"
-
-// Boost includes:
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/matrix_sparse.hpp>
-#include <boost/numeric/ublas/operation.hpp>
-#include <boost/numeric/ublas/operation_sparse.hpp>
 
 // ViennaMini includes:
 #include "viennamini/forwards.h"

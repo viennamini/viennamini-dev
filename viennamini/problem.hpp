@@ -18,6 +18,12 @@
 // ViennaMath includes:
 #include "viennamath/expression.hpp"
 
+// ViennaFVM includes:
+#define VIENNAFVM_VERBOSE
+#include "viennafvm/forwards.h"
+#include "viennafvm/boundary.hpp"
+#include "viennafvm/io/vtk_writer.hpp"
+
 #include "viennamini/forwards.h"
 
 namespace viennamini {

@@ -14,8 +14,8 @@
 
 
 #include "viennamini/simulator.hpp"
-#include "viennamini/problem_poisson_dd-np.hpp"
-#include "viennamini/problem_laplace.hpp"
+#include "viennamini/problems/poisson_dd-np.hpp"
+#include "viennamini/problems/laplace.hpp"
 
 namespace viennamini
 {

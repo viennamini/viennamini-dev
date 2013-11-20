@@ -16,7 +16,7 @@
 // include necessary system headers
 #include <iostream>
 
-#include "viennamini/device_template_capacitor2d.hpp"
+#include "viennamini/templates/capacitor2d.hpp"
 #include "viennamini/simulator.hpp"
 //#include "viennamini/io.hpp"
 

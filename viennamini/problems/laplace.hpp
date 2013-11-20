@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_PROBLEM_LAPLACE_HPP
-#define VIENNAMINI_PROBLEM_LAPLACE_HPP
+#ifndef VIENNAMINI_PROBLEMS_LAPLACE_HPP
+#define VIENNAMINI_PROBLEMS_LAPLACE_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien

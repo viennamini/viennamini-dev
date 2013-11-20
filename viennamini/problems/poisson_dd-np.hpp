@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_PROBLEMPOISSON_DD_NP_HPP
-#define VIENNAMINI_PROBLEMPOISSON_DD_NP_HPP
+#ifndef VIENNAMINI_PROBLEMS_POISSON_DD_NP_HPP
+#define VIENNAMINI_PROBLEMS_POISSON_DD_NP_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien

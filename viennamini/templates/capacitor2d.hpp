@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_DEVICETEMPLATE_NIN2D_HPP
-#define VIENNAMINI_DEVICETEMPLATE_NIN2D_HPP
+#ifndef VIENNAMINI_TEMPLATES_CAPACITOR2D_HPP
+#define VIENNAMINI_TEMPLATES_CAPACITOR2D_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
