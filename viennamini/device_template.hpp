@@ -20,35 +20,37 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/device.hpp"
+#include "viennamini/config.hpp"
 
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/point.hpp"
 #include "viennagrid/mesh/element_creation.hpp"
 
-
+#include "boost/shared_ptr.hpp"
 
 namespace viennamini 
 {
 
 class device_template
 {
-private:
+protected:
   typedef viennamini::numeric                                                   NumericType;
   typedef viennagrid::spatial_point<NumericType, viennagrid::cartesian_cs<3> >  PointType;
   typedef std::map<std::string, PointType>                                      GeometryPropertiesType;
-
   
 public:
   typedef NumericType                   numeric_type;
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
 
-  device_template(viennamini::data_storage& storage) : storage_(storage), device_(storage) {}
+  device_template() {}
+
+  virtual ~device_template() {}
   
-  geometry_properties_type& geometry_properties()   { return geometry_properties_;  }
-  viennamini::data_storage& storage()               { return storage_;     }
-  viennamini::device&       device()                { return device_;      }
-  
+  geometry_properties_type&        geometry_properties()   { return geometry_properties_;  }
+  viennamini::device_handle &      device()                { return device_;      }
+  viennamini::config_handle &      config()                { return config_;      }
+
   void set_geometry_property(std::string const& key, numeric_type x, numeric_type y = 0, numeric_type z = 0)
   {
     geometry_properties_[key] = point_type(x, y, z);
@@ -57,10 +59,10 @@ public:
   virtual void        generate()         = 0;
   virtual std::string description()      = 0;
 
-private:
-  viennamini::data_storage&  storage_;
-  geometry_properties_type   geometry_properties_;
-  viennamini::device         device_;
+protected:
+  geometry_properties_type        geometry_properties_;
+  viennamini::device_handle       device_;
+  viennamini::config_handle       config_;
 };
 
 } // viennamini

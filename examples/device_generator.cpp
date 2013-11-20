@@ -22,41 +22,20 @@
 
 int main()
 {
-  viennamini::data_storage mystorage;
+  viennamini::device_template_handle device_generator(new viennamini::capacitor2d);
+  device_generator->generate();
+  viennamini::config_handle & myconfig = device_generator->config();
+  viennamini::device_handle & mydevice = device_generator->device();
+  mydevice->write("output");
 
-  viennamini::device_template* device_generator = new viennamini::capacitor2d(mystorage);
 
-
-  viennamini::device      mydevice(mystorage);
-  viennamini::config      myconfig;
   viennamini::simulator   mysim;
-
+  mysim.material_library().read("../../examples/materials.xml");
   mysim.set_device(mydevice);
   mysim.set_config(myconfig);
+  mysim.run();
+  mysim.write("capacitor2d_result");
 
-  
-
-
-//  device_generator->generate();
-//  
-//  viennamini::device & mydevice = device_generator->device();
-//  
-//  viennamini::io::write_vtk(mydevice, "output");
-//  
-//  // prepare material library
-//  viennamini::material_library mymatlib;
-//  mymatlib.load("../external/ViennaMaterials/database/materials.xml");
-
-//  // setup simulation configuration
-//  viennamini::config myconfig;
-
-//  // create a simulator object
-//  viennamini::simulator   mysim(mymatlib /*, observer here? */);
-
-//  // run the simulation
-//  mysim(mydevice, myconfig);
-  
-  delete device_generator;  
   return 0;
 }
 

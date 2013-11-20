@@ -145,6 +145,15 @@ namespace viennamini
   inline std::string permittivity()               { return "permittivity"; }
   }
 
+  class triangular_2d  {};
+  class tetrahedral_3d {};
+  class null {};
+
+  class device;
+  class config;
+  class material_library;
+  class device_template;
+
   // public typedefs
   //
   
@@ -163,13 +172,16 @@ namespace viennamini
   typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
   typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
 
+  typedef ::boost::shared_ptr<viennamini::device>                                                                 device_handle;
+  typedef ::boost::shared_ptr<viennamini::config>                                                                 config_handle;
+  typedef ::boost::shared_ptr<viennamini::data_storage>                                                           data_storage_handle;
+  typedef ::boost::shared_ptr<viennamini::material_library>                                                       material_library_handle;
+  typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
+
   typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;
   typedef ::viennafvm::problem_description<mesh_tetrahedral_3d>                                                   problem_description_tetrahedral_3d;
 
-  class triangular_2d  {};
-  class tetrahedral_3d {};
 
-  class null {};  
 
 
 } // viennamini

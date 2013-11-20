@@ -28,7 +28,8 @@ namespace viennamini {
     void read(std::string const& filename);
     void reset();
     viennamaterials::library* operator()();
-    
+    bool is_empty();
+
   private:
     viennamaterials::library* lib_;
   };

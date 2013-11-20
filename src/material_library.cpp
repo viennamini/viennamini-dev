@@ -49,5 +49,10 @@ viennamaterials::library* material_library::operator()()
   return lib_;
 }
 
+bool material_library::is_empty() 
+{
+  return lib_ == NULL;
+}
+
 } // viennamini
 

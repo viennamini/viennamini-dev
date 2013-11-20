@@ -42,7 +42,7 @@ struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
 };
 
 
-device::device(viennamini::data_storage& storage) : storage_(storage) 
+device::device() : storage_(new viennamini::data_storage)
 {
 }
 
@@ -202,7 +202,7 @@ device::SegmentParametersType& device::segment_parameters(int id)
   return parameters_[id];
 }
 
-viennamini::data_storage& device::storage()
+viennamini::data_storage_handle& device::storage()
 {
   return storage_;
 }
@@ -252,6 +252,11 @@ void device::write(std::string const& filename)
     viennagrid::io::vtk_writer<mesh_tetrahedral_3d> vtk_writer;
     vtk_writer(segmesh->mesh, segmesh->segmentation, filename);
   }
+}
+
+void device::set_default_parameters()
+{
+  
 }
 
 void device::scale(numeric_type factor)

@@ -13,7 +13,7 @@ ADD_EXECUTABLE(nin2d_laplace     nin2d_laplace.cpp)
 TARGET_LINK_LIBRARIES(nin2d_laplace ${LIBRARIES})
 
 ADD_EXECUTABLE(device_generator     device_generator.cpp)
-TARGET_LINK_LIBRARIES(device_generator ${LIBRARIES} ${VIENNAMESH_TRIANGLE})
+TARGET_LINK_LIBRARIES(device_generator ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
 
 
 

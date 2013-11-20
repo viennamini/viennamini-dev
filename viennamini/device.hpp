@@ -46,7 +46,7 @@ namespace viennamini
     typedef IndicesType                                                                    indices_type;
     typedef IndexMapType                                                                   index_map_type;
 
-    device(viennamini::data_storage& storage);
+    device();
 
     void make_triangular2d();
     void make_tetrahedral3d();
@@ -85,13 +85,15 @@ namespace viennamini
 
     GenericMeshType         & generic_mesh();
     SegmentParametersType   & segment_parameters(int id);
-    viennamini::data_storage& storage();
+
+    viennamini::data_storage_handle& storage();
 
     void read(std::string const& filename, viennamini::triangular_2d const&);
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
     
     void write(std::string const& filename);
-  //  void generate(viennamini::device_template* new_device);
+  
+    void set_default_parameters();
 
     void scale(numeric_type factor);
 
@@ -100,7 +102,8 @@ namespace viennamini
     IndicesType&   semiconductor_segments_indices();
 
   private:
-    viennamini::data_storage&  storage_;
+    viennamini::data_storage_handle  storage_;
+
     GenericMeshType            generic_mesh_;
     ParametersType             parameters_;
 
