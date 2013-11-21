@@ -138,7 +138,7 @@ private:
     lines[2] = viennagrid::make_line(mesh(), pc11, pc12 );
     lines[3] = viennagrid::make_line(mesh(), pc12, p1);
 
-    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh, lines.begin(), lines.end());
+    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
     std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
 
     // Segment 2
@@ -205,11 +205,14 @@ private:
     mesher_->run();
   }
   
-  template<typename MeshT, typename LineIterT>
-  MeshPointType compute_seed_point(MeshT const & mesh, LineIterT begin, LineIterT end)
+  template< typename LineIterT>
+  MeshPointType compute_seed_point(MeshType const& mesh, LineIterT begin, LineIterT end)
   {
+    MeshType temp_mesh;
+    viennagrid::copy_element_handles(mesh, begin, end, temp_mesh, 0.0 );
+
     viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-    seed_point_locator->set_input( "default", mesh);
+    seed_point_locator->set_input( "default", temp_mesh);
     seed_point_locator->run();
     
     typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
@@ -223,47 +226,6 @@ private:
     }
     
     return point_container().front();
-    
-    
-//    return point_container[0];
-    
-//    MeshT new_mesh;
-//    
-//    typedef typename viennagrid::result_of::vertex<MeshT>::type VertexType;
-//    typedef typename viennagrid::result_of::id<VertexType>::type VertexIDType;
-//    typedef typename viennagrid::result_of::line<MeshT>::type LineType;
-//    
-//    std::vector<MeshLineHandleType> new_lines;
-//  
-//    std::map<VertexIDType, MeshVertexHandleType> vertex_map;
-//    for (LineIterT it = begin; it != end; ++it)
-//    {
-//      LineType const & line = viennagrid::dereference_handle( mesh, *it );
-//    
-//      MeshVertexHandleType vtx_handle[2];
-//    
-//      for (int i = 0; i < 2; ++i)
-//      {
-//        typename std::map<VertexIDType, MeshVertexHandleType>::iterator vtx_handle_it = vertex_map.find( viennagrid::vertices(line)[i].id() );
-//        if (vtx_handle_it == vertex_map.end())
-//        {
-//          vtx_handle[i] = viennagrid::make_vertex( new_mesh, viennagrid::point(mesh, viennagrid::vertices(line)[i]) );
-//          vertex_map[viennagrid::vertices(line)[i].id()] = vtx_handle[i];
-//        }
-//        else
-//          vtx_handle[i] = vtx_handle_it->second;
-//      }
-//        
-//      new_lines.push_back( viennagrid::make_line( new_mesh, vtx_handle[0], vtx_handle[1] ) );
-//    }
-//  
-//  
-//    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-//    viennagrid::make_plc( new_mesh, new_lines.begin(), new_lines.end() );
-//    
-//    seed_point_locator->set_input( "default", new_mesh );
-//    seed_point_locator->run();
-//    return seed_point_locator->get_output<MeshPointType>( "default" )();
   }
 
   void assign_segments()
