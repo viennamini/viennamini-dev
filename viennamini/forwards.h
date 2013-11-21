@@ -141,6 +141,7 @@ namespace viennamini
 
   namespace material {
   inline std::string relative_permittivity()               { return "relative_permittivity"; }
+  inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
   } // material
 
   class triangular_2d  {};

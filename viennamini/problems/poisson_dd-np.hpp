@@ -83,8 +83,6 @@ private:
     //
     // -------------------------------------------------------------------------
 
-    double ni = 1.0E16; // TODO
-
     for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
         sit != segmesh.segmentation.end(); ++sit)
     {
@@ -98,7 +96,11 @@ private:
           std::size_t adjacent_semiconductor_segment_index = device_.get_adjacent_semiconductor_segment_for_contact(current_segment_index);
           NumericType ND_value    = device_.get_donator_doping(adjacent_semiconductor_segment_index);
           NumericType NA_value    = device_.get_acceptor_doping(adjacent_semiconductor_segment_index);
-          NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config_.temperature(), ni);
+          NumericType ni_value    = device_.material_library()()->get_parameter_value(
+                                      device_.get_material(adjacent_semiconductor_segment_index), 
+                                      viennamini::material::intrinsic_carrier_concentration());
+
+          NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config_.temperature(), ni_value);
         
           // add the builtin potential to the dirichlet potential boundary
           viennafvm::addto_dirichlet_boundary(potential, 
@@ -127,11 +129,11 @@ private:
         std::cout << "solving potential for semiconductor segment: " << current_segment_index << std::endl;
       #endif
       
-        // TODO provide a way to set the initial guess externally .. especially of interest
-        // via a functor
-      
+        NumericType ni_value    = device_.material_library()()->get_parameter_value(
+          device_.get_material(current_segment_index), viennamini::material::intrinsic_carrier_concentration());
+
         // potential
-        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, ni, config_.temperature())); 
+        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, ni_value, config_.temperature())); 
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
 
         // electrons

@@ -12,8 +12,8 @@
       </parameter>
       <parameter>
         <name>intrinsic_carrier_concentration</name>
-        <value>1.45E10</value>
-        <unit>1/cm3</unit>
+        <value>1.0E14</value>
+        <unit>1/m3</unit>
       </parameter>
       <parameter>
         <name>relative_permittivity</name>
