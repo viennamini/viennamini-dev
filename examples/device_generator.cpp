@@ -22,6 +22,9 @@
 
 int main()
 {
+  viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+  viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+
   viennamini::device_template_handle device_generator(new viennamini::capacitor2d);
   device_generator->generate();
   viennamini::config_handle & myconfig = device_generator->config();

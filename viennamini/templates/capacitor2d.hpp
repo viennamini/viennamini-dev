@@ -26,12 +26,6 @@ namespace viennamini {
 class capacitor2d : public viennamini::device_template
 {
 private:
-//  typedef viennagrid::plc_2d_mesh                                   PLCType;
-//  typedef viennagrid::result_of::point<PLCType>::type               PLCPointType;
-//  typedef viennagrid::result_of::vertex_handle<PLCType>::type       PLCVertexHandleType;
-//  typedef viennagrid::result_of::line_handle<PLCType>::type         PLCLineHandleType;
-
-//  typedef viennagrid::line_2d_mesh                                  MeshType;
   typedef viennagrid::plc_2d_mesh                                  MeshType;
   typedef viennagrid::result_of::point<MeshType>::type              MeshPointType;
   typedef viennagrid::result_of::vertex_handle<MeshType>::type      MeshVertexHandleType;
@@ -109,7 +103,7 @@ private:
     lines[3] = viennagrid::make_line(mesh->get(), p4,  pc1);
     lines[4] = viennagrid::make_line(mesh->get(), pc1, p1);
 
-    MeshPointType seed_point_segment_0 = this->compute_seed_point(mesh, lines.begin(), lines.begin()+4);
+    MeshPointType seed_point_segment_0 = this->compute_seed_point(mesh->get(), lines.begin(), lines.begin()+5);
     std::cout << "seed pnt 0: " << seed_point_segment_0 << std::endl;
 
     // Segment 2
@@ -118,7 +112,7 @@ private:
     lines[7] = viennagrid::make_line(mesh->get(), pi3, pi4);
     lines[8] = viennagrid::make_line(mesh->get(), pi4, pi1);
     
-    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh, lines.begin()+5, lines.begin()+8);
+    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh->get(), lines.begin()+5, lines.begin()+9);
     std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
 
     // Segment 3
@@ -128,7 +122,7 @@ private:
     lines[12] = viennagrid::make_line(mesh->get(), p3,  pi3);
     lines[13] = viennagrid::make_line(mesh->get(), pi3, pi2);
 
-    MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh, lines.begin()+9, lines.begin()+13);
+    MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh->get(), lines.begin()+9, lines.begin()+14);
     std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
     // setting the created line geometry as input for the mesher
@@ -147,12 +141,43 @@ private:
   }
   
   template<typename MeshT, typename LineIterT>
-  MeshPointType compute_seed_point(MeshT& mesh, LineIterT begin, LineIterT end)
+  MeshPointType compute_seed_point(MeshT const & mesh, LineIterT begin, LineIterT end)
   {
-//    viennamesh::result_of::parameter_handle< PLCType >::type    plc      = viennamesh::make_parameter<PLCType>();
+    MeshT new_mesh;
+    
+    typedef typename viennagrid::result_of::vertex<MeshT>::type VertexType;
+    typedef typename viennagrid::result_of::id<VertexType>::type VertexIDType;
+    typedef typename viennagrid::result_of::line<MeshT>::type LineType;
+    
+    std::vector<MeshLineHandleType> new_lines;
+  
+    std::map<VertexIDType, MeshVertexHandleType> vertex_map;
+    for (LineIterT it = begin; it != end; ++it)
+    {
+      LineType const & line = viennagrid::dereference_handle( mesh, *it );
+    
+      MeshVertexHandleType vtx_handle[2];
+    
+      for (int i = 0; i < 2; ++i)
+      {
+        typename std::map<VertexIDType, MeshVertexHandleType>::iterator vtx_handle_it = vertex_map.find( viennagrid::vertices(line)[i].id() );
+        if (vtx_handle_it == vertex_map.end())
+        {
+          vtx_handle[i] = viennagrid::make_vertex( new_mesh, viennagrid::point(mesh, viennagrid::vertices(line)[i]) );
+          vertex_map[viennagrid::vertices(line)[i].id()] = vtx_handle[i];
+        }
+        else
+          vtx_handle[i] = vtx_handle_it->second;
+      }
+        
+      new_lines.push_back( viennagrid::make_line( new_mesh, vtx_handle[0], vtx_handle[1] ) );
+    }
+  
+  
     viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-    viennagrid::make_plc( mesh->get(), begin, end );
-    seed_point_locator->set_input( "default", mesh );
+    viennagrid::make_plc( new_mesh, new_lines.begin(), new_lines.end() );
+    
+    seed_point_locator->set_input( "default", new_mesh );
     seed_point_locator->run();
     return seed_point_locator->get_output<MeshPointType>( "default" )->get();
   }
