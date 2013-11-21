@@ -20,9 +20,8 @@ int main(int argc, char* argv[])
 {
   viennamini::simulator  mysim;
 
-  mysim.material_library().read("../../examples/materials.xml");
-
   mysim.device().read(viennamini::device_collection_path()+"/half-trigate3d/half-trigate3d.mesh", viennamini::tetrahedral_3d());
+  mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
 
   const int source          = 1;
@@ -35,57 +34,54 @@ int main(int argc, char* argv[])
   const int source_contact  = 8;
   const int drain_contact   = 9;
 
-  mysim.device().make_semiconductor (source);
-  mysim.device().name               (source) = "source";
-  mysim.device().material           (source) = "Si";
-  mysim.device().ND_max             (source) = 1.0E24;
-  mysim.device().NA_max             (source) = 1.0E8;
+  mysim.device().make_semiconductor       (source);
+  mysim.device().set_name                 (source, "source");
+  mysim.device().set_material             (source, "Si");
+  mysim.device().set_donator_doping       (source, 1.0E24);
+  mysim.device().set_acceptor_doping      (source, 1.0E8);
 
-  mysim.device().make_semiconductor (channel);
-  mysim.device().name               (channel) = "channel";
-  mysim.device().material           (channel) = "Si";
-  mysim.device().ND_max             (channel) = 1.0E12;
-  mysim.device().NA_max             (channel) = 1.0E20;
+  mysim.device().make_semiconductor       (channel);
+  mysim.device().set_name                 (channel, "channel");
+  mysim.device().set_material             (channel, "Si");
+  mysim.device().set_donator_doping       (channel, 1.0E12);
+  mysim.device().set_acceptor_doping      (channel, 1.0E20);
 
-  mysim.device().make_semiconductor (drain);
-  mysim.device().name               (drain) = "drain";
-  mysim.device().material           (drain) = "Si";
-  mysim.device().ND_max             (drain) = 1.0E24;
-  mysim.device().NA_max             (drain) = 1.0E8;
+  mysim.device().make_semiconductor       (drain);
+  mysim.device().set_name                 (drain, "drain");
+  mysim.device().set_material             (drain, "Si");
+  mysim.device().set_donator_doping       (drain, 1.0E24);
+  mysim.device().set_acceptor_doping      (drain, 1.0E8);
   
-  mysim.device().make_oxide         (oxide);
-  mysim.device().name               (oxide) = "oxide";
-  mysim.device().material           (oxide) = "HfO2";
+  mysim.device().make_oxide               (oxide);
+  mysim.device().set_name                 (oxide, "oxide");
+  mysim.device().set_material             (oxide, "HfO2");
 
-  mysim.device().make_contact       (gate_contact);
-  mysim.device().name               (gate_contact) = "gate_contact";
-  mysim.device().material           (gate_contact) = "Cu";
-  mysim.device().contact_potential  (gate_contact) = 0.2;
-  mysim.device().workfunction       (gate_contact) = 0.4;
+  mysim.device().make_contact             (gate_contact);
+  mysim.device().set_name                 (gate_contact, "gate_contact");
+  mysim.device().set_material             (gate_contact, "Cu");
+  mysim.device().set_contact_potential    (gate_contact, 0.2);
+  mysim.device().add_contact_workfunction (gate_contact, 0.4);
 
-  mysim.device().make_semiconductor (body);
-  mysim.device().name               (body) = "body";
-  mysim.device().material           (body) = "Si";
-  mysim.device().ND_max             (body) = 1.0E12;
-  mysim.device().NA_max             (body) = 1.0E20;
+  mysim.device().make_semiconductor     (body);
+  mysim.device().set_name               (body, "body");
+  mysim.device().set_material           (body, "Si");
+  mysim.device().set_donator_doping     (body, 1.0E12);
+  mysim.device().set_acceptor_doping    (body, 1.0E20);
 
-  mysim.device().make_contact       (body_contact);
-  mysim.device().name               (body_contact) = "body_contact";
-  mysim.device().material           (body_contact) = "Cu";
-  mysim.device().contact_potential  (body_contact) = 0.0;
-  mysim.device().workfunction       (body_contact) = 0.0;
+  mysim.device().make_contact           (body_contact);
+  mysim.device().set_name               (body_contact, "body_contact");
+  mysim.device().set_material           (body_contact, "Cu");
+  mysim.device().set_contact_potential  (body_contact, 0.0);
   
-  mysim.device().make_contact       (source_contact);
-  mysim.device().name               (source_contact) = "source_contact";
-  mysim.device().material           (source_contact) = "Cu";
-  mysim.device().contact_potential  (source_contact) = 0.0;
-  mysim.device().workfunction       (source_contact) = 0.0;
+  mysim.device().make_contact           (source_contact);
+  mysim.device().set_name               (source_contact, "source_contact");
+  mysim.device().set_material           (source_contact, "Cu");
+  mysim.device().set_contact_potential  (source_contact, 0.0);
 
-  mysim.device().make_contact       (drain_contact);
-  mysim.device().name               (drain_contact) = "drain_contact";
-  mysim.device().material           (drain_contact) = "Cu";
-  mysim.device().contact_potential  (drain_contact) = 0.2;
-  mysim.device().workfunction       (drain_contact) = 0.0;
+  mysim.device().make_contact           (drain_contact);
+  mysim.device().set_name               (drain_contact, "drain_contact");
+  mysim.device().set_material           (drain_contact, "Cu");
+  mysim.device().set_contact_potential  (drain_contact, 0.2);
 
   mysim.config().temperature()                        = 300;
   mysim.config().damping()                            = 1.0;

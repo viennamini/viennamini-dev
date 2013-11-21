@@ -23,11 +23,9 @@ namespace viennamini
 simulator::simulator() : 
   device_          (new viennamini::device()),
   config_          (new viennamini::config()), 
-  matlib_          (new viennamini::material_library()),
   problem_         (NULL),
   device_changed_  (true),
-  config_changed_  (true),
-  matlib_changed_  (true)
+  config_changed_  (true)
 {
 }
 
@@ -70,52 +68,32 @@ void simulator::set_config(viennamini::config_handle& new_config)
   config_ = new_config;
 }
 
-viennamini::material_library const& simulator::material_library() const
-{
-  return *matlib_;
-}
-
-viennamini::material_library      & simulator::material_library()
-{
-  matlib_changed_ = true; 
-  return *matlib_;
-}
-
-void simulator::set_material_library(viennamini::material_library_handle& new_material_library)
-{
-  matlib_.reset();
-  matlib_ = new_material_library;
-}
-
 void simulator::run()
 {
-  if(matlib_->is_empty())
-  {
-    std::cout << "Error: material library is empty .. " << std::endl;
-    return;
-  }
-
   if(device_changed_)
   {
+  #ifdef VIENNAMINI_VERBOSE
     std::cout << "updating device .." << std::endl;
+  #endif
     device().update();
-    //device().set_default_parameters();
   }
 
-  if(config_changed_ || device_changed_ || matlib_changed_)
+  if(config_changed_ || device_changed_)
   {
+  #ifdef VIENNAMINI_VERBOSE  
     std::cout << "updating configuration .." << std::endl;
+  #endif
     if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
     {
       if(problem_) delete problem_;
-      problem_ = new viennamini::problem_poisson_dd_np(device(), config(), material_library());
+      problem_ = new viennamini::problem_poisson_dd_np(device(), config());
       problem_->run();
     }
     else
     if(config().problem() == viennamini::id::laplace())
     {
       if(problem_) delete problem_;
-      problem_ = new viennamini::problem_laplace(device(), config(), material_library());
+      problem_ = new viennamini::problem_laplace(device(), config());
       problem_->run();
     }
     else

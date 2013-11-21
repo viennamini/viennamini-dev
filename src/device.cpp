@@ -20,7 +20,10 @@
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
+#include "viennafvm/boundary.hpp"
+
 #include "viennamini/detect_interfaces.hpp"
+#include "viennamini/constants.hpp"
 
 namespace viennamini
 {
@@ -41,19 +44,20 @@ struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
   bool operator()(T & ptr) const { return false; }
 };
 
-
-device::device() : storage_(new viennamini::data_storage)
+device::device() :   matlib_(new viennamini::material_library())
 {
 }
 
 void device::make_triangular2d()
 {
-  generic_mesh_ = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
+  generic_mesh_                = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
+  generic_problem_description_ = problem_description_triangular_2d(get_segmesh_triangular_2d().mesh);
 }
 
 void device::make_tetrahedral3d()
 {
-  generic_mesh_ = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
+  generic_mesh_                 = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
+  generic_problem_description_  = problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh);
 }
 
 bool device::is_triangular2d()
@@ -76,99 +80,64 @@ segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
   return *boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
 }
 
-std::string& device::name(int id)
+problem_description_triangular_2d&  device::get_problem_description_triangular_2d()
 {
-  return parameters_[id].name();
+  return boost::get<problem_description_triangular_2d>(generic_problem_description_);
 }
 
-std::string& device::material(int id)
+problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_3d()
 {
-  return parameters_[id].material();
+  return boost::get<problem_description_tetrahedral_3d>(generic_problem_description_);
 }
 
-void device::make_contact(int id)
+void device::make_contact(int segment_index)
 {
-  parameters_[id].is_contact() = true;
+  segment_roles_[segment_index] = contact;
 }
 
-void device::make_oxide(int id)
+void device::make_oxide(int segment_index)
 {
-  parameters_[id].is_oxide() = true;
+  segment_roles_[segment_index] = oxide;
 }
 
-void device::make_semiconductor(int id)
+void device::make_semiconductor(int segment_index)
 {
-  parameters_[id].is_semiconductor() = true;
+  segment_roles_[segment_index] = semiconductor;
 }
 
-void device::make_manual(int id)
+bool device::is_contact(int segment_index)
 {
-  parameters_[id].is_manual() = true;
+  return segment_roles_[segment_index] == contact;
 }
 
-device::NumericType& device::contact_potential(int id)
+bool device::is_oxide(int segment_index)
 {
-  return parameters_[id].contact_potential();
+  return segment_roles_[segment_index] == oxide;
 }
 
-device::NumericType& device::workfunction(int id)
+bool device::is_semiconductor(int segment_index)
 {
-  return parameters_[id].workfunction();
+  return segment_roles_[segment_index] == semiconductor;
 }
 
-device::NumericType& device::NA_max(int id)
+bool device::is_contact_at_oxide(int segment_index)
 {
-  return parameters_[id].NA_max();
+  return !(contact_oxide_interfaces_.find(segment_index) == contact_oxide_interfaces_.end());
 }
 
-device::NumericType& device::ND_max(int id)
+bool device::is_contact_at_semiconductor(int segment_index)
 {
-  return parameters_[id].ND_max();
+  return !(contact_semiconductor_interfaces_.find(segment_index) == contact_semiconductor_interfaces_.end());
 }
 
-device::NumericType& device::epsr(int id)
+std::size_t device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
 {
-  return parameters_[id].epsr();
+  return contact_semiconductor_interfaces_[segment_index];
 }
 
-bool device::is_contact(int id)
+std::size_t device::get_adjacent_oxide_segment_for_contact(int segment_index)
 {
-  return parameters_[id].is_contact();
-}
-
-bool device::is_oxide(int id)
-{
-  return parameters_[id].is_oxide();
-}
-
-bool device::is_semiconductor(int id)
-{
-  return parameters_[id].is_semiconductor();
-}
-
-bool device::is_manual(int id)
-{
-  return parameters_[id].is_manual();
-}
-
-bool device::is_contact_at_oxide(int id)
-{
-  return !(contact_oxide_interfaces_.find(id) == contact_oxide_interfaces_.end());
-}
-
-bool device::is_contact_at_semiconductor(int id)
-{
-  return !(contact_semiconductor_interfaces_.find(id) == contact_semiconductor_interfaces_.end());
-}
-
-std::size_t device::get_adjacent_semiconductor_segment_for_contact(int id)
-{
-  return contact_semiconductor_interfaces_[id];
-}
-
-std::size_t device::get_adjacent_oxide_segment_for_contact(int id)
-{
-  return contact_oxide_interfaces_[id];
+  return contact_oxide_interfaces_[segment_index];
 }
 
 void device::update()
@@ -179,17 +148,44 @@ void device::update()
   contact_semiconductor_interfaces_.clear();
   contact_oxide_interfaces_.clear();
 
-  for(ParametersType::iterator siter = parameters_.begin();
-      siter != parameters_.end(); siter++)
+  for(SegmentRolesType::iterator siter = segment_roles_.begin();
+      siter != segment_roles_.end(); siter++)
   {
-    if(siter->second.is_oxide())         oxide_segments_indices_.push_back(siter->first);
+    if(siter->second == oxide)         oxide_segments_indices_.push_back(siter->first);
     else
-    if(siter->second.is_contact())       contact_segments_indices_.push_back(siter->first);
+    if(siter->second == contact)       contact_segments_indices_.push_back(siter->first);
     else
-    if(siter->second.is_semiconductor()) semiconductor_segments_indices_.push_back(siter->first);
+    if(siter->second == semiconductor) semiconductor_segments_indices_.push_back(siter->first);
   }
 
+  // identify contact-semiconductor/oxide interfaces 
+  //
   viennamini::detect_interfaces(*this, contact_semiconductor_interfaces_, contact_oxide_interfaces_);
+  
+  // transfer permittivity from the semiconductor/oxide segments to 
+  // adjacent contact segments
+  //
+  for(IndicesType::iterator contact_iter = contact_segments_indices_.begin();
+      contact_iter != contact_segments_indices_.end(); contact_iter++)
+  {
+    if(this->is_contact_at_oxide(*contact_iter))
+    {
+      std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
+      std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
+      
+      if(this->material_library()()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+        this->set_relative_permittivity(*contact_iter, this->material_library()()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+    }
+    else
+    if(this->is_contact_at_semiconductor(*contact_iter))
+    {
+      std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
+      std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
+      
+      if(this->material_library()()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+        this->set_relative_permittivity(*contact_iter, this->material_library()()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+    }
+  }
 }
 
 device::GenericMeshType& device::generic_mesh()
@@ -197,14 +193,14 @@ device::GenericMeshType& device::generic_mesh()
   return generic_mesh_; 
 }
 
-device::SegmentParametersType& device::segment_parameters(int id)
+device::GenericProblemDescriptionType & device::generic_problem_description()
 {
-  return parameters_[id];
+  return generic_problem_description_;
 }
 
-viennamini::data_storage_handle& device::storage()
-{
-  return storage_;
+viennamini::material_library& device::material_library()
+{ 
+  return *matlib_;
 }
 
 void device::read(std::string const& filename, viennamini::triangular_2d const&)
@@ -227,7 +223,8 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
   this->make_triangular2d();
   segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
   viennagrid::io::netgen_reader   reader;
-  reader(segmesh->mesh, segmesh->segmentation, filename);  
+  reader(segmesh->mesh, segmesh->segmentation, filename);
+  this->update_problem_description();
 }
 
 void device::read(std::string const& filename, viennamini::tetrahedral_3d const&)
@@ -235,7 +232,13 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
   this->make_tetrahedral3d();
   segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
   viennagrid::io::netgen_reader reader;
-  reader(segmesh->mesh, segmesh->segmentation, filename);  
+  reader(segmesh->mesh, segmesh->segmentation, filename);
+  this->update_problem_description();
+}
+
+void device::read_material_library(std::string const& filename)
+{
+  matlib_->read(filename);
 }
 
 void device::write(std::string const& filename)
@@ -254,12 +257,8 @@ void device::write(std::string const& filename)
   }
 }
 
-void device::set_default_parameters()
-{
-  
-}
 
-void device::scale(numeric_type factor)
+void device::scale(viennamini::numeric factor)
 {
   if(this->is_triangular2d())
   {
@@ -270,6 +269,159 @@ void device::scale(numeric_type factor)
   {
     segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
     viennagrid::scale(segmesh->mesh, factor);  
+  }
+}
+
+void device::set_name(int segment_index, std::string const& new_name)
+{
+  segment_names_[segment_index] = new_name;
+}
+
+void device::set_material(int segment_index, std::string const& new_material)
+{
+  segment_materials_[segment_index] = new_material;
+  
+  // set the relative permittivity of this segment, as we know the material now
+  // extract the data from the material database
+  //
+  if(this->material_library()()->has_parameter(new_material, viennamini::material::relative_permittivity()))
+    this->set_relative_permittivity(segment_index, this->material_library()()->get_parameter_value(new_material, viennamini::material::relative_permittivity()) );
+#ifdef VIENNAMINI_VERBOSE
+  else 
+  {
+    if(!is_contact(segment_index)) // for contacts, setting the epsr doesn't make sense
+      std::cout << "Device: material \"" << new_material << "\" does not have the parameter \"" << viennamini::material::relative_permittivity() << "\" - skipping .." << std::endl;
+  }
+#endif
+}
+
+std::string device::get_name(int segment_index)
+{
+  return segment_names_[segment_index];
+}
+
+std::string device::get_material(int segment_index)
+{
+  return segment_materials_[segment_index];
+}
+
+void device::set_contact_potential(int segment_index, viennamini::numeric potential)
+{
+  if(this->is_triangular2d())
+  {
+    typedef problem_description_triangular_2d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::potential());
+    viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), potential);
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::potential());
+    viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), potential);
+  }
+}
+
+void device::add_contact_workfunction(int segment_index, viennamini::numeric potential)
+{
+  if(this->is_triangular2d())
+  {
+    typedef problem_description_triangular_2d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::potential());
+    viennafvm::addto_dirichlet_boundary(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), potential);
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::potential());
+    viennafvm::addto_dirichlet_boundary(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), potential);
+  }
+}
+
+void device::set_relative_permittivity(int segment_index, viennamini::numeric epsr)
+{
+  if(this->is_triangular2d())
+  {
+    typedef problem_description_triangular_2d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::permittivity());
+    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), epsr * viennamini::eps0::val());
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::permittivity());
+    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), epsr * viennamini::eps0::val());
+  }
+}
+
+void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
+{
+  segment_acceptor_doping_[segment_index] = NA;
+
+  if(this->is_triangular2d())
+  {
+    typedef problem_description_triangular_2d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::acceptor_doping());
+    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), NA);
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::acceptor_doping());
+    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), NA);
+  }
+}
+
+void device::set_donator_doping(int segment_index, viennamini::numeric ND)
+{
+  segment_donator_doping_[segment_index] = ND;
+
+  if(this->is_triangular2d())
+  {
+    typedef problem_description_triangular_2d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::donator_doping());
+    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), ND);
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
+    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::donator_doping());
+    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), ND);
+  }
+}
+
+viennamini::numeric device::get_acceptor_doping(int segment_index)
+{
+  return segment_acceptor_doping_[segment_index];
+}
+
+viennamini::numeric device::get_donator_doping(int segment_index)
+{
+  return segment_donator_doping_[segment_index];
+}
+
+void device::update_problem_description()
+{
+  if(this->is_triangular2d())
+  {
+    get_problem_description_triangular_2d().clear_quantities();
+    get_problem_description_triangular_2d().add_quantity(viennamini::id::potential());
+    get_problem_description_triangular_2d().add_quantity(viennamini::id::permittivity());
+    get_problem_description_triangular_2d().add_quantity(viennamini::id::donator_doping());
+    get_problem_description_triangular_2d().add_quantity(viennamini::id::acceptor_doping());
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    get_problem_description_tetrahedral_3d().clear_quantities();
+    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::potential());
+    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::permittivity());
+    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::donator_doping());
+    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::acceptor_doping());
   }
 }
 
@@ -292,6 +444,8 @@ device::IndicesType&   device::semiconductor_segments_indices()
 {
   return semiconductor_segments_indices_;
 }
+
+
 
 } // viennamini
 

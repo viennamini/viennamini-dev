@@ -22,9 +22,8 @@ int main()
 {
   viennamini::simulator  mysim;
 
-  mysim.material_library().read("../../examples/materials.xml");
-
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
+  mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
 
   // identify segments
@@ -34,29 +33,27 @@ int main()
   const int right            = 4;
   const int right_contact    = 5;
 
-  mysim.device().make_contact(left_contact);
-  mysim.device().name(left_contact)     = "left_contact";
-  mysim.device().material(left_contact) = "Cu";
-  mysim.device().contact_potential(left_contact) = 0.0;
-  mysim.device().workfunction(left_contact) = 0.0;
+  mysim.device().make_contact         (left_contact);
+  mysim.device().set_name             (left_contact, "left_contact");
+  mysim.device().set_material         (left_contact, "Cu");
+  mysim.device().set_contact_potential(left_contact, 0.0);
 
-  mysim.device().make_semiconductor(left);
-  mysim.device().name(left)     = "left";
-  mysim.device().material(left) = "Si";
+  mysim.device().make_semiconductor   (left);
+  mysim.device().set_name             (left, "left");
+  mysim.device().set_material         (left, "Si");
 
-  mysim.device().make_semiconductor(intrinsic);
-  mysim.device().name(intrinsic)     = "left";
-  mysim.device().material(intrinsic) = "Si";
+  mysim.device().make_semiconductor   (intrinsic);
+  mysim.device().set_name             (intrinsic, "left");
+  mysim.device().set_material         (intrinsic, "Si");
 
-  mysim.device().make_semiconductor(right);
-  mysim.device().name(right)     = "right";
-  mysim.device().material(right) = "Si";
+  mysim.device().make_semiconductor   (right);
+  mysim.device().set_name             (right, "right");
+  mysim.device().set_material         (right, "Si");
 
-  mysim.device().make_contact(right_contact);
-  mysim.device().name(right_contact)     = "right_contact";
-  mysim.device().material(right_contact) = "Cu";
-  mysim.device().contact_potential(right_contact) = 0.2;
-  mysim.device().workfunction(right_contact) = 0.0;
+  mysim.device().make_contact         (right_contact);
+  mysim.device().set_name             (right_contact, "right_contact");
+  mysim.device().set_material         (right_contact, "Cu");
+  mysim.device().set_contact_potential(right_contact, 0.2);
 
   mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;

@@ -19,7 +19,9 @@
 #include "viennamath/expression.hpp"
 
 // ViennaFVM includes:
-#define VIENNAFVM_VERBOSE
+#ifdef VIENNAMINI_VERBOSE
+  #define VIENNAFVM_VERBOSE
+#endif
 #include "viennafvm/forwards.h"
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
@@ -28,32 +30,55 @@
 
 namespace viennamini {
 
+
+/** @brief Exception for the case that an invalid quantity is accessed */
+class quantity_not_found_exception : public std::runtime_error {
+public:
+  quantity_not_found_exception(std::string const & str) : std::runtime_error(str) {}
+};
+
+
 struct problem
 {
 public:
-  typedef boost::variant<null, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
   typedef viennamini::numeric           NumericType;
   typedef viennamath::function_symbol   FunctionSymbolType;
   typedef viennamath::equation          EquationType;
   
-  typedef GenericProblemDescriptionType generic_problem_description_type;
   typedef FunctionSymbolType            function_symbol_type;
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
 
-  problem(viennamini::device& device, viennamini::config& config, viennamini::material_library& matlib) 
-    : device_(device), config_(config), matlib_(matlib) 
+  problem(viennamini::device& device, viennamini::config& config) 
+    : device_(device), config_(config) 
   {
   }
 
-
   virtual void run() = 0;
-  virtual void write(std::string const& filename) = 0;
+
+  void write(std::string const& filename)
+  {
+    if(device_.is_triangular2d())
+    {
+      viennafvm::io::write_solution_to_VTK_file(
+        device_.get_problem_description_triangular_2d().quantities(), 
+        filename, 
+        device_.get_segmesh_triangular_2d().mesh, 
+        device_.get_segmesh_triangular_2d().segmentation);
+    }
+    else 
+    if(device_.is_tetrahedral3d())
+    {
+      viennafvm::io::write_solution_to_VTK_file(
+        device_.get_problem_description_tetrahedral_3d().quantities(), 
+        filename, 
+        device_.get_segmesh_tetrahedral_3d().mesh, 
+        device_.get_segmesh_tetrahedral_3d().segmentation);
+    }
+  }
   
   viennamini::device&           device_;
   viennamini::config&           config_;
-  viennamini::material_library& matlib_;
-  GenericProblemDescriptionType problem_description_;
 };
 
 } // viennamini

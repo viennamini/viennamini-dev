@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 2.8.2)
 SET(VIENNASTAR "Local" CACHE STRING "Use local ViennaStar libraries or download them automatically, supported values are: Local,Download")
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
 option(BUILD_EXAMPLES "Build the examples" ON)
-
+option(VIENNAMINI_VERBOSE "Verbose messaging" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -26,7 +26,11 @@ ENDIF()
 SET(CMAKE_CXX_FLAGS "-Wall -pedantic")
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g ")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ")
-SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -DVIENNAMINI_DEBUG")
+SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
+
+IF(VIENNAMINI_VERBOSE)
+  ADD_DEFINITIONS(-DVIENNAMINI_VERBOSE)
+ENDIF(VIENNAMINI_VERBOSE)
 
 STRING(TOLOWER "${PARALLEL_MODE}" PARALLEL_MODE) # make case unique
 IF(PARALLEL_MODE STREQUAL "serial")

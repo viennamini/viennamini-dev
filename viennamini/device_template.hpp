@@ -45,7 +45,7 @@ public:
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
 
-  device_template() 
+  device_template(std::string const& material_library_file) : material_library_file_(material_library_file)
   {
     // deactivate ViennaMesh debug output
     viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
@@ -75,6 +75,7 @@ protected:
   viennamini::device_handle       device_;
   viennamini::config_handle       config_;
   std::string                     description_;
+  std::string                     material_library_file_;
 };
 
 } // viennamini

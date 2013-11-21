@@ -31,9 +31,8 @@ namespace viennamini
   }
 
   template<typename NumericT>
-  inline NumericT built_in_potential(NumericT temp, NumericT doping_n, NumericT doping_p)
+  inline NumericT built_in_potential_impl(NumericT doping_n, NumericT doping_p, NumericT temp, NumericT ni)
   {
-    const NumericT ni = 1.e16; // TODO!!
     const NumericT net_doping = doping_n - doping_p;
     const NumericT x = std::abs(net_doping) / (2.0 * ni);
 
@@ -44,6 +43,28 @@ namespace viennamini
 
     return bpot;
   }
+  
+  template<typename QuantityT>
+  struct built_in_potential
+  {
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+    
+    built_in_potential(QuantityT& donator_doping, QuantityT& acceptor_doping, numeric_type ni, numeric_type temperature) :
+     donator_doping_(donator_doping), acceptor_doping_(acceptor_doping), ni_(ni), temperature_(temperature) {}
+    
+    template<typename CellT>
+    result_type operator()(CellT const& cell) 
+    {
+      return built_in_potential_impl(donator_doping_.get_value(cell), acceptor_doping_.get_value(cell), temperature_, ni_);
+    }
+    
+  private:
+    QuantityT    & donator_doping_;
+    QuantityT    & acceptor_doping_;
+    numeric_type   ni_;
+    numeric_type   temperature_;
+  };
   
 
 

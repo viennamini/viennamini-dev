@@ -22,9 +22,6 @@
 
 #include <iostream>
 
-// ViennaData includes
-#include "viennadata/api.hpp"
-
 // ViennaGrid includes
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/config/default_configs.hpp"
@@ -140,10 +137,11 @@ namespace viennamini
   inline std::string hole_mobility()              { return "Hole Mobility"; }
 
   } // id
+  
 
-  namespace mat {
-  inline std::string permittivity()               { return "permittivity"; }
-  }
+  namespace material {
+  inline std::string relative_permittivity()               { return "relative_permittivity"; }
+  } // material
 
   class triangular_2d  {};
   class tetrahedral_3d {};
@@ -158,7 +156,6 @@ namespace viennamini
   //
   
   typedef double                                                                                                  numeric;
-  typedef ::viennadata::storage<>                                                                                 data_storage;
 
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;
   typedef ::viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                                mesh_tetrahedral_3d;
@@ -174,7 +171,6 @@ namespace viennamini
 
   typedef ::boost::shared_ptr<viennamini::device>                                                                 device_handle;
   typedef ::boost::shared_ptr<viennamini::config>                                                                 config_handle;
-  typedef ::boost::shared_ptr<viennamini::data_storage>                                                           data_storage_handle;
   typedef ::boost::shared_ptr<viennamini::material_library>                                                       material_library_handle;
   typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
 

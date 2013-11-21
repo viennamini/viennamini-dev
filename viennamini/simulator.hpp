@@ -23,7 +23,6 @@
 #include "viennamini/forwards.h"
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
-#include "viennamini/material_library.hpp"
 #include "viennamini/problem.hpp"
 
 namespace viennamini
@@ -44,24 +43,17 @@ namespace viennamini
     viennamini::config                 & config();
     void                                 set_config(viennamini::config_handle& new_config);
 
-    viennamini::material_library  const& material_library() const;
-    viennamini::material_library       & material_library();
-    void                                 set_material_library(viennamini::material_library_handle& new_material_library);
-
     void                                 write(std::string const filename);
   
   private:
 
     viennamini::device_handle            device_;
     viennamini::config_handle            config_;
-    viennamini::material_library_handle  matlib_;
 
     viennamini::problem           * problem_;
     
     bool device_changed_;
     bool config_changed_;
-    bool matlib_changed_;
-
   };
 }
 

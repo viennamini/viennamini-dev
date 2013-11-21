@@ -27,8 +27,8 @@ namespace viennamini {
 struct problem_poisson_dd_np : public problem
 {
 public:
-  problem_poisson_dd_np(viennamini::device& device, viennamini::config& config, viennamini::material_library& matlib) :
-    problem         (device, config, matlib)
+  problem_poisson_dd_np(viennamini::device& device, viennamini::config& config) :
+    problem         (device, config)
   {
   }
 
@@ -36,14 +36,12 @@ public:
   {
     if(device_.is_triangular2d())
     {
-      problem_description_ = problem_description_triangular_2d();
-      this->run_impl(device_.get_segmesh_triangular_2d(), boost::get<problem_description_triangular_2d>(problem_description_));
+      this->run_impl(device_.get_segmesh_triangular_2d(), device_.get_problem_description_triangular_2d());
     }
     else 
     if(device_.is_tetrahedral3d())
     {
-      problem_description_ = problem_description_tetrahedral_3d();
-      this->run_impl(device_.get_segmesh_tetrahedral_3d(), boost::get<problem_description_tetrahedral_3d>(problem_description_));
+      this->run_impl(device_.get_segmesh_tetrahedral_3d(), device_.get_problem_description_tetrahedral_3d());
     }
     else
       std::cout << "detect_interfaces: segmented mesh type not supported" << std::endl;
@@ -59,151 +57,96 @@ private:
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type       QuantityType;
 
-    problem_description = segmesh.mesh;
+    // -------------------------------------------------------------------------
+    //
+    // Extract ViennaFVM::Quantities
+    //
+    // -------------------------------------------------------------------------
     
-    QuantityType & potential         = problem_description.add_quantity(viennamini::id::potential());
+    // access the already available quantities in the device's problem description
+    //
+    QuantityType & permittivity      = problem_description.get_quantity(viennamini::id::permittivity());
+    QuantityType & potential         = problem_description.get_quantity(viennamini::id::potential());
+    QuantityType & donator_doping    = problem_description.get_quantity(viennamini::id::donator_doping());
+    QuantityType & acceptor_doping   = problem_description.get_quantity(viennamini::id::acceptor_doping());
+
+    // add new quantities required for the simulation
+    //
     QuantityType & electron_density  = problem_description.add_quantity(viennamini::id::electron_density());
     QuantityType & hole_density      = problem_description.add_quantity(viennamini::id::hole_density());
     QuantityType & electron_mobility = problem_description.add_quantity(viennamini::id::electron_mobility());
     QuantityType & hole_mobility     = problem_description.add_quantity(viennamini::id::hole_mobility());
-    QuantityType & permittivity      = problem_description.add_quantity(viennamini::id::permittivity());
-    QuantityType & donator_doping    = problem_description.add_quantity(viennamini::id::donator_doping());
-    QuantityType & acceptor_doping   = problem_description.add_quantity(viennamini::id::acceptor_doping());
-    
+
     // -------------------------------------------------------------------------
     //
     // Assign segment roles: setup initial guesses and boundary conditions
     //
     // -------------------------------------------------------------------------
-    
+
+    double ni = 1.0E16; // TODO
+
     for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
       
+      // TODO the following Contact-Semiconductor handling needs to be outsourced to ViennaFVM
       if(device_.is_contact(current_segment_index))
       {
-        if(device_.is_contact_at_oxide(current_segment_index))
-        {
-          // permittivity
-          std::size_t adjacent_oxide_segment_index = device_.get_adjacent_oxide_segment_for_contact(current_segment_index);
-          NumericType epsr = 0.0;
-          if(device_.is_manual(adjacent_oxide_segment_index))
-            epsr = device_.epsr(adjacent_oxide_segment_index);
-          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_oxide_segment_index), viennamini::mat::permittivity());
-          viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
-            epsr * viennamini::eps0::val());
-
-        #ifdef VIENNAMINI_DEBUG
-          std::cout << "segment " << current_segment_index << " is a contact (-oxide) segment " << std::endl;
-          std::cout << "  contact value: " << device_.contact_potential(current_segment_index) << " workfunction: " << device_.workfunction(current_segment_index) << std::endl;
-          std::cout << "  @oxide neighbor: epsr: " << epsr << std::endl;
-        #endif
-
-        
-          // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, 
-                                            segmesh.segmentation(current_segment_index), 
-                                            device_.contact_potential(current_segment_index) + device_.workfunction(current_segment_index));
-        }
-        else
         if(device_.is_contact_at_semiconductor(current_segment_index))
         {
           std::size_t adjacent_semiconductor_segment_index = device_.get_adjacent_semiconductor_segment_for_contact(current_segment_index);
-          NumericType ND_value    = device_.ND_max(adjacent_semiconductor_segment_index);
-          NumericType NA_value    = device_.NA_max(adjacent_semiconductor_segment_index);
-          NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
-
-          // permittivity
-          NumericType epsr = 0.0;
-          if(device_.is_manual(adjacent_semiconductor_segment_index))
-            epsr = device_.epsr(adjacent_semiconductor_segment_index);
-          else epsr = matlib_()->get_parameter_value(device_.material(adjacent_semiconductor_segment_index), viennamini::mat::permittivity());
-          viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
-            epsr * viennamini::eps0::val());
-
-        #ifdef VIENNAMINI_DEBUG
-          std::cout << "segment " << current_segment_index << " is a contact (-semiconductor) segment " << std::endl;
-          std::cout << "  contact value: " << device_.contact_potential(current_segment_index) << " workfunction: " << device_.workfunction(current_segment_index) << std::endl;
-          std::cout << "  @semiconductor neighbor: ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << " epsr: " << epsr << std::endl;
-        #endif
-
-          // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, 
+          NumericType ND_value    = device_.get_donator_doping(adjacent_semiconductor_segment_index);
+          NumericType NA_value    = device_.get_acceptor_doping(adjacent_semiconductor_segment_index);
+          NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config_.temperature(), ni);
+        
+          // add the builtin potential to the dirichlet potential boundary
+          viennafvm::addto_dirichlet_boundary(potential, 
                                             segmesh.segmentation(current_segment_index), 
-                                            device_.contact_potential(current_segment_index) + device_.workfunction(current_segment_index) + builtin_pot);
-
+                                            builtin_pot);
+        
           // electrons dirichlet boundary
           viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index), ND_value);
 
           // holes dirichlet boundary
           viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index), NA_value);
         }
-        else
-        {
-          std::cout << "Error: Contact segment " << current_segment_index << 
-            " is neither sharing an interface with an oxide nor with a semiconductor" << std::endl;
-          exit(-1);
-        }
       }
+      else
       if(device_.is_oxide(current_segment_index))
       {
-        // permittivity
-        NumericType epsr = 0.0;
-        if(device_.is_manual(current_segment_index))
-          epsr = device_.epsr(current_segment_index);
-        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
-        viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
-          epsr * viennamini::eps0::val());
-
-      #ifdef VIENNAMINI_DEBUG
-        std::cout << "segment " << current_segment_index << " is an oxide segment " << std::endl;
-        std::cout << "  epsr: " << epsr << std::endl;
+      #ifdef VIENNAMINI_VERBOSE
+        std::cout << "solving potential for oxide segment: " << current_segment_index << std::endl;
       #endif
-      
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
+      else
       if(device_.is_semiconductor(current_segment_index))
       {
-        NumericType ND_value    = device_.ND_max(current_segment_index);
-        NumericType NA_value    = device_.NA_max(current_segment_index);
-        NumericType builtin_pot = viennamini::built_in_potential(config_.temperature(), ND_value, NA_value);
-        NumericType epsr = 0.0;
-        if(device_.is_manual(current_segment_index))
-          epsr = device_.epsr(current_segment_index);
-        else epsr = matlib_()->get_parameter_value(device_.material(current_segment_index), viennamini::mat::permittivity());
-      
-      #ifdef VIENNAMINI_DEBUG
-        std::cout << "segment " << current_segment_index << " is a semiconductor segment " << std::endl;
-        std::cout << "  ND: " << ND_value << " NA: " << NA_value << " builtin: " << builtin_pot << " epsr " << epsr << std::endl;
+      #ifdef VIENNAMINI_VERBOSE
+        std::cout << "solving potential for semiconductor segment: " << current_segment_index << std::endl;
       #endif
+      
+        // TODO provide a way to set the initial guess externally .. especially of interest
+        // via a functor
+      
         // potential
-        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), builtin_pot);
+        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, ni, config_.temperature())); 
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
-        
-        // permittivity
-        viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index),
-          epsr * viennamini::eps0::val());
 
         // electrons
-        viennafvm::set_initial_value(electron_density, segmesh.segmentation(current_segment_index), ND_value);
+        viennafvm::set_initial_value(electron_density, segmesh.segmentation(current_segment_index), donator_doping);
         viennafvm::set_unknown(electron_density, segmesh.segmentation(current_segment_index));
 
         // holes
-        viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), NA_value);
+        viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), acceptor_doping);
         viennafvm::set_unknown(hole_density, segmesh.segmentation(current_segment_index));
         
         // electrons mobility
-        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), 1.0);
+        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), 1.0); // TODO for the time being, use constant 
 
         // holes mobility
-        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index), 1.0);
-        
-        // donator doping
-        viennafvm::set_initial_value(donator_doping, segmesh.segmentation(current_segment_index), ND_value);
-
-        // acceptor doping
-        viennafvm::set_initial_value(acceptor_doping, segmesh.segmentation(current_segment_index), NA_value);
+        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index), 1.0); // TODO for the time being, use constant 
       }
     }
 
@@ -226,7 +169,6 @@ private:
     NumericType q       = viennamini::q::val();
     viennamath::expr VT = viennamini::get_thermal_potential(config_.temperature());
 
-    // here is all the fun: specify DD system
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                               /* = */ q * ((n - ND) - (p - NA)));
     EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0);
     EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0);
@@ -253,27 +195,6 @@ private:
     pde_solver.set_nonlinear_breaktol(config_.nonlinear_breaktol());
     pde_solver.set_damping(config_.damping());
     pde_solver(problem_description, pde_system, linear_solver);
-  }
-
-  void write(std::string const& filename)
-  {
-    if(device_.is_triangular2d())
-    {
-      viennafvm::io::write_solution_to_VTK_file(
-        boost::get<problem_description_triangular_2d>(problem_description_).quantities(), 
-        filename, 
-        device_.get_segmesh_triangular_2d().mesh, 
-        device_.get_segmesh_triangular_2d().segmentation);
-    }
-    else 
-    if(device_.is_tetrahedral3d())
-    {
-      viennafvm::io::write_solution_to_VTK_file(
-        boost::get<problem_description_tetrahedral_3d>(problem_description_).quantities(), 
-        filename, 
-        device_.get_segmesh_tetrahedral_3d().mesh, 
-        device_.get_segmesh_tetrahedral_3d().segmentation);
-    }
   }
 };
 

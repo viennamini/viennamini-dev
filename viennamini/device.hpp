@@ -20,7 +20,8 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
-#include "viennamini/device_segment_parameters.hpp"
+#include "viennamini/material_library.hpp"
+//#include "viennamini/device_segment_parameters.hpp"
 
 #include "boost/variant.hpp"
 
@@ -30,21 +31,33 @@ namespace viennamini
 
   class device
   {
+  private:
+    enum segment_role_ids
+    {
+      unidentified,
+      contact, 
+      oxide,
+      semiconductor
+    };
+    
+    typedef std::map<std::size_t, segment_role_ids>                                          SegmentRolesType;
+
+  
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null, segmesh_triangular_2d_ptr, segmesh_tetrahedral_3d_ptr>    GenericMeshType;
-    typedef double                                                                         NumericType;
-    typedef viennamini::segment_parameters<NumericType>                                    SegmentParametersType;
-    typedef std::map<int, SegmentParametersType >                                          ParametersType;
+    typedef boost::variant<null, segmesh_triangular_2d_ptr,         segmesh_tetrahedral_3d_ptr>         GenericMeshType;
+    typedef boost::variant<null, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
+    
     typedef std::vector<std::size_t>                                                       IndicesType;  
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
+    typedef std::map<std::size_t, std::string>                                             IndexKeysType;
+    typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
 
     typedef GenericMeshType                                                                generic_mesh_type;
-    typedef NumericType                                                                    numeric_type;
-    typedef SegmentParametersType                                                          segment_parameters_type;
-    typedef ParametersType                                                                 parameters_type;
+    typedef GenericProblemDescriptionType                                                  generic_problem_description_type;
     typedef IndicesType                                                                    indices_type;
     typedef IndexMapType                                                                   index_map_type;
+    typedef IndexKeysType                                                                  index_keys_type;
 
     device();
 
@@ -56,47 +69,56 @@ namespace viennamini
 
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
+
+    problem_description_triangular_2d&  get_problem_description_triangular_2d();
+    problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d();
     
-    std::string& name(int id);
-    std::string& material(int id);
-
-    void make_contact(int id);
-    void make_oxide(int id);
-    void make_semiconductor(int id);
-    void make_manual(int id);
+    void make_contact       (int segment_index);
+    void make_oxide         (int segment_index);
+    void make_semiconductor (int segment_index);
     
-    NumericType& contact_potential(int id);
-    NumericType& workfunction(int id);
-    NumericType& NA_max(int id);
-    NumericType& ND_max(int id);
-    NumericType& epsr(int id);
+    bool is_contact                 (int segment_index);
+    bool is_contact_at_oxide        (int segment_index);
+    bool is_contact_at_semiconductor(int segment_index);
+    bool is_oxide                   (int segment_index);
+    bool is_semiconductor           (int segment_index);
 
-    bool is_contact(int id);
-    bool is_contact_at_oxide(int id);
-    bool is_contact_at_semiconductor(int id);
-    bool is_oxide(int id);
-    bool is_semiconductor(int id);
-    bool is_manual(int id);
-
-    std::size_t get_adjacent_semiconductor_segment_for_contact(int id);
-    std::size_t get_adjacent_oxide_segment_for_contact(int id);
+    std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
+    std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);
 
     void update();
 
-    GenericMeshType         & generic_mesh();
-    SegmentParametersType   & segment_parameters(int id);
+    GenericMeshType               & generic_mesh();
+    GenericProblemDescriptionType & generic_problem_description();
+    viennamini::material_library  & material_library();
 
-    viennamini::data_storage_handle& storage();
 
     void read(std::string const& filename, viennamini::triangular_2d const&);
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
     
+    void read_material_library(std::string const& filename);
+    
     void write(std::string const& filename);
   
-    void set_default_parameters();
-
-    void scale(numeric_type factor);
+    void scale(viennamini::numeric factor);
     
+    void set_name                 (int segment_index, std::string const& new_name);
+    void set_material             (int segment_index, std::string const& new_material);
+    std::string get_name          (int segment_index);
+    std::string get_material      (int segment_index);
+
+
+    void set_contact_potential    (int segment_index, viennamini::numeric potential);
+    void add_contact_workfunction (int segment_index, viennamini::numeric workfunction);
+    void set_relative_permittivity(int segment_index, viennamini::numeric epsr);
+    void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
+    void set_donator_doping       (int segment_index, viennamini::numeric ND);
+
+    viennamini::numeric get_acceptor_doping(int segment_index);
+    viennamini::numeric get_donator_doping(int segment_index);
+
+    void update_problem_description();
+
     std::string& description();
 
     IndicesType&   contact_segments_indices();
@@ -104,10 +126,8 @@ namespace viennamini
     IndicesType&   semiconductor_segments_indices();
 
   private:
-    viennamini::data_storage_handle  storage_;
-
-    GenericMeshType            generic_mesh_;
-    ParametersType             parameters_;
+    GenericMeshType               generic_mesh_;
+    GenericProblemDescriptionType generic_problem_description_;
 
     IndicesType                contact_segments_indices_;
     IndicesType                oxide_segments_indices_;
@@ -116,6 +136,14 @@ namespace viennamini
     IndexMapType               contact_semiconductor_interfaces_;
     IndexMapType               contact_oxide_interfaces_;
     std::string                description_;
+    
+    IndexKeysType              segment_names_;
+    IndexKeysType              segment_materials_;
+    SegmentRolesType           segment_roles_;
+    IndexValuesType            segment_donator_doping_;
+    IndexValuesType            segment_acceptor_doping_;
+    
+    viennamini::material_library_handle  matlib_;
   };
 
 

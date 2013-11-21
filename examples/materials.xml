@@ -16,7 +16,7 @@
         <unit>1/cm3</unit>
       </parameter>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>11.8</value>
         <unit></unit>
       </parameter>      
@@ -50,7 +50,7 @@
         <unit>1/cm3</unit>
       </parameter>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>16</value>
         <unit></unit>
       </parameter>      
@@ -85,7 +85,7 @@
         <unit>1/cm3</unit>
       </parameter>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>13.2</value>
         <unit></unit>
       </parameter>      
@@ -108,7 +108,7 @@
     <category>oxide</category>
     <parameters>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>3.9</value>
         <unit></unit>
       </parameter>      
@@ -121,7 +121,7 @@
     <category>oxide</category>
     <parameters>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>12.4</value>
         <unit></unit>
       </parameter>      
@@ -133,7 +133,7 @@
     <category>oxide</category>
     <parameters>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>15.6</value>
         <unit></unit>
       </parameter>      
@@ -145,7 +145,7 @@
     <category>air</category>
     <parameters>
       <parameter>
-        <name>permittivity</name>
+        <name>relative_permittivity</name>
         <value>1.0</value>
         <unit></unit>
       </parameter>      

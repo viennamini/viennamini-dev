@@ -32,7 +32,7 @@ private:
   typedef viennagrid::result_of::line_handle<MeshType>::type        MeshLineHandleType;
 
 public:
-  capacitor2d() : viennamini::device_template()
+  capacitor2d(std::string const& material_library_file) : viennamini::device_template(material_library_file)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0);
     geometry_properties()["P2"]   = point_type(3.0, 0.0);
@@ -99,9 +99,11 @@ PC12 -- P1 --- PI1 --- PI2 --- P2           \n \
 
     device_->make_triangular2d();
     device_->description() = description_;
+    device_->read_material_library(material_library_file_);
     config_->problem() = viennamini::id::laplace();
 
     this->generate_mesh();
+    device_->update_problem_description();
     this->assign_segments();
   }
   
@@ -246,28 +248,27 @@ private:
 
   void assign_segments()
   {
-    device_->make_contact(1);
-    device_->name(1)        = contact_a_;
-    device_->material(1)    = "Cu";
-    device_->contact_potential(1) = 1.0;
+    device_->make_contact         (1);
+    device_->set_name             (1, contact_a_);
+    device_->set_material         (1, "Cu");
+    device_->set_contact_potential(1, 1.0);
     
-    device_->make_semiconductor(2);
-    device_->name(2)        = plate_a_;
-    device_->material(2)    = "SiO2";
+    device_->make_semiconductor   (2);
+    device_->set_name             (2, plate_a_);
+    device_->set_material         (2, "SiO2");
 
-    device_->make_semiconductor(3);
-    device_->name(3)        = insulator_;
-    device_->material(3)    = "Si";
-    device_->contact_potential(3) = 0.0;
+    device_->make_semiconductor   (3);
+    device_->set_name             (3, insulator_);
+    device_->set_material         (3, "Si");
     
-    device_->make_semiconductor(4);
-    device_->name(4)        = plate_b_;
-    device_->material(4)    = "SiO2";
+    device_->make_semiconductor   (4);
+    device_->set_name             (4, plate_b_);
+    device_->set_material         (4, "SiO2");
 
-    device_->make_contact(5);
-    device_->name(5)        = contact_b_;
-    device_->material(5)    = "Cu";
-    device_->contact_potential(5) = 0.0;
+    device_->make_contact         (5);
+    device_->set_name             (5, contact_b_);
+    device_->set_material         (5, "Cu");
+    device_->set_contact_potential(5, 0.0);
   }
   
 
