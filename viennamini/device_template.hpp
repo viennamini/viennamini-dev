@@ -26,6 +26,8 @@
 #include "viennagrid/point.hpp"
 #include "viennagrid/mesh/element_creation.hpp"
 
+#include "viennamesh/utils/logger.hpp"
+
 #include "boost/shared_ptr.hpp"
 
 namespace viennamini 
@@ -43,7 +45,12 @@ public:
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
 
-  device_template() {}
+  device_template() 
+  {
+    // deactivate ViennaMesh debug output
+    viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+    viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+  }
 
   virtual ~device_template() {}
   
