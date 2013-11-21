@@ -273,6 +273,11 @@ void device::scale(numeric_type factor)
   }
 }
 
+std::string& device::description()
+{
+  return description_;
+}
+
 device::IndicesType&   device::contact_segments_indices()
 {
   return contact_segments_indices_;

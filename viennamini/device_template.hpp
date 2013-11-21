@@ -63,13 +63,18 @@ public:
     geometry_properties_[key] = point_type(x, y, z);
   }
 
-  virtual void        generate()         = 0;
-  virtual std::string description()      = 0;
+  virtual void         generate()         = 0;
+  
+  std::string& description()
+  {
+    return description_;
+  }
 
 protected:
   geometry_properties_type        geometry_properties_;
   viennamini::device_handle       device_;
   viennamini::config_handle       config_;
+  std::string                     description_;
 };
 
 } // viennamini

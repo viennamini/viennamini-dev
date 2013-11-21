@@ -96,6 +96,8 @@ namespace viennamini
     void set_default_parameters();
 
     void scale(numeric_type factor);
+    
+    std::string& description();
 
     IndicesType&   contact_segments_indices();
     IndicesType&   oxide_segments_indices();
@@ -113,6 +115,7 @@ namespace viennamini
 
     IndexMapType               contact_semiconductor_interfaces_;
     IndexMapType               contact_oxide_interfaces_;
+    std::string                description_;
   };
 
 

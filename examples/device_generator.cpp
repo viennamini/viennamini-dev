@@ -45,6 +45,9 @@ int main()
   viennamini::config_handle & myconfig = device_generator->config();
   viennamini::device_handle & mydevice = device_generator->device();
 
+  // (optional) the device inherited the description from the generator
+  std::cout << mydevice->description() << std::endl;
+
   // setup a simulator object and link to a material file
   //
   viennamini::simulator   mysim;
