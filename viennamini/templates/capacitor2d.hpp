@@ -19,6 +19,7 @@
 
 #include "viennamesh/algorithm/triangle.hpp"
 #include "viennamesh/algorithm/seed_point_locator.hpp"
+#include "viennamesh/algorithm/extract_hull.hpp"
 
 
 namespace viennamini {
@@ -26,7 +27,7 @@ namespace viennamini {
 class capacitor2d : public viennamini::device_template
 {
 private:
-  typedef viennagrid::plc_2d_mesh                                  MeshType;
+  typedef viennagrid::brep_2d_mesh                                  MeshType;
   typedef viennagrid::result_of::point<MeshType>::type              MeshPointType;
   typedef viennagrid::result_of::vertex_handle<MeshType>::type      MeshVertexHandleType;
   typedef viennagrid::result_of::line_handle<MeshType>::type        MeshLineHandleType;
@@ -112,79 +113,79 @@ private:
   {
     viennamesh::result_of::parameter_handle< MeshType >::type   mesh = viennamesh::make_parameter<MeshType>();
 
-    MeshVertexHandleType p1  = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["P1"] [0], geometry_properties()["P1"] [1]) );
-    MeshVertexHandleType p2  = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["P2"] [0], geometry_properties()["P2"] [1]) );
-    MeshVertexHandleType p3  = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["P3"] [0], geometry_properties()["P3"] [1]) );
-    MeshVertexHandleType p4  = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["P4"] [0], geometry_properties()["P4"] [1]) );
-    MeshVertexHandleType pi1 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PI1"][0], geometry_properties()["PI1"][1]) );
-    MeshVertexHandleType pi2 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PI2"][0], geometry_properties()["PI2"][1]) );
-    MeshVertexHandleType pi3 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PI3"][0], geometry_properties()["PI3"][1]) );
-    MeshVertexHandleType pi4 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PI4"][0], geometry_properties()["PI4"][1]) );
-    MeshVertexHandleType pc1 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC1"][0], geometry_properties()["PC1"][1]) );
-    MeshVertexHandleType pc11 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC11"][0], geometry_properties()["PC11"][1]) );
-    MeshVertexHandleType pc12 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC12"][0], geometry_properties()["PC12"][1]) );
-    MeshVertexHandleType pc2 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC2"][0], geometry_properties()["PC2"][1]) );
-    MeshVertexHandleType pc21 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC21"][0], geometry_properties()["PC21"][1]) );
-    MeshVertexHandleType pc22 = viennagrid::make_vertex( mesh->get(), MeshPointType(geometry_properties()["PC22"][0], geometry_properties()["PC22"][1]) );
+    MeshVertexHandleType p1  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P1"] [0], geometry_properties()["P1"] [1]) );
+    MeshVertexHandleType p2  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P2"] [0], geometry_properties()["P2"] [1]) );
+    MeshVertexHandleType p3  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P3"] [0], geometry_properties()["P3"] [1]) );
+    MeshVertexHandleType p4  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P4"] [0], geometry_properties()["P4"] [1]) );
+    MeshVertexHandleType pi1 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI1"][0], geometry_properties()["PI1"][1]) );
+    MeshVertexHandleType pi2 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI2"][0], geometry_properties()["PI2"][1]) );
+    MeshVertexHandleType pi3 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI3"][0], geometry_properties()["PI3"][1]) );
+    MeshVertexHandleType pi4 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI4"][0], geometry_properties()["PI4"][1]) );
+    MeshVertexHandleType pc1 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC1"][0], geometry_properties()["PC1"][1]) );
+    MeshVertexHandleType pc11 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC11"][0], geometry_properties()["PC11"][1]) );
+    MeshVertexHandleType pc12 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC12"][0], geometry_properties()["PC12"][1]) );
+    MeshVertexHandleType pc2 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC2"][0], geometry_properties()["PC2"][1]) );
+    MeshVertexHandleType pc21 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC21"][0], geometry_properties()["PC21"][1]) );
+    MeshVertexHandleType pc22 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC22"][0], geometry_properties()["PC22"][1]) );
 
 
     // Segment 1
     std::vector<MeshLineHandleType> lines;
     lines.clear();
     lines.resize(4);
-    lines[0] = viennagrid::make_line(mesh->get(), p1,   pc1);
-    lines[1] = viennagrid::make_line(mesh->get(), pc1,  pc11);
-    lines[2] = viennagrid::make_line(mesh->get(), pc11, pc12 );
-    lines[3] = viennagrid::make_line(mesh->get(), pc12, p1);
+    lines[0] = viennagrid::make_line(mesh(), p1,   pc1);
+    lines[1] = viennagrid::make_line(mesh(), pc1,  pc11);
+    lines[2] = viennagrid::make_line(mesh(), pc11, pc12 );
+    lines[3] = viennagrid::make_line(mesh(), pc12, p1);
 
-    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh->get(), lines.begin(), lines.end());
-//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
+    MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh, lines.begin(), lines.end());
+    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
 
     // Segment 2
     lines.clear();
     lines.resize(5);
-    lines[0] = viennagrid::make_line(mesh->get(), p1,  pi1);
-    lines[1] = viennagrid::make_line(mesh->get(), pi1, pi4);
-    lines[2] = viennagrid::make_line(mesh->get(), pi4, p4 );
-    lines[3] = viennagrid::make_line(mesh->get(), p4,  pc1);
-    lines[4] = viennagrid::make_line(mesh->get(), pc1, p1);
+    lines[0] = viennagrid::make_line(mesh(), p1,  pi1);
+    lines[1] = viennagrid::make_line(mesh(), pi1, pi4);
+    lines[2] = viennagrid::make_line(mesh(), pi4, p4 );
+    lines[3] = viennagrid::make_line(mesh(), p4,  pc1);
+    lines[4] = viennagrid::make_line(mesh(), pc1, p1);
 
-    MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh->get(), lines.begin(), lines.end());
-//    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
+    MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
+    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
     // Segment 3
     lines.clear();
     lines.resize(4);
-    lines[0] = viennagrid::make_line(mesh->get(), pi1, pi2);
-    lines[1] = viennagrid::make_line(mesh->get(), pi2, pi3);
-    lines[2] = viennagrid::make_line(mesh->get(), pi3, pi4);
-    lines[3] = viennagrid::make_line(mesh->get(), pi4, pi1);
+    lines[0] = viennagrid::make_line(mesh(), pi1, pi2);
+    lines[1] = viennagrid::make_line(mesh(), pi2, pi3);
+    lines[2] = viennagrid::make_line(mesh(), pi3, pi4);
+    lines[3] = viennagrid::make_line(mesh(), pi4, pi1);
     
-    MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh->get(), lines.begin(), lines.end());
-//    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
+    MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
+    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
     // Segment 4
     lines.clear();
     lines.resize(5);
-    lines[0] = viennagrid::make_line(mesh->get(), pi2, p2);
-    lines[1] = viennagrid::make_line(mesh->get(), p2,  pc2);
-    lines[2] = viennagrid::make_line(mesh->get(), pc2, p3);
-    lines[3] = viennagrid::make_line(mesh->get(), p3,  pi3);
-    lines[4] = viennagrid::make_line(mesh->get(), pi3, pi2);
+    lines[0] = viennagrid::make_line(mesh(), pi2, p2);
+    lines[1] = viennagrid::make_line(mesh(), p2,  pc2);
+    lines[2] = viennagrid::make_line(mesh(), pc2, p3);
+    lines[3] = viennagrid::make_line(mesh(), p3,  pi3);
+    lines[4] = viennagrid::make_line(mesh(), pi3, pi2);
 
-    MeshPointType seed_point_segment_4 = this->compute_seed_point(mesh->get(), lines.begin(), lines.end());
-//    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
+    MeshPointType seed_point_segment_4 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
+    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
     // Segment 5
     lines.clear();
     lines.resize(4);
-    lines[0] = viennagrid::make_line(mesh->get(), pc2,  p3);
-    lines[1] = viennagrid::make_line(mesh->get(), p3,   pc22);
-    lines[2] = viennagrid::make_line(mesh->get(), pc22, pc21 );
-    lines[3] = viennagrid::make_line(mesh->get(), pc21, pc2);
+    lines[0] = viennagrid::make_line(mesh(), pc2,  p3);
+    lines[1] = viennagrid::make_line(mesh(), p3,   pc22);
+    lines[2] = viennagrid::make_line(mesh(), pc22, pc21 );
+    lines[3] = viennagrid::make_line(mesh(), pc21, pc2);
 
-    MeshPointType seed_point_segment_5 = this->compute_seed_point(mesh->get(), lines.begin(), lines.end());
-//    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
+    MeshPointType seed_point_segment_5 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
+    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
 
 
     // setting the created line geometry as input for the mesher
@@ -207,43 +208,62 @@ private:
   template<typename MeshT, typename LineIterT>
   MeshPointType compute_seed_point(MeshT const & mesh, LineIterT begin, LineIterT end)
   {
-    MeshT new_mesh;
-    
-    typedef typename viennagrid::result_of::vertex<MeshT>::type VertexType;
-    typedef typename viennagrid::result_of::id<VertexType>::type VertexIDType;
-    typedef typename viennagrid::result_of::line<MeshT>::type LineType;
-    
-    std::vector<MeshLineHandleType> new_lines;
-  
-    std::map<VertexIDType, MeshVertexHandleType> vertex_map;
-    for (LineIterT it = begin; it != end; ++it)
-    {
-      LineType const & line = viennagrid::dereference_handle( mesh, *it );
-    
-      MeshVertexHandleType vtx_handle[2];
-    
-      for (int i = 0; i < 2; ++i)
-      {
-        typename std::map<VertexIDType, MeshVertexHandleType>::iterator vtx_handle_it = vertex_map.find( viennagrid::vertices(line)[i].id() );
-        if (vtx_handle_it == vertex_map.end())
-        {
-          vtx_handle[i] = viennagrid::make_vertex( new_mesh, viennagrid::point(mesh, viennagrid::vertices(line)[i]) );
-          vertex_map[viennagrid::vertices(line)[i].id()] = vtx_handle[i];
-        }
-        else
-          vtx_handle[i] = vtx_handle_it->second;
-      }
-        
-      new_lines.push_back( viennagrid::make_line( new_mesh, vtx_handle[0], vtx_handle[1] ) );
-    }
-  
-  
     viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-    viennagrid::make_plc( new_mesh, new_lines.begin(), new_lines.end() );
-    
-    seed_point_locator->set_input( "default", new_mesh );
+    seed_point_locator->set_input( "default", mesh);
     seed_point_locator->run();
-    return seed_point_locator->get_output<MeshPointType>( "default" )->get();
+    
+    typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
+    viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
+    
+    if(point_container().size() != 1)
+    {
+      // TODO
+      std::cout << "Error: More than one seed point computed" << std::endl;
+      exit(-1);
+    }
+    
+    return point_container().front();
+    
+    
+//    return point_container[0];
+    
+//    MeshT new_mesh;
+//    
+//    typedef typename viennagrid::result_of::vertex<MeshT>::type VertexType;
+//    typedef typename viennagrid::result_of::id<VertexType>::type VertexIDType;
+//    typedef typename viennagrid::result_of::line<MeshT>::type LineType;
+//    
+//    std::vector<MeshLineHandleType> new_lines;
+//  
+//    std::map<VertexIDType, MeshVertexHandleType> vertex_map;
+//    for (LineIterT it = begin; it != end; ++it)
+//    {
+//      LineType const & line = viennagrid::dereference_handle( mesh, *it );
+//    
+//      MeshVertexHandleType vtx_handle[2];
+//    
+//      for (int i = 0; i < 2; ++i)
+//      {
+//        typename std::map<VertexIDType, MeshVertexHandleType>::iterator vtx_handle_it = vertex_map.find( viennagrid::vertices(line)[i].id() );
+//        if (vtx_handle_it == vertex_map.end())
+//        {
+//          vtx_handle[i] = viennagrid::make_vertex( new_mesh, viennagrid::point(mesh, viennagrid::vertices(line)[i]) );
+//          vertex_map[viennagrid::vertices(line)[i].id()] = vtx_handle[i];
+//        }
+//        else
+//          vtx_handle[i] = vtx_handle_it->second;
+//      }
+//        
+//      new_lines.push_back( viennagrid::make_line( new_mesh, vtx_handle[0], vtx_handle[1] ) );
+//    }
+//  
+//  
+//    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
+//    viennagrid::make_plc( new_mesh, new_lines.begin(), new_lines.end() );
+//    
+//    seed_point_locator->set_input( "default", new_mesh );
+//    seed_point_locator->run();
+//    return seed_point_locator->get_output<MeshPointType>( "default" )();
   }
 
   void assign_segments()
