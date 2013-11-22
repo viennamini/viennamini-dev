@@ -45,6 +45,7 @@ public:
 
     mesher_->set_input( "absolute_min_geometry_point_distance", 1e-10 );
     mesher_->set_input( "relative_min_geometry_point_distance", 1e-10 );
+    mesher_->set_input( "delaunay", true  );    
     
     contact_a_ = "ContactA";
     plate_a_   = "PlateA";
@@ -98,12 +99,12 @@ private:
   {
     viennamesh::result_of::parameter_handle< MeshType >::type   mesh = viennamesh::make_parameter<MeshType>();
 
-    MeshVertexHandleType c11 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C11"] [0], geometry_properties()["C11"] [1]) );
-    MeshVertexHandleType c1  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C1"] [0], geometry_properties()["C1"] [1]) );
-    MeshVertexHandleType i1  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["I1"] [0], geometry_properties()["I1"] [1]) );
-    MeshVertexHandleType i2  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["I2"] [0], geometry_properties()["I2"] [1]) );
-    MeshVertexHandleType c2  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C2"][0], geometry_properties()["C2"][1]) );
-    MeshVertexHandleType c21 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C21"][0], geometry_properties()["C21"][1]) );
+    MeshVertexHandleType c11 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C11"] [0]) );
+    MeshVertexHandleType c1  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C1"] [0]) );
+    MeshVertexHandleType i1  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["I1"] [0]) );
+    MeshVertexHandleType i2  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["I2"] [0]) );
+    MeshVertexHandleType c2  = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C2"][0]) );
+    MeshVertexHandleType c21 = viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["C21"][0]) );
 
     MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh(), c11, c1);
 //    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;

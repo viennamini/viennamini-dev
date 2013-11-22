@@ -48,8 +48,8 @@ public:
   device_template(std::string const& material_library_file) : material_library_file_(material_library_file)
   {
     // deactivate ViennaMesh debug output
-    viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
-    viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+//    viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+//    viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
   }
 
   virtual ~device_template() {}

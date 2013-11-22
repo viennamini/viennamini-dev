@@ -13,6 +13,7 @@ cmake_minimum_required(VERSION 2.8.2)
 SET(VIENNASTAR "Local" CACHE STRING "Use local ViennaStar libraries or download them automatically, supported values are: Local,Download")
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
 option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_TESTS "Build the tests" ON)
 option(VIENNAMINI_VERBOSE "Verbose messaging" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -125,6 +126,10 @@ SET(LIBRARIES ${LIBRARIES} viennamini)
 IF(BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 ENDIF(BUILD_EXAMPLES)
+
+IF(BUILD_TESTS)
+  ADD_SUBDIRECTORY(tests)
+ENDIF(BUILD_TESTS)
 
 ##Compatibility with Qt-Creator
 file( GLOB_RECURSE QtCreatorCompatibility_SRC
