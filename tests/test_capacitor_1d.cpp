@@ -17,6 +17,7 @@
 #include "viennamini/simulator.hpp"
 #include "viennamini/utils/timer.hpp"
 
+#include <sstream>
 
 struct xlv
 {
@@ -63,7 +64,7 @@ struct test_driver
     epsrs_.push_back(epsr(epsr1, epsr2, epsr3));
   }
   
-  void run()
+  void run(bool write_vtk_files)
   {
     int cnt = 1;
     for(std::vector<xlv>::iterator xlviter = xlvs_.begin(); 
@@ -75,14 +76,15 @@ struct test_driver
         for(std::vector<epsr>::iterator epsriter = epsrs_.begin();
             epsriter != epsrs_.end(); epsriter++)
         {
-          std::cout << "-- Executing test: " << cnt++ << " of " << this->size() << std::endl;
-          this->test(*xlviter, *a1a2iter, *epsriter);
+          std::cout << "-- Executing test: " << cnt << " of " << this->size() << std::endl;
+          this->test(*xlviter, *a1a2iter, *epsriter, write_vtk_files, cnt);
+          cnt++;
         }
       }
     }
   }
 
-  void test(xlv& myxlv, a1a2& mya1a2, epsr& myepsr)
+  void test(xlv& myxlv, a1a2& mya1a2, epsr& myepsr, bool write_vtk_files, int cnt)
   {
     std::string material_library_file = "../../examples/materials.xml";
     viennamini::device_template_handle device_generator(new viennamini::capacitor1d(material_library_file));
@@ -101,11 +103,11 @@ struct test_driver
     viennamini::device_handle & mydevice = device_generator->device();
 
     mydevice->set_contact_potential(1, myxlv.v1_);
-    mydevice->set_contact_potential(5, myxlv.v1_);
+    mydevice->set_contact_potential(5, myxlv.v2_);
 
     mydevice->set_relative_permittivity(2, myepsr.epsr1_);
-    mydevice->set_relative_permittivity(3, myepsr.epsr1_);
-    mydevice->set_relative_permittivity(4, myepsr.epsr1_);
+    mydevice->set_relative_permittivity(3, myepsr.epsr2_);
+    mydevice->set_relative_permittivity(4, myepsr.epsr3_);
 
     viennamini::simulator   mysim;
 
@@ -113,6 +115,13 @@ struct test_driver
     mysim.set_config(myconfig);
 
     mysim.run();
+
+    if(write_vtk_files)
+    {
+      std::stringstream sstr;
+      sstr << cnt;
+      mysim.write("capacitor2d_test_"+sstr.str());
+    }
   }
   
   int size()
@@ -144,7 +153,7 @@ int main()
 
   viennamini::timer timer;
   timer.start();
-  mydrv.run();
+  mydrv.run(true);
   std::cout << "Capacitor 1D tests: Finished executing " << mydrv.size() << " tests in " << timer.get() << " s" << std::endl;
 }
 
