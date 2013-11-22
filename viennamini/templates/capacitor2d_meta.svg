@@ -15,7 +15,7 @@
    inkscape:version="0.48.4 r9939"
    width="836"
    height="912"
-   sodipodi:docname="capacitor2d_meta.png">
+   sodipodi:docname="capacitor2d_meta.svg">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -39,310 +39,262 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1128"
+     inkscape:window-width="1680"
+     inkscape:window-height="1028"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="1.0350877"
-     inkscape:cx="295.40026"
-     inkscape:cy="448.56662"
-     inkscape:window-x="1680"
-     inkscape:window-y="25"
+     inkscape:zoom="0.73191753"
+     inkscape:cx="243.06542"
+     inkscape:cy="545.91772"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <image
      width="836"
      height="912"
-     xlink:href="data:image/png;base64,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
-MQcAECbmAADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNz
-AABhYg4AIEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcA
-ECbmAADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABh
-Yg4AIEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbm
-AADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4A
-IEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADC
-xBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzM
-AQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwA
-QJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCE
-iTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQJiY
-AwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCEiTkA
-gDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQJiYAwAI
-E3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCEiTkAgDAx
-BwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQNgXjHokV3tw
-5B8AAAAASUVORK5CYII=
-"
+     xlink:href="data:image/png;base64,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 MQcAECbmAADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNz AABhYg4AIEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcA ECbmAADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABh Yg4AIEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbm AADCxBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4A IEzMAQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADC xBwAQJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzM AQCEiTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwA QJiYAwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCE iTkAgDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQJiY AwAIE3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCEiTkA gDAxBwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQJiYAwAI E3MAAGFiDgAgTMwBAISJOQCAMDEHABAm5gAAwsQcAECYmAMACBNzAABhYg4AIEzMAQCEiTkAgDAx BwAQJuYAAMLEHABAmJgDAAgTcwAAYWIOACBMzAEAhIk5AIAwMQcAECbmAADCxBwAQNgXjHokV3tw 5B8AAAAASUVORK5CYII= "
      id="image10"
-     x="0"
-     y="0" />
+     x="12.296467"
+     y="1.3662741" />
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="80.18644"
-     y="655.98303"
+     x="102.04682"
+     y="637.32574"
      id="text2987"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan2989"
-       x="80.18644"
-       y="655.98303">S1</tspan></text>
+       x="102.04682"
+       y="637.32574">S1</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="219.30508"
-     y="443.44067"
+     x="230.23528"
+     y="552.74261"
      id="text2991"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan2993"
-       x="219.30508"
-       y="443.44067">S2</tspan></text>
+       x="230.23528"
+       y="552.74261">S2</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="398.03391"
-     y="443.42993"
+     x="408.96411"
+     y="552.73187"
      id="text2995"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan2997"
-       x="398.03391"
-       y="443.42993">S3</tspan></text>
+       x="408.96411"
+       y="552.73187">S3</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="567.10168"
-     y="443.44067"
+     x="578.03186"
+     y="552.74261"
      id="text2999"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3001"
-       x="567.10168"
-       y="443.44067">S4</tspan></text>
+       x="578.03186"
+       y="552.74261">S4</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="722.64404"
-     y="270.50848"
+     x="739.03931"
+     y="282.80496"
      id="text3003"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3005"
-       x="722.64404"
-       y="270.50848">S5</tspan></text>
+       x="739.03931"
+       y="282.80496">S5</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="137.18645"
-     y="759.62451"
+     x="148.11664"
+     y="764.92645"
      id="text3007"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3009"
-       x="137.18645"
-       y="759.62451">P1</tspan></text>
+       x="148.11664"
+       y="764.92645">P1</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="676.27118"
-     y="759.62451"
+     x="687.20135"
+     y="764.92645"
      id="text3011"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3013"
-       x="676.27118"
-       y="759.62451">P2</tspan></text>
+       x="687.20135"
+       y="764.92645">P2</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="686.89832"
-     y="167.8224"
+     x="697.82849"
+     y="175.12433"
      id="text3050"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3052"
-       x="686.89832"
-       y="167.8224">P3</tspan></text>
+       x="697.82849"
+       y="175.12433">P3</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="129.45763"
-     y="168.1017"
+     x="140.38782"
+     y="175.40363"
      id="text3054"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3056"
-       x="129.45763"
-       y="168.1017">P4</tspan></text>
+       x="140.38782"
+       y="175.40363">P4</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="309.15253"
-     y="759.62451"
+     x="320.08273"
+     y="764.92645"
      id="text3058"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3060"
-       x="309.15253"
-       y="759.62451">PI1</tspan></text>
+       x="320.08273"
+       y="764.92645">PI1</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="496.57626"
-     y="759.62451"
+     x="507.50647"
+     y="764.92645"
      id="text3062"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3064"
-       x="496.57626"
-       y="759.62451">PI2</tspan></text>
+       x="507.50647"
+       y="764.92645">PI2</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="499.47458"
-     y="167.8224"
+     x="510.40479"
+     y="175.12433"
      id="text3066"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3068"
-       x="499.47458"
-       y="167.8224">PI3</tspan></text>
+       x="510.40479"
+       y="175.12433">PI3</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="313.01694"
-     y="168.1017"
+     x="323.94714"
+     y="175.40363"
      id="text3070"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3072"
-       x="313.01694"
-       y="168.1017">PI4</tspan></text>
+       x="323.94714"
+       y="175.40363">PI4</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="150.71185"
-     y="536.18646"
+     x="161.64204"
+     y="543.4884"
      id="text3074"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3076"
-       x="150.71185"
-       y="536.18646">PC1</tspan></text>
+       x="161.64204"
+       y="543.4884">PC1</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="12.559322"
-     y="536.18646"
+     x="23.489515"
+     y="543.4884"
      id="text3078"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3080"
-       x="12.559322"
-       y="536.18646">PC11</tspan></text>
+       x="23.489515"
+       y="543.4884">PC11</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="8.6949158"
-     y="759.35596"
+     x="19.625109"
+     y="764.6579"
      id="text3082"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3084"
-       x="8.6949158"
-       y="759.35596">PC12</tspan></text>
+       x="19.625109"
+       y="764.6579">PC12</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="634.72882"
-     y="388.37289"
+     x="645.659"
+     y="391.67484"
      id="text3086"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3088"
-       x="634.72882"
-       y="388.37289">PC2</tspan></text>
+       x="645.659"
+       y="391.67484">PC2</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="767.08478"
-     y="388.37289"
+     x="778.01495"
+     y="391.67484"
      id="text3090"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3092"
-       x="767.08478"
-       y="388.37289">PC21</tspan></text>
+       x="778.01495"
+       y="391.67484">PC21</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="767.08478"
-     y="167.83315"
+     x="778.01495"
+     y="175.13507"
      id="text3094"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3096"
-       x="767.08478"
-       y="167.83315">PC22</tspan></text>
+       x="778.01495"
+       y="175.13507">PC22</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:19.26363373px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+     x="13.662738"
+     y="24.662205"
+     id="text3020"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3022"
+       x="13.662738"
+       y="24.662205">Segments:</tspan><tspan
+       sodipodi:role="line"
+       x="13.662738"
+       y="48.741749"
+       id="tspan3024"> S1: ContactA</tspan><tspan
+       sodipodi:role="line"
+       x="13.662738"
+       y="72.821289"
+       id="tspan3026"> S2: PlateA</tspan><tspan
+       sodipodi:role="line"
+       x="13.662738"
+       y="96.900826"
+       id="tspan3028"> S3: Insulator</tspan><tspan
+       sodipodi:role="line"
+       x="13.662738"
+       y="120.98037"
+       id="tspan3030"> S4: PlateB</tspan><tspan
+       sodipodi:role="line"
+       x="13.662738"
+       y="145.05992"
+       id="tspan3032"> S5: ContactB</tspan></text>
 </svg>
