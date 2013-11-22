@@ -65,7 +65,6 @@ int main()
   // write the simulation result to VTK files
   //
   mysim.write("capacitor2d_result");
-
   return 0;
 }
 

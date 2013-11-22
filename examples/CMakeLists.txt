@@ -12,8 +12,11 @@ TARGET_LINK_LIBRARIES(trigate3d_poisson_dd_np ${LIBRARIES})
 ADD_EXECUTABLE(nin2d_laplace     nin2d_laplace.cpp)
 TARGET_LINK_LIBRARIES(nin2d_laplace ${LIBRARIES})
 
-ADD_EXECUTABLE(device_generator     device_generator.cpp)
-TARGET_LINK_LIBRARIES(device_generator ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+ADD_EXECUTABLE(template_capacitor1d     template_capacitor1d.cpp)
+TARGET_LINK_LIBRARIES(template_capacitor1d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+ADD_EXECUTABLE(template_capacitor2d     template_capacitor2d.cpp)
+TARGET_LINK_LIBRARIES(template_capacitor2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
 
 
 
