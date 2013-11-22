@@ -52,23 +52,6 @@ public:
     insulator_ = "Insulator";
     plate_b_   = "PlateB";
     contact_b_ = "ContactB";
-    
-    
-    const char* desc = "\
---------------------------------------------------------------------------- \n \
-Capacitor 1D Device Description: \n \
-One-dimensional capacitor with 5 segments, geometry description as follows: \n \
-\n \
-C11 - S1 - C1 -- S2 -- I1 -- S3 -- I2 -- S4 -- C2 - S5 - C21\
-\n";
-    description_ = std::string(desc);
-    description_ += " Segment Overview: \n";
-    description_ += "  S1: " + contact_a_ + "\n" 
-                "  S2: " + plate_a_   + "\n"
-                "  S3: " + insulator_ + "\n"
-                "  S4: " + plate_b_   + "\n"
-                "  S5: " + contact_b_ + "\n";
-    description_ += "--------------------------------------------------------------------------- \n";
   }
 
   ~capacitor1d()
@@ -85,7 +68,6 @@ C11 - S1 - C1 -- S2 -- I1 -- S3 -- I2 -- S4 -- C2 - S5 - C21\
     config_  = viennamini::config_handle(new viennamini::config());
 
     device_->make_line1d();
-    device_->description() = description_;
     device_->read_material_library(material_library_file_);
     config_->problem() = viennamini::id::laplace();
 

@@ -23,12 +23,6 @@ int main()
   std::string material_library_file = "../../examples/materials.xml";
   viennamini::device_template_handle device_generator(new viennamini::capacitor2d(material_library_file));
   
-  // (optional) get a string-based description of the currently active generator
-  // in the description information regarding the supported geometry parameters
-  // is provided, which are preset with default parameters
-  //
-  std::cout << device_generator->description() << std::endl;
-  
   // (optional) get the geometry properties parameters and set some of those
   // 
   typedef viennamini::device_template::point_type PointType;
@@ -45,9 +39,6 @@ int main()
   //
   viennamini::config_handle & myconfig = device_generator->config();
   viennamini::device_handle & mydevice = device_generator->device();
-
-  // (optional) the device inherited the description from the generator
-  std::cout << mydevice->description() << std::endl;
 
   // setup a simulator object and link to a material file
   //

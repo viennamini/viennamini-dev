@@ -61,27 +61,6 @@ public:
     insulator_ = "Insulator";
     plate_b_   = "PlateB";
     contact_b_ = "ContactB";
-    
-    
-//    const char* desc = "\
-//--------------------------------------------------------------------------- \n \
-//Capacitor 2D Device Description: \n \
-//Two-dimensional capacitor with 5 segments, geometry description as follows: \n \
-//\n \
-//        P4 --- PI4 --- PI3 --- P3   -- PC22 \n \
-//        |       |       |       |  S5   |   \n \
-//PC11 -- PC1 S2  |  S3   |  S4   PC2 -- PC21 \n \
-//|   S1  |       |       |       |           \n \
-//PC12 -- P1 --- PI1 --- PI2 --- P2           \n \
-//\n";
-//    description_ = std::string(desc);
-    description_ += " Segment Overview: \n";
-    description_ += "  S1: " + contact_a_ + "\n" 
-                "  S2: " + plate_a_   + "\n"
-                "  S3: " + insulator_ + "\n"
-                "  S4: " + plate_b_   + "\n"
-                "  S5: " + contact_b_ + "\n";
-    description_ += "--------------------------------------------------------------------------- \n";
   }
 
   ~capacitor2d()
@@ -98,7 +77,6 @@ public:
     config_  = viennamini::config_handle(new viennamini::config());
 
     device_->make_triangular2d();
-    device_->description() = description_;
     device_->read_material_library(material_library_file_);
     config_->problem() = viennamini::id::laplace();
 

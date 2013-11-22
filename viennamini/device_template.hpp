@@ -65,16 +65,10 @@ public:
 
   virtual void         generate()         = 0;
   
-  std::string& description()
-  {
-    return description_;
-  }
-
 protected:
   geometry_properties_type        geometry_properties_;
   viennamini::device_handle       device_;
   viennamini::config_handle       config_;
-  std::string                     description_;
   std::string                     material_library_file_;
 };
 
