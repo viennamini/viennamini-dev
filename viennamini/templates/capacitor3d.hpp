@@ -312,24 +312,24 @@ private:
       plcs[5] = viennagrid::make_plc( mesh(), cur_lines+0, cur_lines+4 );
     }
     
-    MeshType temp_mesh;
-    viennagrid::copy_element_handles( mesh(), plcs+0, plcs+6, temp_mesh, 0.0 );
-    
-    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-    seed_point_locator->set_input( "default", temp_mesh);
-    seed_point_locator->run();
-    
-    typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
-    viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-    
-    if(point_container().size() != 1)
-    {
-      // TODO
-      std::cout << "Error: More than one seed point computed" << std::endl;
-      exit(-1);
-    }
-    
-    return point_container().front();
+//    MeshType temp_mesh;
+//    viennagrid::copy_element_handles( mesh(), plcs+0, plcs+6, temp_mesh, 0.0 );
+//    
+//    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
+//    seed_point_locator->set_input( "default", temp_mesh);
+//    seed_point_locator->run();
+//    
+//    typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
+//    viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
+//    
+//    if(point_container().size() != 1)
+//    {
+//      // TODO
+//      std::cout << "Error: More than one seed point computed" << std::endl;
+//      exit(-1);
+//    }
+//    
+//    return point_container().front();
   }
 
 

@@ -15,119 +15,139 @@
 
 #include "viennamini/templates/capacitor1d.hpp"
 #include "viennamini/simulator.hpp"
+#include "viennamini/utils/timer.hpp"
 
 
-//template<typename NumericT>
-//NumericT c1(NumericT x)
-//{
-//  return x;
-//}
-
-//template<typename NumericT>
-//NumericT c2(NumericT x, NumericT l)
-//{
-//  return x + l;
-//}
-
-//template<typename NumericT>
-//NumericT i1(NumericT x, NumericT l, NumericT a1)
-//{
-//  return x + l * a1;
-//}
-
-//template<typename NumericT>
-//NumericT i2(NumericT x, NumericT l, NumericT a2)
-//{
-//  return x + l * a2;
-//}
-
-
-struct parameters
+struct xlv
 {
-  double x;
-  double l;
-  double v1;
-  double v2;
-  double a1;
-  double a2;
-  double d1_epsr;
-  double d2_epsr;
-  double d3_epsr;
+  xlv(double x, double l, double c, double v1, double v2) :
+    x_(x), l_(l), c_(c), v1_(v1), v2_(v2) {}
+
+  double x_;
+  double l_;
+  double c_;
+  double v1_;
+  double v2_;
 };
 
-void test()
+struct a1a2
 {
-  std::string material_library_file = "../../examples/materials.xml";
-  viennamini::device_template_handle device_generator(new viennamini::capacitor1d(material_library_file));
-  
-  typedef viennamini::device_template::point_type PointType;
-  device_generator->geometry_properties()["C11"]  = PointType(-0.5);
-  device_generator->geometry_properties()["C1"]   = PointType(0.0);
-  device_generator->geometry_properties()["I1"]   = PointType(1.0);
-  device_generator->geometry_properties()["I2"]   = PointType(2.0);
-  device_generator->geometry_properties()["C2"]   = PointType(3.0);
-  device_generator->geometry_properties()["C21"]  = PointType(3.5);
+  a1a2(double a1, double a2) : a1_(a1), a2_(a2) {}
+  double a1_;
+  double a2_;
+};
 
-  device_generator->generate();
-  
-  viennamini::config_handle & myconfig = device_generator->config();
-  viennamini::device_handle & mydevice = device_generator->device();
+struct epsr
+{
+  epsr(double epsr1, double epsr2, double epsr3) : 
+    epsr1_(epsr1), epsr2_(epsr2), epsr3_(epsr3) {}
+  double epsr1_;
+  double epsr2_;
+  double epsr3_;
+};
 
-  viennamini::simulator   mysim;
+struct test_driver
+{
+  void register_xlvs(double x, double l, double c, double v1, double v2)
+  {
+    xlvs_.push_back(xlv(x, l, c, v1, v2));
+  }
   
-  mysim.set_device(mydevice);
-  mysim.set_config(myconfig);
+  void register_a1a2(double a1, double a2)
+  {
+    a1a2s_.push_back(a1a2(a1, a2));
+  }
   
-  mysim.run();
-}
+  void register_epsr(double epsr1, double epsr2, double epsr3)
+  {
+    epsrs_.push_back(epsr(epsr1, epsr2, epsr3));
+  }
+  
+  void run()
+  {
+    int cnt = 1;
+    for(std::vector<xlv>::iterator xlviter = xlvs_.begin(); 
+        xlviter != xlvs_.end(); xlviter++)
+    {
+      for(std::vector<a1a2>::iterator a1a2iter = a1a2s_.begin();
+          a1a2iter != a1a2s_.end(); a1a2iter++)
+      {
+        for(std::vector<epsr>::iterator epsriter = epsrs_.begin();
+            epsriter != epsrs_.end(); epsriter++)
+        {
+          std::cout << "-- Executing test: " << cnt++ << " of " << this->size() << std::endl;
+          this->test(*xlviter, *a1a2iter, *epsriter);
+        }
+      }
+    }
+  }
 
+  void test(xlv& myxlv, a1a2& mya1a2, epsr& myepsr)
+  {
+    std::string material_library_file = "../../examples/materials.xml";
+    viennamini::device_template_handle device_generator(new viennamini::capacitor1d(material_library_file));
+
+    typedef viennamini::device_template::point_type PointType;
+    device_generator->geometry_properties()["C11"]  = PointType(myxlv.x_-myxlv.c_);
+    device_generator->geometry_properties()["C1"]   = PointType(myxlv.x_);
+    device_generator->geometry_properties()["I1"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a1_);
+    device_generator->geometry_properties()["I2"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a2_);
+    device_generator->geometry_properties()["C2"]   = PointType(myxlv.x_+myxlv.l_);
+    device_generator->geometry_properties()["C21"]  = PointType(myxlv.x_+myxlv.l_+myxlv.c_);
+
+    device_generator->generate();
+
+    viennamini::config_handle & myconfig = device_generator->config();
+    viennamini::device_handle & mydevice = device_generator->device();
+
+    mydevice->set_contact_potential(1, myxlv.v1_);
+    mydevice->set_contact_potential(5, myxlv.v1_);
+
+    mydevice->set_relative_permittivity(2, myepsr.epsr1_);
+    mydevice->set_relative_permittivity(3, myepsr.epsr1_);
+    mydevice->set_relative_permittivity(4, myepsr.epsr1_);
+
+    viennamini::simulator   mysim;
+
+    mysim.set_device(mydevice);
+    mysim.set_config(myconfig);
+
+    mysim.run();
+  }
+  
+  int size()
+  {
+    return xlvs_.size() * a1a2s_.size() * epsrs_.size();
+  }
+  
+  std::vector<xlv>    xlvs_;
+  std::vector<a1a2>   a1a2s_;
+  std::vector<epsr>   epsrs_;
+};
 
 int main()
 {
-  std::vector<parameters> myparas;
+  test_driver mydrv;
   
-  {
-    parameters p;
-    p.x  = -0.1E-6;
-    p.l  =   10E-6;
-    p.v1 = -0.1;
-    p.v2 = -0.1;
-    p.a1 = 1./3.;
-    p.a2 = 2./3.;
-    myparas.push_back(p);
-  }
-  {
-    parameters p;
-    p.x  = -0.1E-6;
-    p.l  =   10E-6;
-    p.v1 =  0.4;
-    p.v2 = -0.1;
-    p.a1 = 1./3.;
-    p.a2 = 2./3.;
-    myparas.push_back(p);
-  }
-  {
-    parameters p;
-    p.x  = -0.1E-6;
-    p.l  =   10E-6;
-    p.v1 =  0.9;
-    p.v2 = -0.1;
-    p.a1 = 1./3.;
-    p.a2 = 2./3.;
-    myparas.push_back(p);
-  }
-  
-  {
-    parameters p;
-    p.x  =   -1E-6;
-    p.l  = 1000E-6;
-    p.v1 = -100;
-    p.v2 = -100;
-    p.a1 = 1./3.;
-    p.a2 = 2./3.;
-    myparas.push_back(p);
-  }
+  mydrv.register_xlvs(-0.1E-6, 10E-6, 1E-6, -0.1, -0.1);
+  mydrv.register_xlvs(-0.1E-6, 10E-6, 1E-6, -0.1,  0.4);
+  mydrv.register_xlvs(-0.1E-6, 10E-6, 1E-6, -0.1,  0.9);
+  mydrv.register_xlvs(-1E-6, 1000E-6, 100E-6, -100, -100);
+  mydrv.register_xlvs(-1E-6, 1000E-6, 100E-6, -100,  400);
+  mydrv.register_xlvs(-1E-6, 1000E-6, 100E-6, -100,  900);
+
+  mydrv.register_a1a2(1./3.,   2./3.);
+  mydrv.register_a1a2(9./100., 1./10.);
+
+  mydrv.register_epsr(3.9, 11.7, 3.9);
+  mydrv.register_epsr(35.1, 11.7, 3.9);
+
+  viennamini::timer timer;
+  timer.start();
+  mydrv.run();
+  std::cout << "Capacitor 1D tests: Finished executing " << mydrv.size() << " tests in " << timer.get() << " s" << std::endl;
 }
+
 
 
 
