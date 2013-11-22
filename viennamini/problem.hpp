@@ -22,11 +22,15 @@
 #ifdef VIENNAMINI_VERBOSE
   #define VIENNAFVM_VERBOSE
 #endif
+#include "viennafvm/pde_solver.hpp"
+#include "viennafvm/problem_description.hpp"
 #include "viennafvm/forwards.h"
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
 
 #include "viennamini/forwards.h"
+#include "viennamini/physics.hpp"
+
 
 namespace viennamini {
 
@@ -58,6 +62,15 @@ public:
 
   void write(std::string const& filename)
   {
+    if(device_.is_line1d())
+    {
+      viennafvm::io::write_solution_to_VTK_file(
+        device_.get_problem_description_line_1d().quantities(), 
+        filename, 
+        device_.get_segmesh_line_1d().mesh, 
+        device_.get_segmesh_line_1d().segmentation);
+    }
+    else
     if(device_.is_triangular2d())
     {
       viennafvm::io::write_solution_to_VTK_file(
@@ -75,6 +88,7 @@ public:
         device_.get_segmesh_tetrahedral_3d().mesh, 
         device_.get_segmesh_tetrahedral_3d().segmentation);
     }
+    else throw device_not_supported_exception("at: problem::write()"); 
   }
   
   viennamini::device&           device_;

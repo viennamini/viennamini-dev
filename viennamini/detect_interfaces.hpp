@@ -88,13 +88,16 @@ void detect_interfaces(viennamini::device& device, IndexMapT& contactSemiconduct
   viennamini::device::indices_type & oxides         = device.oxide_segments_indices();
   viennamini::device::indices_type & semiconductors = device.semiconductor_segments_indices();
 
+  if(device.is_line1d())
+    viennamini::detail::detect_interfaces_impl(device.get_segmesh_line_1d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
+  else 
   if(device.is_triangular2d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_triangular_2d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
   else 
   if(device.is_tetrahedral3d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_tetrahedral_3d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
   else
-    std::cout << "detect_interfaces: segmented mesh type not supported" << std::endl;
+    throw device_not_supported_exception("at: detect interfaces()");
 }
 
 } // viennamini

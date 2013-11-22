@@ -144,8 +144,9 @@ namespace viennamini
   inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
   } // material
 
-  class triangular_2d  {};
-  class tetrahedral_3d {};
+  class line_1d         {};
+  class triangular_2d   {};
+  class tetrahedral_3d  {};
   class null {};
 
   class device;
@@ -158,15 +159,19 @@ namespace viennamini
   
   typedef double                                                                                                  numeric;
 
+  typedef ::viennagrid::mesh< viennagrid::config::line_1d >                                                       mesh_line_1d;
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;
   typedef ::viennagrid::mesh< viennagrid::config::tetrahedral_3d >                                                mesh_tetrahedral_3d;
 
+  typedef ::viennagrid::result_of::segmentation<mesh_line_1d>::type                                               segmentation_line_1d;
   typedef ::viennagrid::result_of::segmentation<mesh_triangular_2d>::type                                         segmentation_triangular_2d;
   typedef ::viennagrid::result_of::segmentation<mesh_tetrahedral_3d>::type                                        segmentation_tetrahedral_3d;
-  
+
+  typedef ::viennagrid::segmented_mesh<viennamini::mesh_line_1d,  viennamini::segmentation_line_1d>               segmesh_line_1d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>   segmesh_triangular_2d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>  segmesh_tetrahedral_3d;
 
+  typedef ::boost::shared_ptr<segmesh_line_1d>                                                                    segmesh_line_1d_ptr;
   typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
   typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
 
@@ -175,6 +180,7 @@ namespace viennamini
   typedef ::boost::shared_ptr<viennamini::material_library>                                                       material_library_handle;
   typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
 
+  typedef ::viennafvm::problem_description<mesh_line_1d>                                                          problem_description_line_1d;
   typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;
   typedef ::viennafvm::problem_description<mesh_tetrahedral_3d>                                                   problem_description_tetrahedral_3d;
 

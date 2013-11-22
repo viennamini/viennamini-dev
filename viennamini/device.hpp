@@ -21,13 +21,20 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/material_library.hpp"
-//#include "viennamini/device_segment_parameters.hpp"
 
 #include "boost/variant.hpp"
 
 
 namespace viennamini 
 {
+
+  /** @brief Exception for the case that the device type is not supported */
+  class device_not_supported_exception : public std::runtime_error {
+  public:
+    device_not_supported_exception()                        : std::runtime_error("") {}
+    device_not_supported_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
 
   class device
   {
@@ -45,8 +52,8 @@ namespace viennamini
   
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null, segmesh_triangular_2d_ptr,         segmesh_tetrahedral_3d_ptr>         GenericMeshType;
-    typedef boost::variant<null, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
+    typedef boost::variant<null, segmesh_line_1d_ptr,         segmesh_triangular_2d_ptr,         segmesh_tetrahedral_3d_ptr>         GenericMeshType;
+    typedef boost::variant<null, problem_description_line_1d, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
     
     typedef std::vector<std::size_t>                                                       IndicesType;  
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
@@ -61,15 +68,19 @@ namespace viennamini
 
     device();
 
+    void make_line1d();
     void make_triangular2d();
     void make_tetrahedral3d();
-    
+
+    bool is_line1d();
     bool is_triangular2d();
     bool is_tetrahedral3d();
 
+    segmesh_line_1d&  get_segmesh_line_1d();
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
 
+    problem_description_line_1d&        get_problem_description_line_1d();
     problem_description_triangular_2d&  get_problem_description_triangular_2d();
     problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d();
     
@@ -93,6 +104,7 @@ namespace viennamini
     viennamini::material_library  & material_library();
 
 
+    void read(std::string const& filename, viennamini::line_1d const&);
     void read(std::string const& filename, viennamini::triangular_2d const&);
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
     

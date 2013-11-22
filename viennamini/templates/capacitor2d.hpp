@@ -19,7 +19,6 @@
 
 #include "viennamesh/algorithm/triangle.hpp"
 #include "viennamesh/algorithm/seed_point_locator.hpp"
-#include "viennamesh/algorithm/extract_hull.hpp"
 
 
 namespace viennamini {
@@ -67,7 +66,7 @@ public:
     const char* desc = "\
 --------------------------------------------------------------------------- \n \
 Capacitor 2D Device Description: \n \
-Two dimensional capacitor with 5 segments, geometry description as follows: \n \
+Two-dimensional capacitor with 5 segments, geometry description as follows: \n \
 \n \
         P4 --- PI4 --- PI3 --- P3   -- PC22 \n \
         |       |       |       |  S5   |   \n \
@@ -139,7 +138,7 @@ private:
     lines[3] = viennagrid::make_line(mesh(), pc12, p1);
 
     MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
+//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
 
     // Segment 2
     lines.clear();
@@ -151,7 +150,7 @@ private:
     lines[4] = viennagrid::make_line(mesh(), pc1, p1);
 
     MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
+//    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
     // Segment 3
     lines.clear();
@@ -162,7 +161,7 @@ private:
     lines[3] = viennagrid::make_line(mesh(), pi4, pi1);
     
     MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
+//    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
     // Segment 4
     lines.clear();
@@ -174,7 +173,7 @@ private:
     lines[4] = viennagrid::make_line(mesh(), pi3, pi2);
 
     MeshPointType seed_point_segment_4 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
+//    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
     // Segment 5
     lines.clear();
@@ -185,7 +184,7 @@ private:
     lines[3] = viennagrid::make_line(mesh(), pc21, pc2);
 
     MeshPointType seed_point_segment_5 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
+//    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
 
 
     // setting the created line geometry as input for the mesher
@@ -202,7 +201,12 @@ private:
     mesher_->set_input("seed_points", seed_points);  
 
     mesher_->reference_output( "default", device_->get_segmesh_triangular_2d() );
-    mesher_->run();
+    if(!mesher_->run())
+    {
+      // TODO provide exception
+      std::cout << "Error: Meshing failed" << std::endl;
+      exit(-1);
+    }
   }
   
   template< typename LineIterT>

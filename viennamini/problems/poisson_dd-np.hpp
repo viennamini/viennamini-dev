@@ -16,24 +16,21 @@
 ======================================================================= */
 
 #include "viennamini/problem.hpp"
-#include "viennamini/physics.hpp"
-
-// ViennaFVM includes:
-#include "viennafvm/pde_solver.hpp"
-#include "viennafvm/problem_description.hpp"
 
 namespace viennamini {
 
 struct problem_poisson_dd_np : public problem
 {
 public:
-  problem_poisson_dd_np(viennamini::device& device, viennamini::config& config) :
-    problem         (device, config)
-  {
-  }
+  problem_poisson_dd_np(viennamini::device& device, viennamini::config& config) : problem (device, config) { }
 
   void run()
   {
+    if(device_.is_line1d())
+    {
+      this->run_impl(device_.get_segmesh_line_1d(), device_.get_problem_description_line_1d());
+    }
+    else
     if(device_.is_triangular2d())
     {
       this->run_impl(device_.get_segmesh_triangular_2d(), device_.get_problem_description_triangular_2d());
@@ -43,8 +40,7 @@ public:
     {
       this->run_impl(device_.get_segmesh_tetrahedral_3d(), device_.get_problem_description_tetrahedral_3d());
     }
-    else
-      std::cout << "detect_interfaces: segmented mesh type not supported" << std::endl;
+    else throw device_not_supported_exception("at: problem_poisson_dd_np::run()");
   }
   
   
