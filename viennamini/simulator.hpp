@@ -27,6 +27,12 @@
 
 namespace viennamini
 {
+  /** @brief Exception for the case that the input material library xml file is not supported */
+  class undefined_problem_exception : public std::runtime_error {
+  public:
+    undefined_problem_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
   class simulator
   {
   public:

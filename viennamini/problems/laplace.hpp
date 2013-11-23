@@ -73,11 +73,36 @@ private:
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
-      
+
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << std::endl;
+      std::cout << "[Problem][Laplace] Processing segment " << current_segment_index << std::endl;
+      std::cout << "  Name:     \"" << device_.get_name(current_segment_index) << "\"" << std::endl;
+      std::cout << "  Material: \"" << device_.get_material(current_segment_index) << "\"" << std::endl;
+    #endif
+
+      if(device_.is_contact(current_segment_index))
+      {
+        if(device_.is_contact_at_semiconductor(current_segment_index))
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "  identified as a contact next to a semiconductor .." << std::endl;
+        #endif
+        }
+        else
+        if(device_.is_contact_at_oxide(current_segment_index))
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "  identified as a contact next to an oxide .." << std::endl;
+        #endif
+        }
+        else throw segment_undefined_contact_exception(current_segment_index);
+      }
+      else
       if(device_.is_oxide(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "solving potential for oxide segment: " << current_segment_index << std::endl;
+        std::cout << "  identified as an oxide .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
@@ -85,10 +110,11 @@ private:
       if(device_.is_semiconductor(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "solving potential for semiconductor segment: " << current_segment_index << std::endl;
+        std::cout << "  identified as a semiconductor .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
+      else throw segment_undefined_exception(current_segment_index);
     }
 
     // -------------------------------------------------------------------------
@@ -117,6 +143,16 @@ private:
     linear_solver.max_iterations()  = config_.linear_iterations();
     
     viennafvm::pde_solver pde_solver;
+
+    if(config_.write_initial_guesses())
+      this->write("initial");
+
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << std::endl;
+    std::cout << "[Problem][Laplace] solving .. " << std::endl;
+    std::cout << std::endl;
+  #endif
+
     pde_solver(problem_description, pde_system, linear_solver);
   }
 };

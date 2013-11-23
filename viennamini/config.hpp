@@ -44,13 +44,7 @@ struct config
   NumericType&  linear_breaktol();
   NumericType&  damping();
   IndexType&    initial_guess_smoothing_iterations();
-
-//  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction);
-
-//  NumericType& contact_value(std::size_t segment_index);
-
-//  NumericType& workfunction(std::size_t segment_index);
-
+  bool&         write_initial_guesses();
   std::string& problem();
 
 private:
@@ -64,6 +58,7 @@ private:
 //  SegmentValuesType segment_contact_values_;
 //  SegmentValuesType segment_contact_workfunctions_;
   std::string       problem_;
+  bool              write_initial_guesses_;
 };
 
 

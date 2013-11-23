@@ -13,7 +13,7 @@
 ======================================================================= */
 
 
-#include "viennamini/device.hpp"
+
 
 //#include "viennamesh/algorithm/file_reader.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
@@ -22,8 +22,11 @@
 
 #include "viennafvm/boundary.hpp"
 
+#include "viennamini/device.hpp"
 #include "viennamini/detect_interfaces.hpp"
 #include "viennamini/constants.hpp"
+#include "viennamini/utils/file_extension.hpp"
+
 
 namespace viennamini
 {
@@ -52,7 +55,7 @@ struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
   bool operator()(T & ptr) const { return false; }
 };
 
-device::device() :   matlib_(new viennamini::material_library())
+device::device() :   matlib_()
 {
 }
 
@@ -202,8 +205,8 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
       
-      if(this->material_library()()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-        this->set_relative_permittivity(*contact_iter, this->material_library()()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -211,8 +214,8 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
       
-      if(this->material_library()()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-        this->set_relative_permittivity(*contact_iter, this->material_library()()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
     }
   }
 }
@@ -227,9 +230,9 @@ device::GenericProblemDescriptionType & device::generic_problem_description()
   return generic_problem_description_;
 }
 
-viennamini::material_library& device::material_library()
+material_library_handle & device::material_library()
 { 
-  return *matlib_;
+  return matlib_;
 }
 
 void device::read(std::string const& filename, viennamini::line_1d const&)
@@ -276,7 +279,13 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
 
 void device::read_material_library(std::string const& filename)
 {
-  matlib_->read(filename);
+  matlib_.reset();
+
+  std::string extension = viennamini::file_extension(filename);
+  if(extension == "xml")
+    matlib_ = material_library_handle(new viennamaterials::pugixml(filename));
+  else
+    throw unknown_material_library_file_exception(filename);
 }
 
 void device::write(std::string const& filename)
@@ -339,15 +348,15 @@ void device::set_material(int segment_index, std::string const& new_material)
   // set the relative permittivity of this segment, as we know the material now
   // extract the data from the material database
   //
-  if(this->material_library()()->has_parameter(new_material, viennamini::material::relative_permittivity()))
-    this->set_relative_permittivity(segment_index, this->material_library()()->get_parameter_value(new_material, viennamini::material::relative_permittivity()) );
-#ifdef VIENNAMINI_VERBOSE
+  if(this->material_library()->has_parameter(new_material, viennamini::material::relative_permittivity()))
+    this->set_permittivity(segment_index, this->material_library()->get_parameter_value(new_material, viennamini::material::relative_permittivity()) );
   else 
   {
     if(!is_contact(segment_index)) // for contacts, setting the epsr doesn't make sense
-      std::cout << "Device: material \"" << new_material << "\" does not have the parameter \"" << viennamini::material::relative_permittivity() << "\" - skipping .." << std::endl;
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << "[Device][Segment "<< segment_index << "] material \"" << new_material << "\" does not have the parameter \"" << viennamini::material::relative_permittivity() << "\" - skipping .." << std::endl;
+    #endif
   }
-#endif
 }
 
 std::string device::get_name(int segment_index)
@@ -362,9 +371,11 @@ std::string device::get_material(int segment_index)
 
 void device::set_contact_potential(int segment_index, viennamini::numeric potential)
 {
+#ifdef VIENNAMINI_VERBOSE
+  std::cout << "[Device][Segment "<< segment_index << "] setting contact potential " << potential << std::endl;
+#endif
   if(this->is_line1d())
   {
-    std::cout << "setting contact potential of " << potential << " for segment " << segment_index << std::endl;
     typedef problem_description_line_1d::quantity_type  QuantityType;
     QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::potential());
     viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_line_1d().segmentation(segment_index), potential);
@@ -388,6 +399,9 @@ void device::set_contact_potential(int segment_index, viennamini::numeric potent
 
 void device::add_contact_workfunction(int segment_index, viennamini::numeric potential)
 {
+#ifdef VIENNAMINI_VERBOSE
+  std::cout << "[Device][Segment "<< segment_index << "] adding workfunction " << potential << std::endl;
+#endif
   if(this->is_line1d())
   {
     typedef problem_description_line_1d::quantity_type  QuantityType;
@@ -411,8 +425,11 @@ void device::add_contact_workfunction(int segment_index, viennamini::numeric pot
   else throw device_not_supported_exception("at: device::add_contact_workfunction()");
 }
 
-void device::set_relative_permittivity(int segment_index, viennamini::numeric epsr)
+void device::set_permittivity(int segment_index, viennamini::numeric epsr)
 {
+#ifdef VIENNAMINI_VERBOSE
+  std::cout << "[Device][Segment "<< segment_index << "] setting epsr " << epsr << std::endl;
+#endif
   if(this->is_line1d())
   {
     typedef problem_description_line_1d::quantity_type  QuantityType;
@@ -433,11 +450,14 @@ void device::set_relative_permittivity(int segment_index, viennamini::numeric ep
     QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::permittivity());
     viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), epsr * viennamini::eps0::val());
   }
-  else throw device_not_supported_exception("at: device::set_relative_permittivity()");
+  else throw device_not_supported_exception("at: device::set_permittivity()");
 }
 
 void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
 {
+#ifdef VIENNAMINI_VERBOSE
+  std::cout << "[Device][Segment "<< segment_index << "] setting NA " << NA << std::endl;
+#endif
   segment_acceptor_doping_[segment_index] = NA;
 
   if(this->is_line1d())
@@ -465,6 +485,9 @@ void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
 
 void device::set_donator_doping(int segment_index, viennamini::numeric ND)
 {
+#ifdef VIENNAMINI_VERBOSE
+  std::cout << "[Device][Segment "<< segment_index << "] setting ND " << ND << std::endl;
+#endif
   segment_donator_doping_[segment_index] = ND;
 
   if(this->is_line1d())

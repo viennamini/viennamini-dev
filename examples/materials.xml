@@ -12,45 +12,45 @@
       </parameter>
       <parameter>
         <name>intrinsic_carrier_concentration</name>
-        <value>1.0E14</value>
+        <value>1.0E16</value>
         <unit>1/m3</unit>
       </parameter>
       <parameter>
         <name>relative_permittivity</name>
         <value>11.8</value>
         <unit></unit>
-      </parameter>      
-      <parameter>
-        <name>mu_n_0</name>
-        <value>1430</value>
-        <unit>cm^2/V*s</unit>
       </parameter>
-      <parameter>
-        <name>mu_p_0</name>
-        <value>460</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>n1</name>
-        <value>1</value>
-        <unit></unit>
-        <note>SRH parameter</note>
-      </parameter>
-      <parameter>
-        <name>p1</name>
-        <value>1</value>
-        <unit></unit>
-        <note>SRH parameter</note>
-      </parameter>
+      <mobility>
+        <parameter>
+          <name>mu_n_0</name>
+          <value>1430</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>mu_p_0</name>
+          <value>460</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_n</name>
+          <value>2.33</value>
+          <unit>1</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_p</name>
+          <value>2.18</value>
+          <unit>1</unit>
+        </parameter>
+      </mobility>
       <parameter>
         <name>taun</name>
-        <value>1</value>
+        <value>1.0E-5</value>
         <unit></unit>
         <note>SRH hole minority carrier life time</note>
       </parameter>
       <parameter>
         <name>taup</name>
-        <value>1</value>
+        <value>1.0E-5</value>
         <unit></unit>
         <note>SRH hole minority carrier life time</note>
       </parameter>
@@ -78,16 +78,28 @@
         <value>16</value>
         <unit></unit>
       </parameter>      
-      <parameter>
-        <name>electron_mobility</name>
-        <value>3800</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>hole_mobility</name>
-        <value>1820</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>    
+      <mobility>
+        <parameter>
+          <name>mu_n_0</name>
+          <value>3800</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>mu_p_0</name>
+          <value>1800</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_n</name>
+          <value>1.66</value>
+          <unit>1</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_p</name>
+          <value>2.33</value>
+          <unit>1</unit>
+        </parameter>
+      </mobility>
     </parameters>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=a03ca6b2d6ae431aa5a7e71a129f9a4a</source>-->
   </material>  
@@ -113,16 +125,28 @@
         <value>13.2</value>
         <unit></unit>
       </parameter>      
-      <parameter>
-        <name>electron_mobility</name>
-        <value>8800</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>hole_mobility</name>
-        <value>400</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>      
+      <mobility>
+        <parameter>
+          <name>mu_n_0</name>
+          <value>8500</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>mu_p_0</name>
+          <value>400</value>
+          <unit>cm^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_n</name>
+          <value>1</value>
+          <unit>1</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_p</name>
+          <value>2.1</value>
+          <unit>1</unit>
+        </parameter>
+      </mobility>
     </parameters>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=029a4ff04bdc46d5906b29e0a36dba36&ckck=1</source>-->
   </material>    

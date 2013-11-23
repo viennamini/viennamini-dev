@@ -73,15 +73,15 @@ void simulator::run()
   if(device_changed_)
   {
   #ifdef VIENNAMINI_VERBOSE
-    std::cout << "updating device .." << std::endl;
+    std::cout << "[Simulator] device has changed, updating .."  << std::endl;
   #endif
     device().update();
   }
 
   if(config_changed_ || device_changed_)
   {
-  #ifdef VIENNAMINI_VERBOSE  
-    std::cout << "updating configuration .." << std::endl;
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
   #endif
     if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
     {
@@ -92,14 +92,12 @@ void simulator::run()
     else
     if(config().problem() == viennamini::id::laplace())
     {
+
       if(problem_) delete problem_;
       problem_ = new viennamini::problem_laplace(device(), config());
       problem_->run();
     }
-    else
-    {
-      std::cout << "Error: no problem defined in the configuration .." << std::endl;
-    }
+    else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
   }
 }
 

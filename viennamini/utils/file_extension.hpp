@@ -1,5 +1,6 @@
-#ifndef VIENNAMINI_MATERIALLIBRARY_HPP
-#define VIENNAMINI_MATERIALLIBRARY_HPP
+
+#ifndef VIENNAMINI_FILEEXTENSION_HPP
+#define VIENNAMINI_FILEEXTENSION_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -15,25 +16,22 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-// ViennaMaterials includes
-#include "viennamaterials/pugixml.hpp"
-
 namespace viennamini {
 
-  class material_library
-  {
-  public:
-    material_library();
-    ~material_library();
-    void read(std::string const& filename);
-    void reset();
-    viennamaterials::library* operator()();
-    bool is_empty();
 
-  private:
-    viennamaterials::library* lib_;
-  };
+inline bool file_exists(std::string const& filename)
+{
+   std::ifstream ifile(filename.c_str());
+   return ifile;
+}
+
+inline std::string file_extension(std::string const& filename)
+{
+   return filename.substr(filename.rfind(".")+1, filename.size());
+}
+
+
 } // viennamini
 
-#endif 
+#endif
 

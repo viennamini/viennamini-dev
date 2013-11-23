@@ -31,6 +31,7 @@
 #include "viennafvm/forwards.h"
 #include "viennafvm/problem_description.hpp"
 
+#include "viennamaterials/library.hpp"
 
 #include "boost/shared_ptr.hpp"
 
@@ -141,8 +142,8 @@ namespace viennamini
     inline std::string thermal_potential()          { return "Thermal Potential";  }
     inline std::string tau_n()                      { return "Electron minority lifetime"; }
     inline std::string tau_p()                      { return "Hole minority lifetime"; }
-    inline std::string n1()                         { return "SRH n1"; }
-    inline std::string p1()                         { return "SRH p1";  }
+    inline std::string srh_n1()                     { return "SRH n1"; }
+    inline std::string srh_p1()                     { return "SRH p1";  }
   } // id
   
 
@@ -151,8 +152,6 @@ namespace viennamini
     inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
     inline std::string tau_n()            { return "tau_n"; }
     inline std::string tau_p()            { return "tau_p"; }
-    inline std::string n1()               { return "n1"; }
-    inline std::string p1()               { return "p1"; }
   } // material
 
   class line_1d         {};
@@ -162,7 +161,6 @@ namespace viennamini
 
   class device;
   class config;
-  class material_library;
   class device_template;
 
   namespace role {
@@ -206,7 +204,7 @@ namespace viennamini
 
   typedef ::boost::shared_ptr<viennamini::device>                                                                 device_handle;
   typedef ::boost::shared_ptr<viennamini::config>                                                                 config_handle;
-  typedef ::boost::shared_ptr<viennamini::material_library>                                                       material_library_handle;
+  typedef ::boost::shared_ptr<viennamaterials::library>                                                           material_library_handle;
   typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
 
   typedef ::viennafvm::problem_description<mesh_line_1d>                                                          problem_description_line_1d;

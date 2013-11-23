@@ -28,6 +28,7 @@ config::config()
   damping_                             = 1.0;
   initial_guess_smoothing_iterations_  = 0;
   problem_                             = "";
+  write_initial_guesses_               = false;
 }
 
 
@@ -66,21 +67,10 @@ config::IndexType&    config::initial_guess_smoothing_iterations()
   return initial_guess_smoothing_iterations_;
 }
 
-//void config::assign_contact(std::size_t segment_index, config::NumericType value, config::NumericType workfunction)
-//{
-//  segment_contact_values_       [segment_index] = value;
-//  segment_contact_workfunctions_[segment_index] = workfunction;
-//}
-
-//config::NumericType& config::contact_value(std::size_t segment_index)
-//{
-//  return segment_contact_values_[segment_index];
-//}
-
-//config::NumericType& config::workfunction(std::size_t segment_index)
-//{
-//    return segment_contact_workfunctions_[segment_index];
-//}
+bool& config::write_initial_guesses()
+{
+  return write_initial_guesses_;
+}
 
 std::string& config::problem()
 {

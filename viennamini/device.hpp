@@ -19,8 +19,9 @@
 #include <map>
 #include <vector>
 
+#include "viennamaterials/pugixml.hpp"
+
 #include "viennamini/forwards.h"
-#include "viennamini/material_library.hpp"
 
 #include "boost/variant.hpp"
 
@@ -35,6 +36,11 @@ namespace viennamini
     device_not_supported_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  /** @brief Exception for the case that the input material library xml file is not supported */
+  class unknown_material_library_file_exception : public std::runtime_error {
+  public:
+    unknown_material_library_file_exception(std::string const & str) : std::runtime_error(str) {}
+  };
 
   class device
   {
@@ -69,7 +75,7 @@ namespace viennamini
     bool is_triangular2d();
     bool is_tetrahedral3d();
 
-    segmesh_line_1d&  get_segmesh_line_1d();
+    segmesh_line_1d&        get_segmesh_line_1d();
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
 
@@ -94,7 +100,7 @@ namespace viennamini
 
     GenericMeshType               & generic_mesh();
     GenericProblemDescriptionType & generic_problem_description();
-    viennamini::material_library  & material_library();
+    material_library_handle       & material_library();
 
 
     void read(std::string const& filename, viennamini::line_1d const&);
@@ -115,7 +121,7 @@ namespace viennamini
 
     void set_contact_potential    (int segment_index, viennamini::numeric potential);
     void add_contact_workfunction (int segment_index, viennamini::numeric workfunction);
-    void set_relative_permittivity(int segment_index, viennamini::numeric epsr);
+    void set_permittivity         (int segment_index, viennamini::numeric epsr);
     void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
     void set_donator_doping       (int segment_index, viennamini::numeric ND);
 
@@ -153,6 +159,7 @@ namespace viennamini
     IndexValuesType            segment_acceptor_doping_;
     
     viennamini::material_library_handle  matlib_;
+
   };
 
 

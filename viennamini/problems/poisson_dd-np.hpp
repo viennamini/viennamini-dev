@@ -72,15 +72,15 @@ private:
     QuantityType & hole_density             = problem_description.add_quantity(viennamini::id::hole_density());
     QuantityType & electron_mobility        = problem_description.add_quantity(viennamini::id::electron_mobility());
     QuantityType & hole_mobility            = problem_description.add_quantity(viennamini::id::hole_mobility());
-    QuantityType & recombination            = problem_description.add_quantity(viennamini::id::hole_mobility());
+    QuantityType & recombination            = problem_description.add_quantity(viennamini::id::recombination());
     QuantityType & intrinsic_concentration  = problem_description.add_quantity(viennamini::id::intrinsic_carrier());
     QuantityType & temperature              = problem_description.add_quantity(viennamini::id::temperature());
     QuantityType & thermal_pot              = problem_description.add_quantity(viennamini::id::thermal_potential());
 
     QuantityType & electron_lifetime        = problem_description.add_quantity(viennamini::id::tau_n());
     QuantityType & hole_lifetime            = problem_description.add_quantity(viennamini::id::tau_p());
-    QuantityType & srh_n1                   = problem_description.add_quantity(viennamini::id::n1());
-    QuantityType & srh_p1                   = problem_description.add_quantity(viennamini::id::p1());
+    QuantityType & srh_n1                   = problem_description.add_quantity(viennamini::id::srh_n1());
+    QuantityType & srh_p1                   = problem_description.add_quantity(viennamini::id::srh_p1());
     // -------------------------------------------------------------------------
     //
     // Assign segment roles: setup initial guesses and boundary conditions
@@ -91,20 +91,46 @@ private:
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
+
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << std::endl;
+      std::cout << "[Problem][PoissonDD NP] Processing segment " << current_segment_index << std::endl;
+      std::cout << "  Name:     \"" << device_.get_name(current_segment_index) << "\"" << std::endl;
+      std::cout << "  Material: \"" << device_.get_material(current_segment_index) << "\"" << std::endl;
+    #endif
       
-      // TODO the following Contact-Semiconductor handling needs to be outsourced to ViennaFVM
+      //
+      // Set quantities on all segments 
+      //
+      // temperature
+      viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), config_.temperature()); 
+
+      // thermal potential
+      viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature)); 
+
+
       if(device_.is_contact(current_segment_index))
       {
         if(device_.is_contact_at_semiconductor(current_segment_index))
         {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "  identified as a contact next to a semiconductor .." << std::endl;
+        #endif
           std::size_t adjacent_semiconductor_segment_index = device_.get_adjacent_semiconductor_segment_for_contact(current_segment_index);
           NumericType ND_value    = device_.get_donator_doping(adjacent_semiconductor_segment_index);
           NumericType NA_value    = device_.get_acceptor_doping(adjacent_semiconductor_segment_index);
-          NumericType ni_value    = device_.material_library()()->get_parameter_value(
+          NumericType ni_value    = device_.material_library()->get_parameter_value(
                                       device_.get_material(adjacent_semiconductor_segment_index), 
                                       viennamini::material::intrinsic_carrier_concentration());
           NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config_.temperature(), ni_value);
         
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "  ND:      " << ND_value << std::endl;
+          std::cout << "  NA:      " << NA_value << std::endl;
+          std::cout << "  ni:      " << ni_value << std::endl;
+          std::cout << "  builtin: " << builtin_pot << std::endl;
+        #endif
+
           // add the builtin potential to the dirichlet potential boundary
           viennafvm::addto_dirichlet_boundary(potential, 
                                             segmesh.segmentation(current_segment_index), 
@@ -116,12 +142,20 @@ private:
           // holes dirichlet boundary
           viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index), NA_value);
         }
+        else
+        if(device_.is_contact_at_oxide(current_segment_index))
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "  identified as a contact next to an oxide .." << std::endl;
+        #endif
+        }
+        else throw segment_undefined_contact_exception(current_segment_index);
       }
       else
       if(device_.is_oxide(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "solving potential for oxide segment: " << current_segment_index << std::endl;
+        std::cout << "  identified as an oxide .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
@@ -129,20 +163,14 @@ private:
       if(device_.is_semiconductor(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "solving potential for semiconductor segment: " << current_segment_index << std::endl;
+        std::cout << "  identified as a semiconductor .." << std::endl;
       #endif
       
-        NumericType ni_value    = device_.material_library()()->get_parameter_value(
+        NumericType ni_value    = device_.material_library()->get_parameter_value(
           device_.get_material(current_segment_index), viennamini::material::intrinsic_carrier_concentration());
 
         // intrinsic carrier concentration
         viennafvm::set_initial_value(intrinsic_concentration, segmesh.segmentation(current_segment_index), ni_value); 
-
-        // temperature
-        viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), config_.temperature()); 
-
-        // thermal potential
-        viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature)); 
 
         // potential
         viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration, temperature)); 
@@ -168,18 +196,20 @@ private:
         else
         if(device_.get_recombination(current_segment_index) == recombination::srh)
         {
+      #ifdef VIENNAMINI_VERBOSE
+        std::cout << "    activating SRH recombination .." << std::endl;
+      #endif
           viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
           viennafvm::set_initial_value(electron_lifetime,     segmesh.segmentation(current_segment_index), 
-            device_.material_library()()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_n())); 
+            device_.material_library()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_n())); 
           viennafvm::set_initial_value(hole_lifetime,         segmesh.segmentation(current_segment_index), 
-            device_.material_library()()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_p())); 
-          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), 
-            device_.material_library()()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::n1())); 
-          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), 
-            device_.material_library()()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::p1())); 
+            device_.material_library()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_p())); 
+          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
+          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
         }
       }
+      else throw segment_undefined_exception(current_segment_index);
     }
 
     // -------------------------------------------------------------------------
@@ -193,11 +223,11 @@ private:
     FunctionSymbolType p          (hole_density.id());
     FunctionSymbolType mu_n       (electron_mobility.id());
     FunctionSymbolType mu_p       (hole_mobility.id());
+    FunctionSymbolType VT         (thermal_pot.id());
     FunctionSymbolType epsr       (permittivity.id());
     FunctionSymbolType ND         (donator_doping.id());
     FunctionSymbolType NA         (acceptor_doping.id());
     FunctionSymbolType ni         (intrinsic_concentration.id());
-    FunctionSymbolType VT         (thermal_pot.id());
     FunctionSymbolType R_switch   (recombination.id());   // is either 0 or 1, allows segment-wise activation of recombination
 
     FunctionSymbolType tau_n      (electron_lifetime.id());
@@ -206,7 +236,7 @@ private:
     FunctionSymbolType p1         (srh_p1.id());
 
     NumericType q          = viennamini::q::val();
-    viennamath::expr R_srh = (n * p - ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1));
+    viennamath::expr R_srh = 0.0;//(n * p - ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1));
 
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                       /* = */ q * ((n - ND) - (p - NA)));
     EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ R_switch * R_srh);
@@ -233,6 +263,16 @@ private:
     pde_solver.set_nonlinear_iterations(config_.nonlinear_iterations());
     pde_solver.set_nonlinear_breaktol(config_.nonlinear_breaktol());
     pde_solver.set_damping(config_.damping());
+
+    if(config_.write_initial_guesses())
+      this->write("initial");
+
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << std::endl;
+    std::cout << "[Problem][PoissonDD NP] solving .. " << std::endl;
+    std::cout << std::endl;
+  #endif
+
     pde_solver(problem_description, pde_system, linear_solver);
   }
 };

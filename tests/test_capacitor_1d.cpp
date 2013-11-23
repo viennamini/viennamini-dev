@@ -105,9 +105,9 @@ struct test_driver
     mydevice->set_contact_potential(1, myxlv.v1_);
     mydevice->set_contact_potential(5, myxlv.v2_);
 
-    mydevice->set_relative_permittivity(2, myepsr.epsr1_);
-    mydevice->set_relative_permittivity(3, myepsr.epsr2_);
-    mydevice->set_relative_permittivity(4, myepsr.epsr3_);
+    mydevice->set_permittivity(2, myepsr.epsr1_);
+    mydevice->set_permittivity(3, myepsr.epsr2_);
+    mydevice->set_permittivity(4, myepsr.epsr3_);
 
     viennamini::simulator   mysim;
 

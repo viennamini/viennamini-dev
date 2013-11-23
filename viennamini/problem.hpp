@@ -31,6 +31,7 @@
 #include "viennamini/forwards.h"
 #include "viennamini/physics.hpp"
 
+#include <boost/lexical_cast.hpp>
 
 namespace viennamini {
 
@@ -41,6 +42,17 @@ public:
   quantity_not_found_exception(std::string const & str) : std::runtime_error(str) {}
 };
 
+/** @brief Exception for the case that a contact segment could not be identified as either a contact-semiconducotr nor a contact-oxide segment */
+class segment_undefined_contact_exception : public std::runtime_error {
+public:
+  segment_undefined_contact_exception(int segment_index) : std::runtime_error(" at segment: "+boost::lexical_cast<std::string>(segment_index)) {}
+};
+
+/** @brief Exception for the case that a segment could not be identified as either a contact, an oxide, nor a semiconductor */
+class segment_undefined_exception : public std::runtime_error {
+public:
+  segment_undefined_exception(int segment_index) : std::runtime_error(" at segment: "+boost::lexical_cast<std::string>(segment_index)) {}
+};
 
 struct problem
 {
