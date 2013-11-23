@@ -150,6 +150,10 @@ namespace viennamini
   namespace material {
     inline std::string relative_permittivity()               { return "relative_permittivity"; }
     inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
+    inline std::string base_electron_mobility()              { return "mu_n_0"; }
+    inline std::string base_hole_mobility()                  { return "mu_p_0"; }
+    inline std::string alpha_n()          { return "alpha_n"; }
+    inline std::string alpha_p()          { return "alpha_p"; }
     inline std::string tau_n()            { return "tau_n"; }
     inline std::string tau_p()            { return "tau_p"; }
   } // material
@@ -180,6 +184,17 @@ namespace viennamini
       srh
     };
   } // recombination
+
+  namespace mobility {
+    enum mobility_ids
+    {
+      base, 
+      lattice, 
+      ionized_impurity,
+      interface, 
+      carrier_heating
+    };
+  } // mobility
 
   // public typedefs
   //

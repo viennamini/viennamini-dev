@@ -523,6 +523,16 @@ recombination::recombination_ids device::get_recombination(int segment_index)
   return segment_recombinations_[segment_index];
 }
 
+void device::set_mobility(int segment_index, mobility::mobility_ids id)
+{
+  segment_mobility_[segment_index] = id;
+}
+
+mobility::mobility_ids device::get_mobility(int segment_index)
+{
+  return segment_mobility_[segment_index];
+}
+
 viennamini::numeric device::get_acceptor_doping(int segment_index)
 {
   return segment_acceptor_doping_[segment_index];

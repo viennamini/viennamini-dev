@@ -46,8 +46,9 @@ namespace viennamini
   {
   private:
     
-    typedef std::map<std::size_t, role::segment_role_ids>                                          SegmentRolesType;
-    typedef std::map<std::size_t, recombination::recombination_ids>                                         SegmentRecombinationsType;
+    typedef std::map<std::size_t, role::segment_role_ids>                                         SegmentRolesType;
+    typedef std::map<std::size_t, recombination::recombination_ids>                               SegmentRecombinationsType;
+    typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
   
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
@@ -128,6 +129,9 @@ namespace viennamini
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
 
+    void set_mobility        (int segment_index, mobility::mobility_ids id);
+    mobility::mobility_ids get_mobility(int segment_index);
+
     viennamini::numeric get_acceptor_doping(int segment_index);
     viennamini::numeric get_donator_doping(int segment_index);
 
@@ -155,6 +159,7 @@ namespace viennamini
     IndexKeysType              segment_materials_;
     SegmentRolesType           segment_roles_;
     SegmentRecombinationsType  segment_recombinations_;
+    SegmentMobilityType        segment_mobility_;
     IndexValuesType            segment_donator_doping_;
     IndexValuesType            segment_acceptor_doping_;
     

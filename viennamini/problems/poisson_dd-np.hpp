@@ -92,11 +92,14 @@ private:
     {
       std::size_t current_segment_index = sit->id();
 
+      std::string material = device_.get_material(current_segment_index);
+      std::string name     = device_.get_name(current_segment_index);
+
     #ifdef VIENNAMINI_VERBOSE
       std::cout << std::endl;
       std::cout << "[Problem][PoissonDD NP] Processing segment " << current_segment_index << std::endl;
-      std::cout << "  Name:     \"" << device_.get_name(current_segment_index) << "\"" << std::endl;
-      std::cout << "  Material: \"" << device_.get_material(current_segment_index) << "\"" << std::endl;
+      std::cout << "  Name:     \"" << name << "\"" << std::endl;
+      std::cout << "  Material: \"" << material << "\"" << std::endl;
     #endif
       
       //
@@ -167,7 +170,7 @@ private:
       #endif
       
         NumericType ni_value    = device_.material_library()->get_parameter_value(
-          device_.get_material(current_segment_index), viennamini::material::intrinsic_carrier_concentration());
+          material, viennamini::material::intrinsic_carrier_concentration());
 
         // intrinsic carrier concentration
         viennafvm::set_initial_value(intrinsic_concentration, segmesh.segmentation(current_segment_index), ni_value); 
@@ -183,12 +186,33 @@ private:
         // holes
         viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), acceptor_doping);
         viennafvm::set_unknown(hole_density, segmesh.segmentation(current_segment_index));
-        
-        // electrons mobility
-        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), 1.0); // TODO for the time being, use constant 
 
-        // holes mobility
-        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index), 1.0); // TODO for the time being, use constant 
+        // mobility
+        NumericType mu_n_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_electron_mobility());
+        NumericType mu_p_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_hole_mobility());
+
+        if(device_.get_mobility(current_segment_index) == mobility::base)
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    using base mobilities: " << std::endl;
+          std::cout << "      mu_n: " << mu_n_value << device_.material_library()->get_parameter_unit(material, viennamini::material::base_electron_mobility()) << std::endl;
+          std::cout << "      mu_p: " << mu_p_value << device_.material_library()->get_parameter_unit(material, viennamini::material::base_hole_mobility()) << std::endl;
+        #endif
+          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_value); 
+          viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_value); 
+        }
+        else
+        if(device_.get_mobility(current_segment_index) == mobility::lattice)
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    activating lattice scattering mobility model .." << std::endl;
+        #endif
+          NumericType alpha_n_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_electron_mobility());
+          NumericType alpha_p_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_hole_mobility());
+          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
+          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
+        }
+        else throw mobility_not_supported_exception();
 
         // recombination
         if(device_.get_recombination(current_segment_index) == recombination::none)
@@ -196,18 +220,19 @@ private:
         else
         if(device_.get_recombination(current_segment_index) == recombination::srh)
         {
-      #ifdef VIENNAMINI_VERBOSE
-        std::cout << "    activating SRH recombination .." << std::endl;
-      #endif
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    activating SRH recombination model .." << std::endl;
+        #endif
           viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
           viennafvm::set_initial_value(electron_lifetime,     segmesh.segmentation(current_segment_index), 
-            device_.material_library()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_n())); 
+            device_.material_library()->get_parameter_value(material, viennamini::material::tau_n())); 
           viennafvm::set_initial_value(hole_lifetime,         segmesh.segmentation(current_segment_index), 
-            device_.material_library()->get_parameter_value(device_.get_material(current_segment_index), viennamini::material::tau_p())); 
+            device_.material_library()->get_parameter_value(material, viennamini::material::tau_p())); 
           viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
           viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
         }
+        else throw recombination_not_supported_exception();
       }
       else throw segment_undefined_exception(current_segment_index);
     }

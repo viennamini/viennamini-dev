@@ -54,6 +54,18 @@ public:
   segment_undefined_exception(int segment_index) : std::runtime_error(" at segment: "+boost::lexical_cast<std::string>(segment_index)) {}
 };
 
+/** @brief Exception for the case that a mobility model is not supported */
+class mobility_not_supported_exception : public std::runtime_error {
+public:
+  mobility_not_supported_exception() : std::runtime_error("") {}
+};
+
+/** @brief Exception for the case that a recombination model is not supported */
+class recombination_not_supported_exception : public std::runtime_error {
+public:
+  recombination_not_supported_exception() : std::runtime_error("") {}
+};
+
 struct problem
 {
 public:

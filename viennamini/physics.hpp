@@ -87,10 +87,38 @@ namespace viennamini
   };
   
 
+  namespace mobility {
 
+  template<typename NumericT>
+  inline NumericT lattice_scattering_impl(NumericT const& mu_0, NumericT const& alpha, NumericT const& T)
+  {
+    return mu_0 * std::pow(T/300., (-1.0)*alpha);
+  }
 
+  template<typename QuantityT>
+  struct lattice_scattering
+  {
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+    
+    lattice_scattering(numeric_type const& mu_0, numeric_type const& alpha, QuantityT& T) : mu_0_(mu_0), alpha_(alpha), T_(T) {}
+    
+    template<typename CellT>
+    result_type operator()(CellT const& cell) 
+    {
+      return lattice_scattering_impl(mu_0_, alpha_, T_.get_value(cell));
+    }
+    
+  private:
+    numeric_type    mu_0_;
+    numeric_type    alpha_;
+    QuantityT & T_;
+  };
+
+  } // mobility
 } // viennamini
 
 
 
 #endif
+
