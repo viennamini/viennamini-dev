@@ -39,16 +39,9 @@ namespace viennamini
   class device
   {
   private:
-    enum segment_role_ids
-    {
-      unidentified,
-      contact, 
-      oxide,
-      semiconductor
-    };
     
-    typedef std::map<std::size_t, segment_role_ids>                                          SegmentRolesType;
-
+    typedef std::map<std::size_t, role::segment_role_ids>                                          SegmentRolesType;
+    typedef std::map<std::size_t, recombination::recombination_ids>                                         SegmentRecombinationsType;
   
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
@@ -126,6 +119,9 @@ namespace viennamini
     void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
     void set_donator_doping       (int segment_index, viennamini::numeric ND);
 
+    void set_recombination        (int segment_index, recombination::recombination_ids id);
+    recombination::recombination_ids get_recombination(int segment_index);
+
     viennamini::numeric get_acceptor_doping(int segment_index);
     viennamini::numeric get_donator_doping(int segment_index);
 
@@ -152,6 +148,7 @@ namespace viennamini
     IndexKeysType              segment_names_;
     IndexKeysType              segment_materials_;
     SegmentRolesType           segment_roles_;
+    SegmentRecombinationsType  segment_recombinations_;
     IndexValuesType            segment_donator_doping_;
     IndexValuesType            segment_acceptor_doping_;
     

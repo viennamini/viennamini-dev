@@ -121,32 +121,32 @@ problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_
 
 void device::make_contact(int segment_index)
 {
-  segment_roles_[segment_index] = contact;
+  segment_roles_[segment_index] = role::contact;
 }
 
 void device::make_oxide(int segment_index)
 {
-  segment_roles_[segment_index] = oxide;
+  segment_roles_[segment_index] = role::oxide;
 }
 
 void device::make_semiconductor(int segment_index)
 {
-  segment_roles_[segment_index] = semiconductor;
+  segment_roles_[segment_index] = role::semiconductor;
 }
 
 bool device::is_contact(int segment_index)
 {
-  return segment_roles_[segment_index] == contact;
+  return segment_roles_[segment_index] == role::contact;
 }
 
 bool device::is_oxide(int segment_index)
 {
-  return segment_roles_[segment_index] == oxide;
+  return segment_roles_[segment_index] == role::oxide;
 }
 
 bool device::is_semiconductor(int segment_index)
 {
-  return segment_roles_[segment_index] == semiconductor;
+  return segment_roles_[segment_index] == role::semiconductor;
 }
 
 bool device::is_contact_at_oxide(int segment_index)
@@ -180,11 +180,11 @@ void device::update()
   for(SegmentRolesType::iterator siter = segment_roles_.begin();
       siter != segment_roles_.end(); siter++)
   {
-    if(siter->second == oxide)         oxide_segments_indices_.push_back(siter->first);
+    if(siter->second == role::oxide)         oxide_segments_indices_.push_back(siter->first);
     else
-    if(siter->second == contact)       contact_segments_indices_.push_back(siter->first);
+    if(siter->second == role::contact)       contact_segments_indices_.push_back(siter->first);
     else
-    if(siter->second == semiconductor) semiconductor_segments_indices_.push_back(siter->first);
+    if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
   }
 
   // identify contact-semiconductor/oxide interfaces 
@@ -488,6 +488,16 @@ void device::set_donator_doping(int segment_index, viennamini::numeric ND)
     viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), ND);
   }
   else throw device_not_supported_exception("at: device::set_donator_doping()");
+}
+
+void device::set_recombination(int segment_index, recombination::recombination_ids id)
+{
+  segment_recombinations_[segment_index] = id;
+}
+
+recombination::recombination_ids device::get_recombination(int segment_index)
+{
+  return segment_recombinations_[segment_index];
 }
 
 viennamini::numeric device::get_acceptor_doping(int segment_index)

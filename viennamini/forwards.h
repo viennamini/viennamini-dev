@@ -121,27 +121,38 @@ namespace viennamini
   };
 
   namespace id {
-  inline std::string laplace()                    { return "laplace"; }
-  inline std::string poisson()                    { return "poisson"; }
-  inline std::string poisson_drift_diffusion_n()  { return "poisson_drift_diffusion_n"; }
-  inline std::string poisson_drift_diffusion_p()  { return "poisson_drift_diffusion_p"; }
-  inline std::string poisson_drift_diffusion_np() { return "poisson_drift_diffusion_np"; }
-  
-  inline std::string permittivity()               { return "Permittivity"; }
-  inline std::string donator_doping()             { return "N_D"; }
-  inline std::string acceptor_doping()            { return "N_A"; }
-  inline std::string potential()                  { return "Potential"; }
-  inline std::string electron_density()           { return "Electron Density"; }
-  inline std::string hole_density()               { return "Hole Density"; }
-  inline std::string electron_mobility()          { return "Electron Mobility"; }
-  inline std::string hole_mobility()              { return "Hole Mobility"; }
-
+    inline std::string laplace()                    { return "laplace"; }
+    inline std::string poisson()                    { return "poisson"; }
+    inline std::string poisson_drift_diffusion_n()  { return "poisson_drift_diffusion_n"; }
+    inline std::string poisson_drift_diffusion_p()  { return "poisson_drift_diffusion_p"; }
+    inline std::string poisson_drift_diffusion_np() { return "poisson_drift_diffusion_np"; }
+    
+    inline std::string permittivity()               { return "Permittivity"; }
+    inline std::string donator_doping()             { return "N_D"; }
+    inline std::string acceptor_doping()            { return "N_A"; }
+    inline std::string potential()                  { return "Potential"; }
+    inline std::string electron_density()           { return "Electron Density"; }
+    inline std::string hole_density()               { return "Hole Density"; }
+    inline std::string electron_mobility()          { return "Electron Mobility"; }
+    inline std::string hole_mobility()              { return "Hole Mobility"; }
+    inline std::string recombination()              { return "Recombination"; }
+    inline std::string intrinsic_carrier()          { return "Intrinsic Carrier"; }
+    inline std::string temperature()                { return "Temperature";  }
+    inline std::string thermal_potential()          { return "Thermal Potential";  }
+    inline std::string tau_n()                      { return "Electron minority lifetime"; }
+    inline std::string tau_p()                      { return "Hole minority lifetime"; }
+    inline std::string n1()                         { return "SRH n1"; }
+    inline std::string p1()                         { return "SRH p1";  }
   } // id
   
 
   namespace material {
-  inline std::string relative_permittivity()               { return "relative_permittivity"; }
-  inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
+    inline std::string relative_permittivity()               { return "relative_permittivity"; }
+    inline std::string intrinsic_carrier_concentration()     { return "intrinsic_carrier_concentration"; }
+    inline std::string tau_n()            { return "tau_n"; }
+    inline std::string tau_p()            { return "tau_p"; }
+    inline std::string n1()               { return "n1"; }
+    inline std::string p1()               { return "p1"; }
   } // material
 
   class line_1d         {};
@@ -153,6 +164,24 @@ namespace viennamini
   class config;
   class material_library;
   class device_template;
+
+  namespace role {
+    enum segment_role_ids
+    {
+      none,
+      contact, 
+      oxide,
+      semiconductor
+    };
+  } // role
+
+  namespace recombination {
+    enum recombination_ids
+    {
+      none, 
+      srh
+    };
+  } // recombination
 
   // public typedefs
   //

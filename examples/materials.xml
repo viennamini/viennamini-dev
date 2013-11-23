@@ -30,6 +30,30 @@
         <value>460</value>
         <unit>cm^2/V*s</unit>
       </parameter>
+      <parameter>
+        <name>n1</name>
+        <value>1</value>
+        <unit></unit>
+        <note>SRH parameter</note>
+      </parameter>
+      <parameter>
+        <name>p1</name>
+        <value>1</value>
+        <unit></unit>
+        <note>SRH parameter</note>
+      </parameter>
+      <parameter>
+        <name>taun</name>
+        <value>1</value>
+        <unit></unit>
+        <note>SRH hole minority carrier life time</note>
+      </parameter>
+      <parameter>
+        <name>taup</name>
+        <value>1</value>
+        <unit></unit>
+        <note>SRH hole minority carrier life time</note>
+      </parameter>
     </parameters>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=7d1b56e9e0c54ac5bb9cd433a0991e27&ckck=1</source>-->
   </material>

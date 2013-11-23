@@ -25,18 +25,38 @@ namespace viennamini
 
   /** @brief Returns the thermal potential for the provided temperature */
   template<typename NumericT>
-  inline NumericT get_thermal_potential(NumericT T)
+  inline NumericT thermal_potential_impl(NumericT T)
   {
     return (viennamini::kB::val() * T) / viennamini::q::val();
   }
 
-  template<typename NumericT>
-  inline NumericT built_in_potential_impl(NumericT doping_n, NumericT doping_p, NumericT temp, NumericT ni)
+  template<typename QuantityT>
+  struct thermal_potential
   {
-    const NumericT net_doping = doping_n - doping_p;
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+    
+    thermal_potential(QuantityT& T) :
+     T_(T) {}
+    
+    template<typename CellT>
+    result_type operator()(CellT const& cell) 
+    {
+      return thermal_potential_impl(T_.get_value(cell));
+    }
+    
+  private:
+    QuantityT& T_;
+  };
+  
+
+  template<typename NumericT>
+  inline NumericT built_in_potential_impl(NumericT const& ND, NumericT const& NA, NumericT const& T, NumericT const& ni)
+  {
+    const NumericT net_doping = ND - NA;
     const NumericT x = std::abs(net_doping) / (2.0 * ni);
 
-    NumericT bpot = viennamini::get_thermal_potential(temp) * std::log(x + std::sqrt( 1.0 + x*x ) );
+    NumericT bpot = viennamini::thermal_potential_impl(T) * std::log(x + std::sqrt( 1.0 + x*x ) );
 
     if ( net_doping < 0) //above formula does not yet consider the doping polarity
       bpot *= -1.0;
@@ -50,20 +70,20 @@ namespace viennamini
     typedef viennamini::numeric numeric_type;
     typedef numeric_type        result_type;
     
-    built_in_potential(QuantityT& donator_doping, QuantityT& acceptor_doping, numeric_type ni, numeric_type temperature) :
-     donator_doping_(donator_doping), acceptor_doping_(acceptor_doping), ni_(ni), temperature_(temperature) {}
+    built_in_potential(QuantityT& ND, QuantityT& NA, QuantityT& ni, QuantityT& T) :
+     ND_(ND), NA_(NA), ni_(ni), T_(T) {}
     
     template<typename CellT>
     result_type operator()(CellT const& cell) 
     {
-      return built_in_potential_impl(donator_doping_.get_value(cell), acceptor_doping_.get_value(cell), temperature_, ni_);
+      return built_in_potential_impl(ND_.get_value(cell), NA_.get_value(cell), T_.get_value(cell), ni_.get_value(cell));
     }
     
   private:
-    QuantityT    & donator_doping_;
-    QuantityT    & acceptor_doping_;
-    numeric_type   ni_;
-    numeric_type   temperature_;
+    QuantityT& ND_;
+    QuantityT& NA_;
+    QuantityT& ni_;
+    QuantityT& T_;
   };
   
 
