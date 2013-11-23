@@ -212,6 +212,17 @@ private:
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
           viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
         }
+        else
+        if(device_.get_mobility(current_segment_index) == mobility::ionized_impurity)
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    activating ionized impurity scattering mobility model .." << std::endl;
+        #endif
+//          NumericType alpha_n_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_electron_mobility());
+//          NumericType alpha_p_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_hole_mobility());
+//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
+//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
+        }
         else throw mobility_not_supported_exception();
 
         // recombination

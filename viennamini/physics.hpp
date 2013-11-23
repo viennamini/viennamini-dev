@@ -115,6 +115,27 @@ namespace viennamini
     QuantityT & T_;
   };
 
+
+  template<typename QuantityT>
+  struct ionized_impurity_scattering
+  {
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+    
+    ionized_impurity_scattering(numeric_type const& mu_0, numeric_type const& alpha, QuantityT& T) : mu_0_(mu_0), alpha_(alpha), T_(T) {}
+    
+    template<typename CellT>
+    result_type operator()(CellT const& cell) 
+    {
+      //numeric_type mu_l = lattice_scattering_impl(mu_0_, alpha_, T_.get_value(cell));
+    }
+    
+  private:
+    numeric_type    mu_0_;
+    numeric_type    alpha_;
+    QuantityT & T_;
+  };
+
   } // mobility
 } // viennamini
 
