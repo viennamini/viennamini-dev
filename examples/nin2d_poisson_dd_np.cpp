@@ -43,24 +43,24 @@ int main()
   mysim.device().set_material         (left, "Si");
   mysim.device().set_donator_doping   (left, 1.0E24);
   mysim.device().set_acceptor_doping  (left, 1.0E8);
-  mysim.device().set_mobility         (left, viennamini::mobility::lattice);
-  mysim.device().set_recombination    (left, viennamini::recombination::srh);
+//  mysim.device().set_mobility         (left, viennamini::mobility::lattice);
+//  mysim.device().set_recombination    (left, viennamini::recombination::srh);
 
   mysim.device().make_semiconductor   (intrinsic);
   mysim.device().set_name             (intrinsic, "left");
   mysim.device().set_material         (intrinsic, "Si");
   mysim.device().set_donator_doping   (intrinsic, 1.0E21);
   mysim.device().set_acceptor_doping  (intrinsic, 1.0E11);
-  mysim.device().set_mobility         (intrinsic, viennamini::mobility::lattice);
-  mysim.device().set_recombination    (intrinsic, viennamini::recombination::srh);
+//  mysim.device().set_mobility         (intrinsic, viennamini::mobility::lattice);
+//  mysim.device().set_recombination    (intrinsic, viennamini::recombination::srh);
 
   mysim.device().make_semiconductor   (right);
   mysim.device().set_name             (right, "right");
   mysim.device().set_material         (right, "Si");
   mysim.device().set_donator_doping   (right, 1.0E24);
   mysim.device().set_acceptor_doping  (right, 1.0E8);
-  mysim.device().set_mobility         (right, viennamini::mobility::lattice);
-  mysim.device().set_recombination    (right, viennamini::recombination::srh);
+//  mysim.device().set_mobility         (right, viennamini::mobility::lattice);
+//  mysim.device().set_recombination    (right, viennamini::recombination::srh);
 
   mysim.device().make_contact         (right_contact);
   mysim.device().set_name             (right_contact, "right_contact");

@@ -313,11 +313,27 @@ private:
     FunctionSymbolType p1         (srh_p1.id());
 
     NumericType q          = viennamini::q::val();
-    viennamath::expr R_srh = R_switch * ((n * p - ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1)));
+//    viennamath::expr R_srh_left  = R_switch *      (n  * p ) / (tau_p*(n + n1) + tau_n*(p + p1));
+//    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1));
+//    viennamath::expr R_srh_left  = R_switch *      (n  * p ) / (tau_p*(n + n1));
+//    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1));
 
-    EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                       /* = */ q * ((n - ND) - (p - NA)));
-    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ R_srh);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ R_srh);
+    //Equation cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu * viennamath::grad(psi) * n) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
+
+    EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                                    /* = */ q * ((n - ND) - (p - NA)));
+
+//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - R_srh_left, /* = */ R_srh_right);
+//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - R_srh_left, /* = */ R_srh_right);
+
+//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n)-(n*p)/(tau_p*(n+n1)+tau_n*(p+p1)), /*=*/ -1*(ni * ni)/(tau_p*(n+n1)+tau_n*(p+p1)));
+//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p)-(n*p)/(tau_p*(n+n1)+tau_n*(p+p1)), /*=*/ -1*(ni * ni)/(tau_p*(n+n1)+tau_n*(p+p1)));
+
+//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
+//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
+
+    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0.0);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0.0);
+
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
