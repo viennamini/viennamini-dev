@@ -30,6 +30,7 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/physics.hpp"
+#include "viennamini/materials.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -80,6 +81,9 @@ public:
   problem(viennamini::device& device, viennamini::config& config) 
     : device_(device), config_(config) 
   {
+    matlib_material  = device_.material_library()->register_accessor(new viennamini::material_accessor);
+    matlib_parameter = device_.material_library()->register_accessor(new viennamini::parameter_accessor);
+    matlib_data      = device_.material_library()->register_accessor(new viennamini::data_accessor);
   }
 
   virtual void run() = 0;
@@ -117,6 +121,10 @@ public:
   
   viennamini::device&           device_;
   viennamini::config&           config_;
+
+  viennamaterials::accessor_handle matlib_material;
+  viennamaterials::accessor_handle matlib_parameter;
+  viennamaterials::accessor_handle matlib_data;
 };
 
 } // viennamini

@@ -205,8 +205,16 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
       
-      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+
+      numeric epsr_value    = this->material_library()->query_value(
+        viennamaterials::make_query(viennamaterials::make_entry(matlib_material , adjacent_segment_material), 
+                                    viennamaterials::make_entry(matlib_parameter, viennamini::material::relative_permittivity()),
+                                    viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+      );
+
+
+//      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+//        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -214,8 +222,8 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
       
-      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+//      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
+//        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
     }
   }
 }

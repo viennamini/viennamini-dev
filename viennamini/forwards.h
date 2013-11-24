@@ -156,6 +156,7 @@ namespace viennamini
     inline std::string alpha_p()          { return "alpha_p"; }
     inline std::string tau_n()            { return "tau_n"; }
     inline std::string tau_p()            { return "tau_p"; }
+    inline std::string value()            { return "value"; }
   } // material
 
   class line_1d         {};
