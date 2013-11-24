@@ -59,6 +59,7 @@ int main()
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().problem()                            = viennamini::id::laplace();
+  mysim.config().write_initial_guesses()              = true;
 
   mysim.run();
   

@@ -111,7 +111,6 @@ private:
       // thermal potential
       viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature)); 
 
-
       if(device_.is_contact(current_segment_index))
       {
         if(device_.is_contact_at_semiconductor(current_segment_index))
