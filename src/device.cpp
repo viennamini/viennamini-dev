@@ -26,7 +26,7 @@
 #include "viennamini/detect_interfaces.hpp"
 #include "viennamini/constants.hpp"
 #include "viennamini/utils/file_extension.hpp"
-
+#include "viennamini/material_accessors.hpp"
 
 namespace viennamini
 {
@@ -174,6 +174,8 @@ std::size_t device::get_adjacent_oxide_segment_for_contact(int segment_index)
 
 void device::update()
 {
+  namespace vmat = viennamaterials;
+
   oxide_segments_indices_.clear();
   contact_segments_indices_.clear();
   semiconductor_segments_indices_.clear();
@@ -207,23 +209,26 @@ void device::update()
       
 
       numeric epsr_value    = this->material_library()->query_value(
-        viennamaterials::make_query(viennamaterials::make_entry(matlib_material , adjacent_segment_material), 
-                                    viennamaterials::make_entry(matlib_parameter, viennamini::material::relative_permittivity()),
-                                    viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material), 
+                         vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                         vmat::make_entry(this->matlib_data()     , material::value()))
       );
 
-
-//      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-//        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+      this->set_permittivity(*contact_iter, epsr_value);
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
     {
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
-      
-//      if(this->material_library()->has_parameter(adjacent_segment_material, viennamini::material::relative_permittivity()))
-//        this->set_permittivity(*contact_iter, this->material_library()->get_parameter_value(adjacent_segment_material, viennamini::material::relative_permittivity()) );
+
+      numeric epsr_value    = this->material_library()->query_value(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material), 
+                         vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                         vmat::make_entry(this->matlib_data()     , material::value()))
+      );
+
+     this->set_permittivity(*contact_iter, epsr_value );
     }
   }
 }
@@ -291,7 +296,12 @@ void device::read_material_library(std::string const& filename)
 
   std::string extension = viennamini::file_extension(filename);
   if(extension == "xml")
-    matlib_ = material_library_handle(new viennamaterials::pugixml(filename));
+  {
+    matlib_           = material_library_handle(new viennamaterials::pugixml(filename));
+    matlib_material_  = matlib_->register_accessor(new viennamini::xpath_material_accessor);
+    matlib_parameter_ = matlib_->register_accessor(new viennamini::xpath_parameter_accessor);
+    matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
+  }
   else
     throw unknown_material_library_file_exception(filename);
 }
@@ -356,14 +366,20 @@ void device::set_material(int segment_index, std::string const& new_material)
   // set the relative permittivity of this segment, as we know the material now
   // extract the data from the material database
   //
-  if(this->material_library()->has_parameter(new_material, viennamini::material::relative_permittivity()))
-    this->set_permittivity(segment_index, this->material_library()->get_parameter_value(new_material, viennamini::material::relative_permittivity()) );
-  else 
+  if(!is_contact(segment_index)) // for contacts, setting the epsr doesn't make sense
   {
-    if(!is_contact(segment_index)) // for contacts, setting the epsr doesn't make sense
-    #ifdef VIENNAMINI_VERBOSE
-      std::cout << "[Device][Segment "<< segment_index << "] material \"" << new_material << "\" does not have the parameter \"" << viennamini::material::relative_permittivity() << "\" - skipping .." << std::endl;
-    #endif
+    namespace vmat = viennamaterials;
+
+    vmat::query epsr_query = vmat::make_query(vmat::make_entry(this->matlib_material() , new_material), 
+                                              vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                                              vmat::make_entry(this->matlib_data()     , material::value()));
+
+    numeric epsr_value    = this->material_library()->query_value(
+      vmat::make_query(vmat::make_entry(this->matlib_material() , new_material), 
+                       vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                       vmat::make_entry(this->matlib_data()     , material::value()))
+    );
+    this->set_permittivity(segment_index, epsr_value);
   }
 }
 
@@ -438,6 +454,8 @@ void device::set_permittivity(int segment_index, viennamini::numeric epsr)
 #ifdef VIENNAMINI_VERBOSE
   std::cout << "[Device][Segment "<< segment_index << "] setting epsr " << epsr << std::endl;
 #endif
+  if(epsr == 0.0) throw epsr_is_zero_exception("at: device::set_permittivity()");
+
   if(this->is_line1d())
   {
     typedef problem_description_line_1d::quantity_type  QuantityType;
@@ -602,7 +620,20 @@ device::IndicesType&   device::semiconductor_segments_indices()
   return semiconductor_segments_indices_;
 }
 
+viennamaterials::accessor_handle& device::matlib_material()
+{
+  return matlib_material_;
+}
 
+viennamaterials::accessor_handle& device::matlib_parameter()
+{
+  return matlib_parameter_;
+}
+
+viennamaterials::accessor_handle& device::matlib_data()
+{
+  return matlib_data_;
+}
 
 } // viennamini
 

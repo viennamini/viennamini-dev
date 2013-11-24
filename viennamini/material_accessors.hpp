@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_MATERIALS_HPP
-#define VIENNAMINI_MATERIALS_HPP
+#ifndef VIENNAMINI_MATERIALACCESSORS_HPP
+#define VIENNAMINI_MATERIALACCESSORS_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -16,16 +16,13 @@
 ======================================================================= */
 
 #include "viennamaterials/forwards.h"
-#include "viennamaterials/make_query.hpp"
 #include "viennamaterials/base_accessor.hpp"
-#include "viennamaterials/utils/file_extension.hpp"
-#include "viennamaterials/utils/convert.hpp"
 
 
 
 namespace viennamini
 {
-struct material_accessor : public viennamaterials::base_accessor
+struct xpath_material_accessor : public viennamaterials::base_accessor
 {
   result_type operator()()
   {
@@ -33,7 +30,7 @@ struct material_accessor : public viennamaterials::base_accessor
   }
 };
 
-struct parameter_accessor : public viennamaterials::base_accessor
+struct xpath_parameter_accessor : public viennamaterials::base_accessor
 {
   result_type operator()()
   {
@@ -41,7 +38,7 @@ struct parameter_accessor : public viennamaterials::base_accessor
   }
 };
 
-struct data_accessor : public viennamaterials::base_accessor
+struct xpath_data_accessor : public viennamaterials::base_accessor
 {
   result_type operator()()
   {

@@ -42,6 +42,13 @@ namespace viennamini
     unknown_material_library_file_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  /** @brief Exception for the case that the epsr value is zero, indicating a problem with accessing the material database */
+  class epsr_is_zero_exception : public std::runtime_error {
+  public:
+    epsr_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
+
   class device
   {
   private:
@@ -143,6 +150,10 @@ namespace viennamini
     IndicesType&   oxide_segments_indices();
     IndicesType&   semiconductor_segments_indices();
 
+    viennamaterials::accessor_handle&  matlib_material();
+    viennamaterials::accessor_handle&  matlib_parameter();
+    viennamaterials::accessor_handle&  matlib_data();
+
   private:
     GenericMeshType               generic_mesh_;
     GenericProblemDescriptionType generic_problem_description_;
@@ -165,6 +176,9 @@ namespace viennamini
     
     viennamini::material_library_handle  matlib_;
 
+    viennamaterials::accessor_handle matlib_material_;
+    viennamaterials::accessor_handle matlib_parameter_;
+    viennamaterials::accessor_handle matlib_data_;
   };
 
 

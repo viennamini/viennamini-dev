@@ -49,6 +49,8 @@ private:
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
   void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
   {
+    namespace vmat = viennamaterials;
+
     typedef typename SegmentedMeshT::mesh_type                MeshType;
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type       QuantityType;
@@ -123,9 +125,10 @@ private:
           NumericType ND_value    = device_.get_donator_doping(adjacent_semiconductor_segment_index);
           NumericType NA_value    = device_.get_acceptor_doping(adjacent_semiconductor_segment_index);
 
-          viennamaterials::query myquery = viennamaterials::make_query(viennamaterials::make_entry(matlib_material , device_.get_material(adjacent_semiconductor_segment_index)), 
-                                                                       viennamaterials::make_entry(matlib_parameter, viennamini::material::intrinsic_carrier_concentration()),
-                                                                       viennamaterials::make_entry(matlib_data     , viennamini::material::value()));
+          vmat::query myquery = vmat::make_query(
+            vmat::make_entry(device_.matlib_material() , device_.get_material(adjacent_semiconductor_segment_index)), 
+            vmat::make_entry(device_.matlib_parameter(), material::intrinsic_carrier_concentration()),
+            vmat::make_entry(device_.matlib_data()     , material::value()));
 
 
           NumericType ni_value    = device_.material_library()->query_value(myquery);
@@ -174,9 +177,9 @@ private:
       #endif
       
         NumericType ni_value    = device_.material_library()->query_value(
-          viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                      viennamaterials::make_entry(matlib_parameter, viennamini::material::intrinsic_carrier_concentration()),
-                                      viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+          vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                           vmat::make_entry(device_.matlib_parameter(), material::intrinsic_carrier_concentration()),
+                           vmat::make_entry(device_.matlib_data()     , material::value()))
         );
 
         // intrinsic carrier concentration
@@ -196,14 +199,14 @@ private:
 
         // mobility
         NumericType mu_n_value    = device_.material_library()->query_value(
-          viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                      viennamaterials::make_entry(matlib_parameter, viennamini::material::base_electron_mobility()),
-                                      viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+          vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                           vmat::make_entry(device_.matlib_parameter(), material::base_electron_mobility()),
+                           vmat::make_entry(device_.matlib_data()     , material::value()))
         );
         NumericType mu_p_value    = device_.material_library()->query_value(
-          viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                      viennamaterials::make_entry(matlib_parameter, viennamini::material::base_hole_mobility()),
-                                      viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+          vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                           vmat::make_entry(device_.matlib_parameter(), material::base_hole_mobility()),
+                           vmat::make_entry(device_.matlib_data()     , material::value()))
         );
 
         if(device_.get_mobility(current_segment_index) == mobility::base)
@@ -223,14 +226,14 @@ private:
           std::cout << "    activating lattice scattering mobility model .." << std::endl;
         #endif
           NumericType alpha_n_value    = device_.material_library()->query_value(
-            viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                        viennamaterials::make_entry(matlib_parameter, viennamini::material::alpha_n()),
-                                        viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_n()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
           );
           NumericType alpha_p_value    = device_.material_library()->query_value(
-            viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                        viennamaterials::make_entry(matlib_parameter, viennamini::material::alpha_p()),
-                                        viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_p()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
           );
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
           viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
@@ -266,16 +269,16 @@ private:
 
           viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), 
             device_.material_library()->query_value(
-              viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                          viennamaterials::make_entry(matlib_parameter, viennamini::material::tau_n()),
-                                          viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_parameter(), material::tau_n()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))
             )
           );
           viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), 
             device_.material_library()->query_value(
-              viennamaterials::make_query(viennamaterials::make_entry(matlib_material , material), 
-                                          viennamaterials::make_entry(matlib_parameter, viennamini::material::tau_p()),
-                                          viennamaterials::make_entry(matlib_data     , viennamini::material::value()))
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_parameter(), material::tau_p()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))
             )
           );
           viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
