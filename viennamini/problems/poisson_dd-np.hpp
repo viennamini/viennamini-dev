@@ -227,7 +227,12 @@ private:
 
         // recombination
         if(device_.get_recombination(current_segment_index) == recombination::none)
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    deactivating recombination models .." << std::endl;
+        #endif
           viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 0.0); // switch off
+        }
         else
         if(device_.get_recombination(current_segment_index) == recombination::srh)
         {
@@ -272,11 +277,11 @@ private:
     FunctionSymbolType p1         (srh_p1.id());
 
     NumericType q          = viennamini::q::val();
-    viennamath::expr R_srh = 0.0;//(n * p - ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1));
+    viennamath::expr R_srh = R_switch * ((n * p - ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1)));
 
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                       /* = */ q * ((n - ND) - (p - NA)));
-    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ R_switch * R_srh);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ R_switch * R_srh);
+    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ R_srh);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ R_srh);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;

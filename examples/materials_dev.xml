@@ -20,64 +20,70 @@
         <value>11.8</value>
         <unit></unit>
       </parameter>
+      <mobility>
+        <parameter>
+          <name>mu_n_0</name>
+          <value>0.1430</value>
+          <unit>m^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>mu_p_0</name>
+          <value>0.0460</value>
+          <unit>m^2/V*s</unit>
+        </parameter>
+        <lattice>
+          <parameter>
+            <name>alpha_n</name>
+            <value>2.33</value>
+            <unit>1</unit>
+          </parameter>
+          <parameter>
+            <name>alpha_p</name>
+            <value>2.18</value>
+            <unit>1</unit>
+          </parameter>
+        </lattice>
+        <impurity>
+          <parameter>
+            <name>mu_n_min</name>
+            <value>80</value>
+            <unit>m^2/V*s</unit>
+          </parameter>
+          <parameter>
+            <name>mu_p_min</name>
+            <value>45</value>
+            <unit>m^2/V*s</unit>
+          </parameter>
+          <parameter>
+            <name>N_n_ref</name>
+            <value>1.12E17</value>
+            <unit>1/cm3</unit>
+          </parameter>
+          <parameter>
+            <name>N_p_ref</name>
+            <value>2.23E17</value>
+            <unit>1/cm3</unit>
+          </parameter>
+          <parameter>
+            <name>alpha_n</name>
+            <value>0.72</value>
+            <unit>1</unit>
+          </parameter>
+          <parameter>
+            <name>alpha_p</name>
+            <value>0.72</value>
+            <unit>1</unit>
+          </parameter>
+        </impurity>
+      </mobility>
       <parameter>
-        <name>mu_n_0</name>
-        <value>0.1430</value>
-        <unit>m^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>mu_p_0</name>
-        <value>0.0460</value>
-        <unit>m^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>alpha_n</name>
-        <value>2.33</value>
-        <unit>1</unit>
-      </parameter>
-      <parameter>
-        <name>alpha_p</name>
-        <value>2.18</value>
-        <unit>1</unit>
-      </parameter>
-      <parameter>
-        <name>mu_n_min</name>
-        <value>80</value>
-        <unit>m^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>mu_p_min</name>
-        <value>45</value>
-        <unit>m^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>N_n_ref</name>
-        <value>1.12E17</value>
-        <unit>1/cm3</unit>
-      </parameter>
-      <parameter>
-        <name>N_p_ref</name>
-        <value>2.23E17</value>
-        <unit>1/cm3</unit>
-      </parameter>
-      <parameter>
-        <name>alpha_n</name>
-        <value>0.72</value>
-        <unit>1</unit>
-      </parameter>
-      <parameter>
-        <name>alpha_p</name>
-        <value>0.72</value>
-        <unit>1</unit>
-      </parameter>
-      <parameter>
-        <name>tau_n</name>
+        <name>taun</name>
         <value>1.0E-5</value>
         <unit></unit>
         <note>SRH hole minority carrier life time</note>
       </parameter>
       <parameter>
-        <name>tau_p</name>
+        <name>taup</name>
         <value>1.0E-5</value>
         <unit></unit>
         <note>SRH hole minority carrier life time</note>
