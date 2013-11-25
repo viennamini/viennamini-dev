@@ -228,6 +228,16 @@ private:
     vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC5"]) ) ); // 20
     vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC6"]) ) ); // 21
 
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P11"]) ) ); // 22
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC41"]) ) ); // 23
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC31"]) ) ); // 24
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC11"]) ) ); // 25
+
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P71"]) ) ); // 26
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC51"]) ) ); // 27
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC21"]) ) ); // 28
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC61"]) ) ); // 29
+
     enum vertex_indices
     {
       p1,  // 0
@@ -251,7 +261,15 @@ private:
       pc3, // 18
       pc4, // 19
       pc5, // 20
-      pc6  // 21
+      pc6, // 21
+      p11, // 22
+      pc41,// 23
+      pc31,// 24
+      pc11,// 25
+      p71, // 26
+      pc51,// 27
+      pc21,// 28
+      pc61 // 29
     };
 
 
@@ -261,10 +279,36 @@ private:
 
     // ---------------------------------------------------------------------------
     //
-    // Segment 2
+    // Segment 1
     //
 
     // left
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p11], vertices[pc41], vertices[pc31], vertices[pc11] ) );
+    }
+    // front
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p11], vertices[p1], vertices[pc4], vertices[pc41] ) );
+    }
+    // top
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc41], vertices[pc4], vertices[pc3], vertices[pc31] ) );
+    }
+    // back
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc31], vertices[pc3], vertices[pc1], vertices[pc11] ) );
+    }
+    // bottom
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p11], vertices[p1], vertices[pc1], vertices[pc11] ) );
+    }
+
+    // ---------------------------------------------------------------------------
+    //
+    // Segment 2
+    //
+
+    // left (contains interface to Segment 1)
     {
       std::vector<MeshLineHandleType> lines;
       
@@ -379,7 +423,7 @@ private:
     {
       plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi3], vertices[p3], vertices[p2], vertices[pi2] ) );
     }
-    // right 
+    // right (contains interface to Segment 5)
     {
       std::vector<MeshLineHandleType> lines;
       
@@ -397,24 +441,55 @@ private:
 
     // ---------------------------------------------------------------------------
     //
+    // Segment 5
+    //
+
+    // front
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc6], vertices[pc61], vertices[pc21], vertices[pc2] ) );
+    }
+    // top
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc6], vertices[pc61], vertices[p71], vertices[p7] ) );
+    }
+    // back
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p7], vertices[p71], vertices[pc51], vertices[pc5] ) );
+    }
+    // bottom
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc2], vertices[pc21], vertices[pc51], vertices[pc5] ) );
+    }
+    // right
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pc61], vertices[p71], vertices[pc51], vertices[pc21] ) );
+    }
+
+    // ---------------------------------------------------------------------------
+    //
     // Compute seed points for each segment
     //
+    MeshPointType seed_point_segment_1 = get_seed_point( mesh, plcs.begin()+0, plcs.begin()+6 );
+    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
   
-    MeshPointType seed_point_segment_2 = get_seed_point( mesh, plcs.begin()+0, plcs.begin()+6 );
+    MeshPointType seed_point_segment_2 = get_seed_point( mesh, plcs.begin()+5, plcs.begin()+11 );
     std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
-    MeshPointType seed_point_segment_3 = get_seed_point( mesh, plcs.begin()+5, plcs.begin()+11 );
+    MeshPointType seed_point_segment_3 = get_seed_point( mesh, plcs.begin()+10, plcs.begin()+16 );
     std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
-    MeshPointType seed_point_segment_4 = get_seed_point( mesh, plcs.begin()+10, plcs.begin()+16 );
+    MeshPointType seed_point_segment_4 = get_seed_point( mesh, plcs.begin()+15, plcs.begin()+21 );
     std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
+    MeshPointType seed_point_segment_5 = get_seed_point( mesh, plcs.begin()+20, plcs.begin()+26 );
+    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
+
     viennamesh::seed_point_3d_container seed_points;
-//    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
     seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
     seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
     seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
-//    seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
+    seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
     mesher_->set_input("seed_points", seed_points);  
 
     // ---------------------------------------------------------------------------
@@ -436,27 +511,27 @@ private:
 
   void assign_segments()
   {
-//    device_->make_contact         (1);
-//    device_->set_name             (1, contact_a_);
-//    device_->set_material         (1, "Cu");
-//    device_->set_contact_potential(1, 1.0);
-//    
-//    device_->make_semiconductor   (2);
-//    device_->set_name             (2, plate_a_);
-//    device_->set_material         (2, "SiO2");
+    device_->make_contact         (1);
+    device_->set_name             (1, contact_a_);
+    device_->set_material         (1, "Cu");
+    device_->set_contact_potential(1, 1.0);
+    
+    device_->make_semiconductor   (2);
+    device_->set_name             (2, plate_a_);
+    device_->set_material         (2, "SiO2");
 
-//    device_->make_semiconductor   (3);
-//    device_->set_name             (3, insulator_);
-//    device_->set_material         (3, "Si");
-//    
-//    device_->make_semiconductor   (4);
-//    device_->set_name             (4, plate_b_);
-//    device_->set_material         (4, "SiO2");
+    device_->make_semiconductor   (3);
+    device_->set_name             (3, insulator_);
+    device_->set_material         (3, "Si");
+    
+    device_->make_semiconductor   (4);
+    device_->set_name             (4, plate_b_);
+    device_->set_material         (4, "SiO2");
 
-//    device_->make_contact         (5);
-//    device_->set_name             (5, contact_b_);
-//    device_->set_material         (5, "Cu");
-//    device_->set_contact_potential(5, 0.0);
+    device_->make_contact         (5);
+    device_->set_name             (5, contact_b_);
+    device_->set_material         (5, "Cu");
+    device_->set_contact_potential(5, 0.0);
   }
   
 
