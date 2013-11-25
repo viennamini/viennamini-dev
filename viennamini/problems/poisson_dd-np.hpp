@@ -253,6 +253,21 @@ private:
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    activating ionized impurity scattering mobility model .." << std::endl;
         #endif
+          NumericType alpha_n_lattice_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_n()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType alpha_p_lattice_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_p()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+        
           NumericType alpha_n_value    = device_.material_library()->query_value(
             vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
                              vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
@@ -301,8 +316,16 @@ private:
           std::cout << "      N ref n: " << N_ref_n_value << " N ref p: " << N_ref_p_value << std::endl;
         #endif
           
-//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
-//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
+          typedef mobility::lattice_scattering<QuantityType>                            LatticeType;
+          LatticeType lattice_n(mu_n_0_value, alpha_n_lattice_value, temperature);
+          LatticeType lattice_p(mu_p_0_value, alpha_p_lattice_value, temperature);
+          
+          typedef mobility::ionized_impurity_scattering<LatticeType, QuantityType>      IonizedImpurityType;
+          IonizedImpurityType   ionized_impurities_n(lattice_n, donator_doping, acceptor_doping, alpha_n_value, mu_min_n_value, N_ref_n_value);
+          IonizedImpurityType   ionized_impurities_p(lattice_p, donator_doping, acceptor_doping, alpha_p_value, mu_min_p_value, N_ref_p_value);
+          
+          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), ionized_impurities_n); 
+          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), ionized_impurities_p); 
         }
         else throw mobility_not_supported_exception();
 
