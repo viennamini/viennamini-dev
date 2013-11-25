@@ -23,6 +23,7 @@ namespace viennamini
 simulator::simulator() : 
   device_          (new viennamini::device()),
   config_          (new viennamini::config()), 
+  stepper_         (device_),
   problem_         (NULL),
   device_changed_  (true),
   config_changed_  (true)
@@ -99,6 +100,11 @@ void simulator::run()
     }
     else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
   }
+}
+
+viennamini::stepper& simulator::stepper()
+{
+  return stepper_;
 }
 
 void simulator::write(std::string const filename)

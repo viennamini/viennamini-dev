@@ -24,6 +24,7 @@
 #include "viennamini/config.hpp"
 #include "viennamini/device.hpp"
 #include "viennamini/problem.hpp"
+#include "viennamini/stepper.hpp"
 
 namespace viennamini
 {
@@ -49,14 +50,16 @@ namespace viennamini
     viennamini::config                 & config();
     void                                 set_config(viennamini::config_handle& new_config);
 
+    viennamini::stepper                & stepper();
+
     void                                 write(std::string const filename);
   
   private:
 
     viennamini::device_handle            device_;
     viennamini::config_handle            config_;
-
-    viennamini::problem           * problem_;
+    viennamini::stepper                  stepper_;
+    viennamini::problem                * problem_;
     
     bool device_changed_;
     bool config_changed_;

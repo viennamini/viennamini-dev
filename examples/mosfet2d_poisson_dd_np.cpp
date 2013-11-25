@@ -95,6 +95,14 @@ int main()
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guesses()              = true;
 
+/*
+  mysim.stepper().add(gate,  0.0, 1.0, 0.1);
+  mysim.stepper().add(drain, 0.0, 1.0, 0.1);
+  mysim.stepper().size();
+
+  
+
+*/
   mysim.run();
 
   mysim.write("mosfet2d_dd_np_result");

@@ -15,6 +15,10 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
+#ifndef NDEBUG
+  #define NDEBUG
+#endif
+
 // ViennaMath includes:
 #include "viennamath/expression.hpp"
 
