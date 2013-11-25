@@ -342,38 +342,55 @@ private:
           viennafvm::set_initial_value(srh_n1,            segmesh.segmentation(current_segment_index), 0.0); 
           viennafvm::set_initial_value(srh_p1,            segmesh.segmentation(current_segment_index), 0.0); 
         }
-//        else
-//        if(device_.get_recombination(current_segment_index) == recombination::srh)
-//        {
-//        #ifdef VIENNAMINI_VERBOSE
-//          std::cout << "    activating SRH recombination model .." << std::endl;
-//        #endif
-//          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
+        else
+        if(device_.get_recombination(current_segment_index) == recombination::srh)
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    activating SRH recombination model .." << std::endl;
+        #endif
+          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
-//          NumericType tau_n = device_.material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
-//                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()()),
-//                               vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
-//                               vmat::make_entry(device_.matlib_parameter(), material::tau_n()),
-//                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+          NumericType tau_n_0 = device_.material_library()->query_value(
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                               vmat::make_entry(device_.matlib_model(),     material::shockley_read_hall_recombination()),
+                               vmat::make_entry(device_.matlib_parameter(), material::tau_n_0()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
 
-//          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
-//          
-//          NumericType tau_p = device_.material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
-//                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()()),
-//                               vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
-//                               vmat::make_entry(device_.matlib_parameter(), material::tau_p()),
-//                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+          NumericType tau_p_0 = device_.material_library()->query_value(
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                               vmat::make_entry(device_.matlib_model(),     material::shockley_read_hall_recombination()),
+                               vmat::make_entry(device_.matlib_parameter(), material::tau_p_0()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
 
-//          viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), tau_p);
-//          
-//        #ifdef VIENNAMINI_VERBOSE
-//          std::cout << "      tau n: " << tau_n << " tau p: " << tau_p << std::endl;
-//        #endif
-//          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
-//          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
-//        }
+          NumericType N_ref_n = device_.material_library()->query_value(
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                               vmat::make_entry(device_.matlib_model(),     material::shockley_read_hall_recombination()),
+                               vmat::make_entry(device_.matlib_parameter(), material::N_ref_n()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+
+          NumericType N_ref_p = device_.material_library()->query_value(
+              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                               vmat::make_entry(device_.matlib_model(),     material::shockley_read_hall_recombination()),
+                               vmat::make_entry(device_.matlib_parameter(), material::N_ref_p()),
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+
+          carrier_lifetimes<QuantityType> tau_n(donator_doping, acceptor_doping, N_ref_n, tau_n_0);
+          carrier_lifetimes<QuantityType> tau_p(donator_doping, acceptor_doping, N_ref_p, tau_p_0);
+
+          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
+          viennafvm::set_initial_value(hole_lifetime,     segmesh.segmentation(current_segment_index), tau_p);
+          
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "      tau n 0: " << tau_n_0 << " tau p 0: " << tau_p_0 << std::endl;
+          std::cout << "      N ref n: " << N_ref_n << " N ref p: " << N_ref_p << std::endl;
+        #endif
+          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
+          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
+        }
         else throw recombination_not_supported_exception();
       }
       else throw segment_undefined_exception(current_segment_index);

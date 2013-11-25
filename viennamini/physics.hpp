@@ -23,7 +23,17 @@ namespace viennamini
   // TODO http://ecee.colorado.edu/~bart/book/ex019.htm
 
 
-  /** @brief Returns the thermal potential for the provided temperature */
+  // ===========================================================================
+  //
+  // General
+  //
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  //
+  // Thermal Potential
+  //
+
   template<typename NumericT>
   inline NumericT thermal_potential_impl(NumericT T)
   {
@@ -49,6 +59,11 @@ namespace viennamini
     QuantityT& T_;
   };
   
+
+  // ---------------------------------------------------------------------------
+  //
+  // Builtin Potential
+  //
 
   template<typename NumericT>
   inline NumericT built_in_potential_impl(NumericT const& ND, NumericT const& NA, NumericT const& T, NumericT const& ni)
@@ -86,67 +101,113 @@ namespace viennamini
     QuantityT& T_;
   };
   
-
-  namespace mobility {
+  // ---------------------------------------------------------------------------
+  //
+  // Carrier Lifetimes
+  //
 
   template<typename NumericT>
-  inline NumericT lattice_scattering_impl(NumericT const& mu_0, NumericT const& alpha, NumericT const& T)
+  inline NumericT carrier_lifetimes_impl(NumericT const& ND, NumericT const& NA, NumericT const& N_ref, NumericT const& tau_0)
   {
-    return mu_0 * std::pow(T/300., (-1.0)*alpha);
+    return ( tau_0 / ( 1 + (NA + ND) / N_ref ) );
   }
 
   template<typename QuantityT>
-  struct lattice_scattering
+  struct carrier_lifetimes
   {
     typedef viennamini::numeric numeric_type;
     typedef numeric_type        result_type;
-    
-    lattice_scattering(numeric_type const& mu_0, numeric_type const& alpha, QuantityT& T) : mu_0_(mu_0), alpha_(alpha), T_(T) {}
-    
+
+    carrier_lifetimes(QuantityT& ND, QuantityT& NA, numeric_type const& N_ref, numeric_type const& tau_0) : 
+      ND_(ND), NA_(NA), N_ref_(N_ref), tau_0_(tau_0)  {}
+
     template<typename CellT>
     result_type operator()(CellT const& cell) 
     {
-      return lattice_scattering_impl(mu_0_, alpha_, T_.get_value(cell));
+      return carrier_lifetimes_impl(ND_.get_value(cell), NA_.get_value(cell), N_ref_, tau_0_);
     }
-    
-  private:
-    numeric_type    mu_0_;
-    numeric_type    alpha_;
-    QuantityT & T_;
+
+    QuantityT   & ND_;
+    QuantityT   & NA_; 
+    numeric_type  N_ref_; 
+    numeric_type  tau_0_;
   };
 
+  // ===========================================================================
+  //
+  // Mobility Models
+  //
+  // ===========================================================================
 
-  template<typename NumericT>
-  inline NumericT ionized_impurity_scattering_impl(NumericT const& mu_lattice, NumericT const& mu_min, NumericT const& alpha, NumericT const& N_I, NumericT const& N_ref)
-  {
-    return mu_min + (mu_lattice-mu_min)/(1+std::pow(N_I/N_ref, alpha));
-  }
+  namespace mobility {
 
-  template<typename FunctorT, typename QuantityT>
-  struct ionized_impurity_scattering
-  {
-    typedef viennamini::numeric numeric_type;
-    typedef numeric_type        result_type;
-    
-    ionized_impurity_scattering(FunctorT mu_lattice, QuantityT& ND, QuantityT& NA, numeric_type const& alpha, numeric_type const& mu_min, numeric_type const& N_ref) 
-      : mu_lattice_(mu_lattice), ND_(ND), NA_(NA), alpha_(alpha), mu_min_(mu_min), N_ref_(N_ref) {}
-    
-    template<typename CellT>
-    result_type operator()(CellT const& cell) 
+    // ---------------------------------------------------------------------------
+    //
+    // Lattice Scattering
+    //
+
+    template<typename NumericT>
+    inline NumericT lattice_scattering_impl(NumericT const& mu_0, NumericT const& alpha, NumericT const& T)
     {
-      return ionized_impurity_scattering_impl(mu_lattice_(cell), mu_min_, alpha_, ND_.get_value(cell)+NA_.get_value(cell), N_ref_);
+      return mu_0 * std::pow(T/300., (-1.0)*alpha);
     }
-    
-  private:
-    FunctorT       mu_lattice_;
-    QuantityT &    ND_;
-    QuantityT &    NA_;
-    numeric_type   alpha_;
-    numeric_type   mu_min_;
-    numeric_type   N_ref_;
-  };
 
+    template<typename QuantityT>
+    struct lattice_scattering
+    {
+      typedef viennamini::numeric numeric_type;
+      typedef numeric_type        result_type;
+      
+      lattice_scattering(numeric_type const& mu_0, numeric_type const& alpha, QuantityT& T) : mu_0_(mu_0), alpha_(alpha), T_(T) {}
+      
+      template<typename CellT>
+      result_type operator()(CellT const& cell) 
+      {
+        return lattice_scattering_impl(mu_0_, alpha_, T_.get_value(cell));
+      }
+      
+    private:
+      numeric_type    mu_0_;
+      numeric_type    alpha_;
+      QuantityT & T_;
+    };
+
+    // ---------------------------------------------------------------------------
+    //
+    // Ionizied Impurity Scattering
+    //
+
+    template<typename NumericT>
+    inline NumericT ionized_impurity_scattering_impl(NumericT const& mu_lattice, NumericT const& mu_min, NumericT const& alpha, NumericT const& N_I, NumericT const& N_ref)
+    {
+      return mu_min + (mu_lattice-mu_min)/(1+std::pow(N_I/N_ref, alpha));
+    }
+
+    template<typename FunctorT, typename QuantityT>
+    struct ionized_impurity_scattering
+    {
+      typedef viennamini::numeric numeric_type;
+      typedef numeric_type        result_type;
+      
+      ionized_impurity_scattering(FunctorT mu_lattice, QuantityT& ND, QuantityT& NA, numeric_type const& alpha, numeric_type const& mu_min, numeric_type const& N_ref) 
+        : mu_lattice_(mu_lattice), ND_(ND), NA_(NA), alpha_(alpha), mu_min_(mu_min), N_ref_(N_ref) {}
+      
+      template<typename CellT>
+      result_type operator()(CellT const& cell) 
+      {
+        return ionized_impurity_scattering_impl(mu_lattice_(cell), mu_min_, alpha_, ND_.get_value(cell)+NA_.get_value(cell), N_ref_);
+      }
+      
+    private:
+      FunctorT       mu_lattice_;
+      QuantityT &    ND_;
+      QuantityT &    NA_;
+      numeric_type   alpha_;
+      numeric_type   mu_min_;
+      numeric_type   N_ref_;
+    };
   } // mobility
+
 } // viennamini
 
 

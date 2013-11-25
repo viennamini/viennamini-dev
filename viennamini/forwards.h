@@ -154,8 +154,8 @@ namespace viennamini
     inline std::string base_hole_mobility()                 { return "mu_p_0"; }
     inline std::string alpha_n()                            { return "alpha_n"; }
     inline std::string alpha_p()                            { return "alpha_p"; }
-    inline std::string tau_n()                              { return "tau_n"; }
-    inline std::string tau_p()                              { return "tau_p"; }
+    inline std::string tau_n_0()                            { return "tau_n_0"; }
+    inline std::string tau_p_0()                            { return "tau_p_0"; }
     inline std::string mu_min_n()                           { return "mu_min_n"; }
     inline std::string mu_min_p()                           { return "mu_min_p"; }
     inline std::string N_ref_n()                            { return "N_ref_n"; }
@@ -165,6 +165,7 @@ namespace viennamini
     inline std::string drift_diffusion()                    { return "drift_diffusion"; }
     inline std::string lattice_scattering()                 { return "lattice_scattering"; }
     inline std::string ionized_impurity_scattering()        { return "ionized_impurity_scattering"; }
+    inline std::string shockley_read_hall_recombination()   { return "shockley_read_hall_recombination"; }
   } // material
 
   class line_1d         {};

@@ -58,13 +58,13 @@
         </parameter>
         <parameter>
           <name>N_ref_n</name>
-          <value>1.12E17</value>
-          <unit>1/cm3</unit>
+          <value>1.12E23</value>
+          <unit>1/m3</unit>
         </parameter>
         <parameter>
           <name>N_ref_p</name>
-          <value>2.23E17</value>
-          <unit>1/cm3</unit>
+          <value>2.23E23</value>
+          <unit>1/m3</unit>
         </parameter>
         <parameter>
           <name>alpha_n</name>
@@ -79,18 +79,27 @@
       </model>
       <model>
         <id>shockley_read_hall_recombination</id>
-<!--    <parameter>-->
-<!--      <name>tau_n</name>-->
-<!--      <value>1.0E-5</value>-->
-<!--      <unit></unit>-->
-<!--      <note>SRH hole minority carrier life time</note>-->
-<!--    </parameter>-->
-<!--    <parameter>-->
-<!--      <name>tau_p</name>-->
-<!--      <value>1.0E-5</value>-->
-<!--      <unit></unit>-->
-<!--      <note>SRH hole minority carrier life time</note>-->
-<!--    </parameter>-->
+        <source>Selberherr, Analysis and Simulation of Semiconductor Devices, page 106</source>
+        <parameter>
+          <name>N_ref_n</name>
+          <value>5.0E22</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>N_ref_p</name>
+          <value>5.0E22</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>tau_n_0</name>
+          <value>5.0E-5</value>
+          <unit>s</unit>
+        </parameter>
+        <parameter>
+          <name>tau_p_0</name>
+          <value>5.0E-5</value>
+          <unit>s</unit>
+        </parameter>
       </model>
     </model>
   </material>
