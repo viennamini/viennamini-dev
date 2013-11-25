@@ -23,13 +23,92 @@
 
 namespace viennamini {
 
+
+
+// This method helps us to create or fetch a line based on vertex handles
+// if a line is already present, we just use that line, otherwise we create it
+// We are using a std::map< std::pair<VertexID, VertexID>, LineHandle > for keeping track of all lines in the mesh
+template<typename MeshT, typename VertexHandleT, typename VertexLineMapT>
+typename viennagrid::result_of::line_handle<MeshT>::type get_make_line(MeshT & mesh, VertexLineMapT & vertex_line_map, VertexHandleT const & vtxh0, VertexHandleT const & vtxh1)
+{
+  // querying the ID of the vertices
+  typedef typename viennagrid::result_of::vertex_id<MeshT>::type VertexIDType;
+  VertexIDType id0 = viennagrid::dereference_handle(mesh, vtxh0).id();
+  VertexIDType id1 = viennagrid::dereference_handle(mesh, vtxh1).id();
+
+  // creating the key for the line, note that we order the IDs within the pair for uniqueness
+  std::pair<VertexIDType, VertexIDType> key = std::make_pair( std::min(id0, id1), std::max(id0, id1) );
+
+  // searching for the line in our map
+  typename VertexLineMapT::iterator it = vertex_line_map.find(key);
+  if (it != vertex_line_map.end())
+  {
+    // found -> return
+    return it->second;
+  }
+  else
+  {
+    // not found -> create the line
+    typename viennagrid::result_of::line_handle<MeshT>::type tmp = viennagrid::make_line( mesh, vtxh0, vtxh1 );
+    vertex_line_map[ key ] = tmp;
+    return tmp;
+  }
+}
+
+
+// This method helps us creating a quad PLC based on 4 vertex handles
+// we use get_make_line (see above) and a vertex IDs to line map for keeping track of all lines
+template<typename MeshT, typename VertexLineMapT, typename VertexHandleT>
+typename viennagrid::result_of::plc_handle<MeshT>::type make_quad_plc(MeshT & mesh, VertexLineMapT & vertex_line_map, VertexHandleT v0, VertexHandleT v1, VertexHandleT v2, VertexHandleT v3)
+{
+  typedef typename viennagrid::result_of::line_handle<MeshT>::type LineHandleType;
+  viennagrid::static_array<LineHandleType, 4> lines;
+  lines[0] = get_make_line(mesh, vertex_line_map, v0, v1);
+  lines[1] = get_make_line(mesh, vertex_line_map, v1, v2);
+  lines[2] = get_make_line(mesh, vertex_line_map, v2, v3);
+  lines[3] = get_make_line(mesh, vertex_line_map, v3, v0);
+
+  return viennagrid::make_plc(mesh, lines.begin(), lines.end());
+}
+
+
+// this method helps us finding the seed point of a geometry based on a range of boundary PLCs
+template<typename MeshT, typename PLCHandleIteratorT>
+typename viennagrid::result_of::point<MeshT>::type get_seed_point( MeshT const & mesh, PLCHandleIteratorT const & begin, PLCHandleIteratorT const & end)
+{
+  // creating a temporary mesh parameter for the seed point locator
+  typename viennamesh::result_of::parameter_handle< MeshT >::type tmp_mesh = viennamesh::make_parameter<MeshT>();
+
+  // copy all PLCs to our temporary mesh
+  viennagrid::copy_element_handles(mesh, begin, end, tmp_mesh(), 0.0);
+
+  // Create the algorithm, set the temporary mesh as an input and execute it
+  viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
+  seed_point_locator->set_input( "default", tmp_mesh );
+  seed_point_locator->run();
+
+  // Querying the algorithm output (a seed point) and return it
+  typedef typename viennagrid::result_of::point<MeshT>::type PointType;
+  typedef typename viennamesh::result_of::point_container<PointType>::type PointContainerType;
+  typename viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
+  if (point_container && !point_container().empty())
+    return point_container()[0];
+
+  // something went wront...
+  return PointType();
+}
+
+
+
 class capacitor3d : public viennamini::device_template
 {
 private:
-  typedef viennagrid::brep_3d_mesh                                  MeshType;
-  typedef viennagrid::result_of::point<MeshType>::type              MeshPointType;
-  typedef viennagrid::result_of::vertex_handle<MeshType>::type      MeshVertexHandleType;
-  typedef viennagrid::result_of::line_handle<MeshType>::type        MeshLineHandleType;
+  typedef viennagrid::plc_3d_mesh                                       MeshType;
+  typedef viennagrid::result_of::point<MeshType>::type                  MeshPointType;
+  typedef viennagrid::result_of::vertex_handle<MeshType>::type          MeshVertexHandleType;
+  typedef viennagrid::result_of::vertex_id<MeshType>::type              MeshVertexIDType;
+  typedef viennagrid::result_of::line_handle<MeshType>::type            MeshLineHandleType;
+  typedef viennagrid::result_of::plc_handle<MeshType>::type             MeshPLCHandleType;
 
 public:
   capacitor3d(std::string const& material_library_file) : viennamini::device_template(material_library_file)
@@ -108,7 +187,8 @@ public:
 private:
   void generate_mesh()
   {
-    viennamesh::result_of::parameter_handle< MeshType >::type   mesh = viennamesh::make_parameter<MeshType>();
+    viennamesh::result_of::parameter_handle< MeshType >::type   mesh_handle = viennamesh::make_parameter<MeshType>();
+    MeshType & mesh = mesh_handle();
 
     std::vector<MeshVertexHandleType> vertices;
     std::vector<MeshLineHandleType>   linesFront;      
@@ -123,30 +203,30 @@ private:
     std::vector<MeshLineHandleType>   linesSegment3;
     std::vector<MeshLineHandleType>   linesSegment4;
 
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P1"]) ) ); // 0
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P2"]) ) ); // 1
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P3"]) ) ); // 2
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P4"]) ) ); // 3
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P5"]) ) ); // 4
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P6"]) ) ); // 5
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P7"]) ) ); // 6
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P8"]) ) ); // 7
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P1"]) ) ); // 0
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P2"]) ) ); // 1
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P3"]) ) ); // 2
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P4"]) ) ); // 3
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P5"]) ) ); // 4
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P6"]) ) ); // 5
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P7"]) ) ); // 6
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["P8"]) ) ); // 7
 
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI1"]) ) ); // 8
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI2"]) ) ); // 9
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI3"]) ) ); // 10
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI4"]) ) ); // 11
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI5"]) ) ); // 12
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI6"]) ) ); // 13
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI7"]) ) ); // 14
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PI8"]) ) ); // 15
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI1"]) ) ); // 8
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI2"]) ) ); // 9
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI3"]) ) ); // 10
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI4"]) ) ); // 11
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI5"]) ) ); // 12
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI6"]) ) ); // 13
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI7"]) ) ); // 14
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PI8"]) ) ); // 15
 
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC1"]) ) ); // 16
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC2"]) ) ); // 17
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC3"]) ) ); // 18
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC4"]) ) ); // 19
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC5"]) ) ); // 20
-    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC6"]) ) ); // 21
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC1"]) ) ); // 16
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC2"]) ) ); // 17
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC3"]) ) ); // 18
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC4"]) ) ); // 19
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC5"]) ) ); // 20
+    vertices.push_back( viennagrid::make_vertex( mesh, MeshPointType(geometry_properties()["PC6"]) ) ); // 21
 
     enum vertex_indices
     {
@@ -174,373 +254,176 @@ private:
       pc6  // 21
     };
 
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P11"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC11"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC31"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC41"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["P71"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC21"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC51"]) ) );
-//    vertices.push_back( viennagrid::make_vertex( mesh(), MeshPointType(geometry_properties()["PC61"]) ) );
 
-    // Front
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p1),    *(vertices.begin() + pc4)));  // 0: p1-pc4
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc4),   *(vertices.begin() + p5) ));  // 1: pc4-p5
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p5),    *(vertices.begin() + pi5)));  // 2: p5-pi5
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi5),   *(vertices.begin() + pi6)));  // 3: pi5-pi6
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi6),   *(vertices.begin() + p6) ));  // 4: pi6-p6
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p6),    *(vertices.begin() + p2) ));  // 5: p6-p2
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p2),    *(vertices.begin() + pi2) )); // 6: p2-pi2
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi2),   *(vertices.begin() + pi1) )); // 7: pi2-pi1
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi1),   *(vertices.begin() + p1) ));  // 8: pi1-p1
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi5),   *(vertices.begin() + pi1) )); // 9: pi5-pi1
-    linesFront.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi6),   *(vertices.begin() + pi2) )); // 10: pi6-pi2
+    // We are using this map to keep track of all lines we use, this method is used by get_make_line which is used by make_quad_plc
+    std::map< std::pair<MeshVertexIDType, MeshVertexIDType>, MeshLineHandleType > vertex_line_map;
+    std::vector<MeshPLCHandleType> plcs;
 
-    // Back
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p4),  *(vertices.begin() + p8) )); // 0: p4-p8
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p8),  *(vertices.begin() + pi8))); // 1: p9-pi8
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi8), *(vertices.begin() + pi7))); // 2: pi8
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi7), *(vertices.begin() + p7) )); // 3: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p7),  *(vertices.begin() + pc5))); // 4: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc5), *(vertices.begin() + p3) )); // 5: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p3),  *(vertices.begin() + pi3))); // 6: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi3), *(vertices.begin() + pi4))); // 7: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi4), *(vertices.begin() + p4) )); // 8: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi8), *(vertices.begin() + pi4))); // 9: 
-    linesBack.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi7), *(vertices.begin() + pi3))); // 10: 
-
-    // Top
-    linesTop.push_back( linesFront[2] ); // 0: p5-pi5
-    linesTop.push_back( linesFront[3] ); // 1: pi5-pi6
-    linesTop.push_back( linesFront[4] ); // 2: pi6-p6
-    linesTop.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p6),   *(vertices.begin() + pc6))); // 3
-    linesTop.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc6),  *(vertices.begin() + p7) )); // 4
-    linesTop.push_back( linesBack[3] ); // 5: pi7-p7
-    linesTop.push_back( linesBack[2] ); // 6: pi8-pi7
-    linesTop.push_back( linesBack[1] ); // 7: p8-pi8
-    linesTop.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p8),   *(vertices.begin() + p5) )); // 8
-    linesTop.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi5),  *(vertices.begin() + pi8))); // 9
-    linesTop.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi6),  *(vertices.begin() + pi7))); // 10
-
-    // Bottom
-    linesBottom.push_back( linesFront[8] ); // 0: p1-pi1
-    linesBottom.push_back( linesFront[7] ); // 1: pi2-pi1
-    linesBottom.push_back( linesFront[6] ); // 2: p2-pi2
-    linesBottom.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p2),  *(vertices.begin() + p3)  )); // 3
-    linesBottom.push_back( linesBack[6] ); // 4: p3-pi3
-    linesBottom.push_back( linesBack[7] ); // 5: pi3-pi4
-    linesBottom.push_back( linesBack[8] ); // 6: pi4-p4
-    linesBottom.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + p4),  *(vertices.begin() + pc1) )); // 7
-    linesBottom.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc1), *(vertices.begin() + p1)  )); // 8
-    linesBottom.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi1),  *(vertices.begin() + pi4) )); // 9
-    linesBottom.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi2),  *(vertices.begin() + pi3) )); // 10
-
-    // Left
-    linesLeft.push_back( linesFront[0]  ); // 0: p1-pc4
-    linesLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc4),  *(vertices.begin() + pc3)  )); // 1
-    linesLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc3),  *(vertices.begin() + pc1)  )); // 2
-    linesLeft.push_back( linesBottom[8] ); // 3: pc1-p1
-    linesLeft.push_back( linesBottom[7] ); // 4: p4-pc1
-    linesLeft.push_back( linesBack[0]   ); // 5: p4-p8
-    linesLeft.push_back( linesFront[1]  ); // 6: pc4-p5
-    linesLeft.push_back( linesTop[8]    ); // 7: p8-p5
-
-    // Right
-    linesRight.push_back( linesFront[5] ); // 0: p6-p2
-    linesRight.push_back( linesTop[3]   ); // 1: p6-pc6
-    linesRight.push_back( linesTop[4]   ); // 2: pc6-p7
-    linesRight.push_back( linesBack[4]  ); // 3: p7-pc5
-    linesRight.push_back( linesBack[5]  ); // 4: pc5-p3
-    linesRight.push_back( linesBottom[3]); // 5: p2-p3
-    linesRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc6),  *(vertices.begin() + pc2)  )); // 6
-    linesRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pc2),  *(vertices.begin() + pc5)  )); // 7
-
-    // Interface Left
-    linesIntLeft.push_back( linesFront[9] );
-    linesIntLeft.push_back( linesTop[9] );
-    linesIntLeft.push_back( linesBack[9] );
-    linesIntLeft.push_back( linesBottom[9] );
-
-    // Interface Right
-    linesIntRight.push_back( linesFront[10] );
-    linesIntRight.push_back( linesTop[10] );
-    linesIntRight.push_back( linesBack[10] );
-    linesIntRight.push_back( linesBottom[10] );
-
-    // Setup PLCs
-    typedef typename viennagrid::result_of::plc_handle<MeshType>::type  PLCHandleType;
-    std::vector<PLCHandleType> plcs;
-
-    plcs.push_back( viennagrid::make_plc(mesh(), linesFront.begin(),    linesFront.end()));   // 0
-    plcs.push_back( viennagrid::make_plc(mesh(), linesTop.begin(),      linesTop.end()));     // 1
-    plcs.push_back( viennagrid::make_plc(mesh(), linesBack.begin(),     linesBack.end()));    // 2
-    plcs.push_back( viennagrid::make_plc(mesh(), linesBottom.begin(),   linesBottom.end()));  // 3
-    plcs.push_back( viennagrid::make_plc(mesh(), linesRight.begin(),    linesRight.end()));   // 4
-    plcs.push_back( viennagrid::make_plc(mesh(), linesLeft.begin(),     linesLeft.end()));    // 5
-    plcs.push_back( viennagrid::make_plc(mesh(), linesIntRight.begin(), linesIntRight.end()));// 6
-    plcs.push_back( viennagrid::make_plc(mesh(), linesIntLeft.begin(),  linesIntLeft.end())); // 7
-
-    
+    // ---------------------------------------------------------------------------
+    //
     // Segment 2
-    MeshPointType seed_segment_2;
+    //
+
+    // left
     {
-      MeshType temp_mesh;
-
+      std::vector<MeshLineHandleType> lines;
       
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc1]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc1], vertices[pc3]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc3], vertices[pc4]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc4], vertices[p1]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc1], vertices[p4]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p4],  vertices[p8]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p8],  vertices[p5]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p5],  vertices[pc4]) );
 
-//      { // front
-//        std::vector<MeshLineHandleType> lines;
-//        lines.push_back( linesFront[8] );
-//        lines.push_back( linesFront[9] );
-//        lines.push_back( linesFront[2] );
-//        lines.push_back( linesFront[1] );
-//        lines.push_back( linesFront[0] );
-//        viennagrid::copy_element_handles(mesh(), lines.begin(), lines.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, lines.begin(), lines.end());
-//      }
-//      { // top
-//        std::vector<MeshLineHandleType> lines;
-//        lines.push_back( linesTop[0] );
-//        lines.push_back( linesTop[9] );
-//        lines.push_back( linesTop[7] );
-//        lines.push_back( linesTop[8] );
-//        viennagrid::copy_element_handles(mesh(), lines.begin(), lines.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, lines.begin(), lines.end());
-//      }
-//      { // back
-//        std::vector<MeshLineHandleType> lines;
-//        lines.push_back( linesBack[1] );
-//        lines.push_back( linesBack[0] );
-//        lines.push_back( linesBack[8] );
-//        lines.push_back( linesBack[9] );
-//        viennagrid::copy_element_handles(mesh(), lines.begin(), lines.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, lines.begin(), lines.end());
-//      }
-//      { // bottom
-//        std::vector<MeshLineHandleType> lines;
-//        lines.push_back( linesBottom[6] );
-//        lines.push_back( linesBottom[9] );
-//        lines.push_back( linesBottom[0] );
-//        lines.push_back( linesBottom[8] );
-//        lines.push_back( linesBottom[7] );
-//        viennagrid::copy_element_handles(mesh(), lines.begin(), lines.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, lines.begin(), lines.end());
-//      }
-//      { // left
-//        viennagrid::copy_element_handles(mesh(), linesLeft.begin(), linesLeft.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, linesLeft.begin(), linesLeft.end());
-//      }
-//      { // right
-//        viennagrid::copy_element_handles(mesh(), linesIntLeft.begin(), linesIntLeft.end(), temp_mesh, 0.0 );
-//        viennagrid::make_plc(temp_mesh, linesIntLeft.begin(), linesIntLeft.end());
-//      }
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
+    // front
+    {
+      std::vector<MeshLineHandleType> lines;
+      
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc4]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc4], vertices[p5]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p5],  vertices[pi5]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi5],  vertices[pi1]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi1],  vertices[p1]) );
 
-      seed_segment_2 =  compute_seed_point(temp_mesh);
-      std::cout << "seed pnt 2: " << seed_segment_2 << std::endl;
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
+    // top
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p5], vertices[pi5], vertices[pi8], vertices[p8] ) );
+    }
+    // back
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[p8], vertices[pi8], vertices[pi4], vertices[p4] ) );
+    }
+    // bottom
+    {
+      std::vector<MeshLineHandleType> lines;
+      
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc1]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc1], vertices[p4]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p4],  vertices[pi4]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi4],  vertices[pi1]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi1],  vertices[p1]) );
+
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
+    // right (interface to Segment 3)
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi5], vertices[pi8], vertices[pi4], vertices[pi1] ) );
     }
 
-//    //2nd from Far Left PLC : 4 connections
-//    lines2ndLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi1),       *(vertices.begin() + pi5)  ));
-//    lines2ndLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi5),   *(vertices.begin() + pi8)  ));
-//    lines2ndLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi8),   *(vertices.begin() + pi4)  ));
-//    lines2ndLeft.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi4),   *(vertices.begin() + pi1)  ));
+    // ---------------------------------------------------------------------------
+    //
+    // Segment 3
+    //
+    
+    // front
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi5], vertices[pi6], vertices[pi2], vertices[pi1] ) );
+    }
+    // top
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi5], vertices[pi6], vertices[pi7], vertices[pi8] ) );
+    }
+    // back
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi7], vertices[pi8], vertices[pi4], vertices[pi3] ) );
+    }
+    // bottom
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi4], vertices[pi3], vertices[pi2], vertices[pi1] ) );
+    }
+    // right (interface to Segment 4)
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi6], vertices[pi7], vertices[pi3], vertices[pi2] ) );
+    }
 
-//    //2nd from Far Right PLC : 4 connections
-//    lines2ndRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi2),       *(vertices.begin() + pi6)  ));
-//    lines2ndRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi6),   *(vertices.begin() + pi7)  ));
-//    lines2ndRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi7),   *(vertices.begin() + pi3)  ));
-//    lines2ndRight.push_back( viennagrid::make_line( mesh(), *(vertices.begin() + pi3),   *(vertices.begin() + pi2)  ));
+    // ---------------------------------------------------------------------------
+    //
+    // Segment 4
+    //
 
+    // front
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi6], vertices[p6], vertices[p2], vertices[pi2] ) );
+    }
+    // top
+    {
+      std::vector<MeshLineHandleType> lines;
+      
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi6],  vertices[p6]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p6], vertices[pc6]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc6],  vertices[p7]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p7],  vertices[pi7]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi7],  vertices[pi6]) );
 
-//    PLCHandleType plc_handle1 = viennagrid::make_plc(mesh(), linesFront.begin(), linesFront.end());
-//    PLCHandleType plc_handle2 = viennagrid::make_plc(mesh(), linesTop.begin(), linesTop.end());
-//    PLCHandleType plc_handle3 = viennagrid::make_plc(mesh(), linesBack.begin(), linesBack.end());
-//    PLCHandleType plc_handle4 = viennagrid::make_plc(mesh(), linesBottom.begin(), linesBottom.end());
-//    PLCHandleType plc_handle5 = viennagrid::make_plc(mesh(), linesFarRight.begin(), linesFarRight.end());
-//    PLCHandleType plc_handle6 = viennagrid::make_plc(mesh(), linesFarLeft.begin(), linesFarLeft.end());
-//    PLCHandleType plc_handle7 = viennagrid::make_plc(mesh(), lines2ndLeft.begin(), lines2ndLeft.end());
-//    PLCHandleType plc_handle8 = viennagrid::make_plc(mesh(), lines2ndRight.begin(), lines2ndRight.end());
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
+    // back
+    {
+      std::vector<MeshLineHandleType> lines;
+      
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi7],  vertices[p7]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p7], vertices[pc5]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc5],  vertices[p3]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p3],  vertices[pi3]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi3],  vertices[pi7]) );
 
-//    // --------------------------------------------------
-//    // Setup segment 1
-//    //
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
+    // bottom
+    {
+      plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi3], vertices[p3], vertices[p2], vertices[pi2] ) );
+    }
+    // right 
+    {
+      std::vector<MeshLineHandleType> lines;
+      
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc6],  vertices[p7]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p7], vertices[pc5]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc5], vertices[pc2]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc2], vertices[pc6]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc5], vertices[p3]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p3],  vertices[p2]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p2],  vertices[p6]) );
+      lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p6],  vertices[pc6]) );
 
-//    // -- Lines
+      plcs.push_back( viennagrid::make_plc(mesh, lines.begin(), lines.end()) );
+    }
 
-//    // bottom 
-//    MeshLineHandleType line0 = viennagrid::make_line(mesh(), p11, p1);
-//    MeshLineHandleType line1 = viennagrid::make_line(mesh(), p1, pc1);
-//    MeshLineHandleType line2 = viennagrid::make_line(mesh(), pc1, pc11 );
-//    MeshLineHandleType line3 = viennagrid::make_line(mesh(), pc11, p11);
-//    
-//    // top
-//    MeshLineHandleType line4 = viennagrid::make_line(mesh(), pc41, pc4);
-//    MeshLineHandleType line5 = viennagrid::make_line(mesh(), pc4,  pc3);
-//    MeshLineHandleType line6 = viennagrid::make_line(mesh(), pc3,  pc31 );
-//    MeshLineHandleType line7 = viennagrid::make_line(mesh(), pc31, pc41);
-//    
-//    // top-bottom connections
-//    MeshLineHandleType line8 = viennagrid::make_line(mesh(),  pc41, p11);
-//    MeshLineHandleType line9 = viennagrid::make_line(mesh(),  pc4,  p1);
-//    MeshLineHandleType line10 = viennagrid::make_line(mesh(), pc3,  pc1 );
-//    MeshLineHandleType line11 = viennagrid::make_line(mesh(), pc31, pc11);
-//    
-//    // -- PLCs
-//    
-//    // bottom 
-//    lines.clear();
-//    lines.push_back(line0);
-//    lines.push_back(line1);
-//    lines.push_back(line2);
-//    lines.push_back(line3);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 0
-//    
-//    // top 
-//    lines.clear();
-//    lines.push_back(line4);
-//    lines.push_back(line5);
-//    lines.push_back(line6);
-//    lines.push_back(line7);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 1
+    // ---------------------------------------------------------------------------
+    //
+    // Compute seed points for each segment
+    //
+  
+    MeshPointType seed_point_segment_2 = get_seed_point( mesh, plcs.begin()+0, plcs.begin()+6 );
+    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
-//    // front
-//    lines.clear();
-//    lines.push_back(line0);
-//    lines.push_back(line9);
-//    lines.push_back(line4);
-//    lines.push_back(line8);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 2
+    MeshPointType seed_point_segment_3 = get_seed_point( mesh, plcs.begin()+5, plcs.begin()+11 );
+    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
-//    // right
-//    lines.clear();
-//    lines.push_back(line1);
-//    lines.push_back(line10);
-//    lines.push_back(line5);
-//    lines.push_back(line9);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 3
+    MeshPointType seed_point_segment_4 = get_seed_point( mesh, plcs.begin()+10, plcs.begin()+16 );
+    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
+    viennamesh::seed_point_3d_container seed_points;
+//    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
+    seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
+    seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
+//    seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
+    mesher_->set_input("seed_points", seed_points);  
 
-//    // back
-//    lines.clear();
-//    lines.push_back(line2);
-//    lines.push_back(line10);
-//    lines.push_back(line6);
-//    lines.push_back(line11);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 4
-
-//    // left
-//    lines.clear();
-//    lines.push_back(line3);
-//    lines.push_back(line11);
-//    lines.push_back(line7);
-//    lines.push_back(line8);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 5
-
-//    MeshPointType seed_point_segment_1 = compute_seed_point(mesh(), plcs.begin(), plcs.end());
-//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
-
-//    // --------------------------------------------------
-//    // Setup segment 1
-//    //
-
-//    // -- Lines
-
-//    // bottom 
-//    MeshLineHandleType line12 = viennagrid::make_line(mesh(), p1, pi1);
-//    MeshLineHandleType line13 = viennagrid::make_line(mesh(), pi1, pi4);
-//    MeshLineHandleType line14 = viennagrid::make_line(mesh(), pi4, p4);
-//    MeshLineHandleType line15 = viennagrid::make_line(mesh(), p4, pc1);
-
-//    // top
-//    MeshLineHandleType line16 = viennagrid::make_line(mesh(), p5, pi5);
-//    MeshLineHandleType line17 = viennagrid::make_line(mesh(), pi5, pi8);
-//    MeshLineHandleType line18 = viennagrid::make_line(mesh(), pi8, p8);
-//    MeshLineHandleType line19 = viennagrid::make_line(mesh(), p8, p5);
-
-//    // top-bottom connections
-//    MeshLineHandleType line20 = viennagrid::make_line(mesh(),  p5, pc4);
-//    MeshLineHandleType line21 = viennagrid::make_line(mesh(),  pi5,  pi1);
-//    MeshLineHandleType line22 = viennagrid::make_line(mesh(), pi8,  pi4 );
-//    MeshLineHandleType line23 = viennagrid::make_line(mesh(), p8, p4);
-
-//    // -- PLCs
-//    
-//    // bottom 
-//    lines.clear();
-//    lines.push_back(line12);
-//    lines.push_back(line13);
-//    lines.push_back(line14);
-//    lines.push_back(line15);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 6
-
-//    // top 
-//    lines.clear();
-//    lines.push_back(line16);
-//    lines.push_back(line15);
-//    lines.push_back(line14);
-//    lines.push_back(line19);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 7
-
-//    // front
-//    lines.clear();
-//    lines.push_back(line12);
-//    lines.push_back(line21);
-//    lines.push_back(line16);
-//    lines.push_back(line20);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 7
-
-//    // right
-//    lines.clear();
-//    lines.push_back(line13);
-//    lines.push_back(line22);
-//    lines.push_back(line17);
-//    lines.push_back(line21);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 7
-
-//    // back
-//    lines.clear();
-//    lines.push_back(line14);
-//    lines.push_back(line22);
-//    lines.push_back(line18);
-//    lines.push_back(line23);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 7
-
-//    // left
-//    lines.clear();
-//    lines.push_back(line15);
-//    lines.push_back(line23);
-//    lines.push_back(line19);
-//    lines.push_back(line20);
-//    plcs.push_back( viennagrid::make_plc( mesh(), lines.begin(), lines.end() ) ); // 7
-
-//    MeshPointType seed_point_segment_1 = compute_seed_point(mesh(), plcs.begin()+5, plcs.end()+11);
-//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
-
-//    MeshPointType seed_point_segment_1 = make_brick_and_seed_point(mesh, pc41, pc4, pc3, pc31, p11, p1, pc1, pc11);
-//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
-
-//    MeshPointType seed_point_segment_2 = make_brick_and_seed_point(mesh, p5, pi5, pi8, p8, p1, pi1, pi4, p4);
-//    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
-
-//    MeshPointType seed_point_segment_3 = make_brick_and_seed_point(mesh, pi5, pi6, pi7, pi8, pi1, pi2, pi3, pi4);
-//    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
-
-//    MeshPointType seed_point_segment_4 = make_brick_and_seed_point(mesh, pi6, p6, p7, pi7, pi2, p2, p3, pi3);
-//    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
-
-//    MeshPointType seed_point_segment_5 = make_brick_and_seed_point(mesh, pc6, pc61, p71, p7, pc2, pc21, pc51, pc5);
-//    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
+    // ---------------------------------------------------------------------------
+    //
+    // Generate the mesh
+    //
 
     // setting the created line geometry as input for the mesher
-    mesher_->set_input( "default", mesh );
-
-//    viennamesh::seed_point_3d_container seed_points;
-//    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
-//    seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
-////    seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
-////    seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
-////    seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
-//    mesher_->set_input("seed_points", seed_points);  
+    mesher_->set_input( "default", mesh_handle );
 
     mesher_->reference_output( "default", device_->get_segmesh_tetrahedral_3d() );
     if(!mesher_->run())
@@ -576,138 +459,6 @@ private:
 //    device_->set_contact_potential(5, 0.0);
   }
   
-  
-  MeshPointType compute_seed_point(MeshType const& mesh)
-  {
-    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-    seed_point_locator->set_input( "default", mesh);
-    seed_point_locator->run();
-    
-    typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
-    viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-
-//    std::cout << "found seedpoints: " << point_container().size() << std::endl;
-//    for(PointContainerType::iterator iter = point_container().begin(); iter != point_container().end(); iter++)
-//    {
-//      std::cout << *iter << std::endl;
-//    }
-    
-    if(point_container().size() != 1)
-    {
-      // TODO
-      std::cout << "Error: More than one seed point computed" << std::endl;
-      exit(-1);
-    }
-    
-    return point_container().front();
-  }
-  
-  
-private:
-//  template<typename MeshHandleT>
-//  MeshPointType   make_brick_and_seed_point(MeshHandleT& mesh, 
-//                  MeshVertexHandleType& p1, MeshVertexHandleType& p2, MeshVertexHandleType& p3, MeshVertexHandleType& p4, // top    - counter-clockwise
-//                  MeshVertexHandleType& p5, MeshVertexHandleType& p6, MeshVertexHandleType& p7, MeshVertexHandleType& p8) // bottom - counter-clockwise
-//  {
-//    typedef typename viennagrid::result_of::plc_handle<MeshType>::type  PLCHandleType;
-//    PLCHandleType      plcs[6];
-//    MeshLineHandleType lines[12];
-
-//    std::cout << "make brick --- " << std::endl;
-//    std::cout << viennagrid::point(mesh(), p1) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p2) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p3) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p4) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p5) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p6) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p7) << std::endl;
-//    std::cout << viennagrid::point(mesh(), p8) << std::endl;
-
-//    // top
-//    lines[0] = viennagrid::make_line(mesh(), p1, p2);
-//    lines[1] = viennagrid::make_line(mesh(), p2, p3);
-//    lines[2] = viennagrid::make_line(mesh(), p3, p4 );
-//    lines[3] = viennagrid::make_line(mesh(), p4, p1);
-//    
-//    // bottom
-//    lines[4] = viennagrid::make_line(mesh(), p5, p6);
-//    lines[5] = viennagrid::make_line(mesh(), p6, p7);
-//    lines[6] = viennagrid::make_line(mesh(), p7, p8 );
-//    lines[7] = viennagrid::make_line(mesh(), p8, p5);
-//    
-//    // top-bottom connections
-//    lines[8] = viennagrid::make_line(mesh(), p1, p5);
-//    lines[9] = viennagrid::make_line(mesh(), p2, p6);
-//    lines[10] = viennagrid::make_line(mesh(), p3, p7 );
-//    lines[11] = viennagrid::make_line(mesh(), p4, p8);
-//    
-//    // top plc
-//    plcs[0] = viennagrid::make_plc( mesh(), lines+0, lines+4 );
-//    
-//    // bottom plc
-//    plcs[1] = viennagrid::make_plc( mesh(), lines+4, lines+8 );
-
-//    // face 1
-//    {
-//      MeshLineHandleType cur_lines[4];
-//      cur_lines[0] = lines[0];
-//      cur_lines[1] = lines[9];
-//      cur_lines[2] = lines[4];
-//      cur_lines[3] = lines[8];
-//      plcs[2] = viennagrid::make_plc( mesh(), cur_lines+0, cur_lines+4 );
-//    }
-
-//    // face 2
-//    {
-//      MeshLineHandleType cur_lines[4];
-//      cur_lines[0] = lines[1];
-//      cur_lines[1] = lines[10];
-//      cur_lines[2] = lines[5];
-//      cur_lines[3] = lines[9];
-//      plcs[3] = viennagrid::make_plc( mesh(), cur_lines+0, cur_lines+4 );
-//    }
-
-//    // face 3
-//    {
-//      MeshLineHandleType cur_lines[4];
-//      cur_lines[0] = lines[2];
-//      cur_lines[1] = lines[10];
-//      cur_lines[2] = lines[6];
-//      cur_lines[3] = lines[11];
-//      plcs[4] = viennagrid::make_plc( mesh(), cur_lines+0, cur_lines+4 );
-//    }
-
-//    // face 4
-//    {
-//      MeshLineHandleType cur_lines[4];
-//      cur_lines[0] = lines[3];
-//      cur_lines[1] = lines[11];
-//      cur_lines[2] = lines[7];
-//      cur_lines[3] = lines[8];
-//      plcs[5] = viennagrid::make_plc( mesh(), cur_lines+0, cur_lines+4 );
-//    }
-//    
-////    MeshType temp_mesh;
-////    viennagrid::copy_element_handles( mesh(), plcs+0, plcs+6, temp_mesh, 0.0 );
-////    
-////    viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
-////    seed_point_locator->set_input( "default", temp_mesh);
-////    seed_point_locator->run();
-////    
-////    typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
-////    viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-////    
-////    if(point_container().size() != 1)
-////    {
-////      // TODO
-////      std::cout << "Error: More than one seed point computed" << std::endl;
-////      exit(-1);
-////    }
-////    
-////    return point_container().front();
-//  }
-
-
 
 private:
   viennamesh::algorithm_handle mesher_;
