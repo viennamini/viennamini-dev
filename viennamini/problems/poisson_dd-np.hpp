@@ -113,6 +113,7 @@ private:
 
       // thermal potential
       viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature)); 
+      
 
       if(device_.is_contact(current_segment_index))
       {
@@ -257,7 +258,12 @@ private:
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    deactivating recombination models .." << std::endl;
         #endif
-          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 0.0); // switch off
+          viennafvm::set_initial_value(recombination,     segmesh.segmentation(current_segment_index), 0.0); // switch off
+          
+          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), 0.0);
+          viennafvm::set_initial_value(hole_lifetime,     segmesh.segmentation(current_segment_index), 0.0);
+          viennafvm::set_initial_value(srh_n1,            segmesh.segmentation(current_segment_index), 0.0); 
+          viennafvm::set_initial_value(srh_p1,            segmesh.segmentation(current_segment_index), 0.0); 
         }
         else
         if(device_.get_recombination(current_segment_index) == recombination::srh)
@@ -267,20 +273,23 @@ private:
         #endif
           viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
-          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), 
-            device_.material_library()->query_value(
+          NumericType tau_n = device_.material_library()->query_value(
               vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
                                vmat::make_entry(device_.matlib_parameter(), material::tau_n()),
-                               vmat::make_entry(device_.matlib_data()     , material::value()))
-            )
-          );
-          viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), 
-            device_.material_library()->query_value(
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+
+          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
+          
+          NumericType tau_p = device_.material_library()->query_value(
               vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
                                vmat::make_entry(device_.matlib_parameter(), material::tau_p()),
-                               vmat::make_entry(device_.matlib_data()     , material::value()))
-            )
-          );
+                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+
+          viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), tau_p);
+          
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "      tau n: " << tau_n << " tau p: " << tau_p << std::endl;
+        #endif
           viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
           viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
         }
@@ -315,25 +324,13 @@ private:
     NumericType q          = viennamini::q::val();
 //    viennamath::expr R_srh_left  = R_switch *      (n  * p ) / (tau_p*(n + n1) + tau_n*(p + p1));
 //    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1) + tau_n*(p + p1));
-//    viennamath::expr R_srh_left  = R_switch *      (n  * p ) / (tau_p*(n + n1));
-//    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1));
-
-    //Equation cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu * viennamath::grad(psi) * n) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
+    viennamath::expr R_srh_left  = R_switch *      (n  * p ) / (1.e-5*(n + n1)+tau_n*(p + p1));
+    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1)+1.e-5*(p + p1));
 
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                                    /* = */ q * ((n - ND) - (p - NA)));
 
-//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - R_srh_left, /* = */ R_srh_right);
-//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - R_srh_left, /* = */ R_srh_right);
-
-//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n)-(n*p)/(tau_p*(n+n1)+tau_n*(p+p1)), /*=*/ -1*(ni * ni)/(tau_p*(n+n1)+tau_n*(p+p1)));
-//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p)-(n*p)/(tau_p*(n+n1)+tau_n*(p+p1)), /*=*/ -1*(ni * ni)/(tau_p*(n+n1)+tau_n*(p+p1)));
-
-//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
-//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - n*p / (1e-5 * (n+p)), /* = */ -1e32 / (1e-5 * (n+p)) );
-
-    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n), /* = */ 0.0);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p), /* = */ 0.0);
-
+    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - R_srh_left, /* = */ R_srh_right);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - R_srh_left, /* = */ R_srh_right);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
