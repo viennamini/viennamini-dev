@@ -30,6 +30,14 @@ struct xpath_material_accessor : public viennamaterials::base_accessor
   }
 };
 
+struct xpath_model_accessor : public viennamaterials::base_accessor
+{
+  result_type operator()()
+  {
+    return "/model[id=\"%\"]";
+  }
+};
+
 struct xpath_parameter_accessor : public viennamaterials::base_accessor
 {
   result_type operator()()

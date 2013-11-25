@@ -299,6 +299,7 @@ void device::read_material_library(std::string const& filename)
   {
     matlib_           = material_library_handle(new viennamaterials::pugixml(filename));
     matlib_material_  = matlib_->register_accessor(new viennamini::xpath_material_accessor);
+    matlib_model_     = matlib_->register_accessor(new viennamini::xpath_model_accessor);
     matlib_parameter_ = matlib_->register_accessor(new viennamini::xpath_parameter_accessor);
     matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
   }
@@ -624,6 +625,12 @@ viennamaterials::accessor_handle& device::matlib_material()
 {
   return matlib_material_;
 }
+
+viennamaterials::accessor_handle& device::matlib_model()
+{
+  return matlib_model_;
+}
+
 
 viennamaterials::accessor_handle& device::matlib_parameter()
 {

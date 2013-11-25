@@ -209,16 +209,16 @@ private:
                            vmat::make_entry(device_.matlib_parameter(), material::base_hole_mobility()),
                            vmat::make_entry(device_.matlib_data()     , material::value()))
         );
-
         if(device_.get_mobility(current_segment_index) == mobility::base)
         {
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    using base mobilities: " << std::endl;
-//          std::cout << "      mu_n: " << mu_n_value << device_.material_library()->get_parameter_unit(material, viennamini::material::base_electron_mobility()) << std::endl;
-//          std::cout << "      mu_p: " << mu_p_value << device_.material_library()->get_parameter_unit(material, viennamini::material::base_hole_mobility()) << std::endl;
         #endif
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_value); 
           viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_value); 
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "      mu n 0: " << mu_n_value << " mu p 0: " << mu_p_value << std::endl;
+        #endif
         }
         else
         if(device_.get_mobility(current_segment_index) == mobility::lattice)
@@ -228,14 +228,22 @@ private:
         #endif
           NumericType alpha_n_value    = device_.material_library()->query_value(
             vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
                              vmat::make_entry(device_.matlib_parameter(), material::alpha_n()),
                              vmat::make_entry(device_.matlib_data()     , material::value()))
           );
           NumericType alpha_p_value    = device_.material_library()->query_value(
             vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
                              vmat::make_entry(device_.matlib_parameter(), material::alpha_p()),
                              vmat::make_entry(device_.matlib_data()     , material::value()))
           );
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "      mu n 0: " << mu_n_value << " mu p 0: " << mu_p_value << std::endl;
+          std::cout << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
+        #endif
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
           viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
         }
@@ -265,34 +273,38 @@ private:
           viennafvm::set_initial_value(srh_n1,            segmesh.segmentation(current_segment_index), 0.0); 
           viennafvm::set_initial_value(srh_p1,            segmesh.segmentation(current_segment_index), 0.0); 
         }
-        else
-        if(device_.get_recombination(current_segment_index) == recombination::srh)
-        {
-        #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    activating SRH recombination model .." << std::endl;
-        #endif
-          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
+//        else
+//        if(device_.get_recombination(current_segment_index) == recombination::srh)
+//        {
+//        #ifdef VIENNAMINI_VERBOSE
+//          std::cout << "    activating SRH recombination model .." << std::endl;
+//        #endif
+//          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
-          NumericType tau_n = device_.material_library()->query_value(
-              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
-                               vmat::make_entry(device_.matlib_parameter(), material::tau_n()),
-                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+//          NumericType tau_n = device_.material_library()->query_value(
+//              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+//                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()()),
+//                               vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
+//                               vmat::make_entry(device_.matlib_parameter(), material::tau_n()),
+//                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
 
-          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
-          
-          NumericType tau_p = device_.material_library()->query_value(
-              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
-                               vmat::make_entry(device_.matlib_parameter(), material::tau_p()),
-                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
+//          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
+//          
+//          NumericType tau_p = device_.material_library()->query_value(
+//              vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+//                               vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()()),
+//                               vmat::make_entry(device_.matlib_model(),     material::lattice_scattering()),
+//                               vmat::make_entry(device_.matlib_parameter(), material::tau_p()),
+//                               vmat::make_entry(device_.matlib_data()     , material::value()))  );
 
-          viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), tau_p);
-          
-        #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      tau n: " << tau_n << " tau p: " << tau_p << std::endl;
-        #endif
-          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
-          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
-        }
+//          viennafvm::set_initial_value(hole_lifetime, segmesh.segmentation(current_segment_index), tau_p);
+//          
+//        #ifdef VIENNAMINI_VERBOSE
+//          std::cout << "      tau n: " << tau_n << " tau p: " << tau_p << std::endl;
+//        #endif
+//          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
+//          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
+//        }
         else throw recombination_not_supported_exception();
       }
       else throw segment_undefined_exception(current_segment_index);

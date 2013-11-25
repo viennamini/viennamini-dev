@@ -151,6 +151,7 @@ namespace viennamini
     IndicesType&   semiconductor_segments_indices();
 
     viennamaterials::accessor_handle&  matlib_material();
+    viennamaterials::accessor_handle&  matlib_model();
     viennamaterials::accessor_handle&  matlib_parameter();
     viennamaterials::accessor_handle&  matlib_data();
 
@@ -177,6 +178,7 @@ namespace viennamini
     viennamini::material_library_handle  matlib_;
 
     viennamaterials::accessor_handle matlib_material_;
+    viennamaterials::accessor_handle matlib_model_;
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
   };
