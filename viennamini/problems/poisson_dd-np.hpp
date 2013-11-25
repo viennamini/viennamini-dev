@@ -199,12 +199,12 @@ private:
         viennafvm::set_unknown(hole_density, segmesh.segmentation(current_segment_index));
 
         // mobility
-        NumericType mu_n_value    = device_.material_library()->query_value(
+        NumericType mu_n_0_value    = device_.material_library()->query_value(
           vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
                            vmat::make_entry(device_.matlib_parameter(), material::base_electron_mobility()),
                            vmat::make_entry(device_.matlib_data()     , material::value()))
         );
-        NumericType mu_p_value    = device_.material_library()->query_value(
+        NumericType mu_p_0_value    = device_.material_library()->query_value(
           vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
                            vmat::make_entry(device_.matlib_parameter(), material::base_hole_mobility()),
                            vmat::make_entry(device_.matlib_data()     , material::value()))
@@ -214,10 +214,10 @@ private:
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    using base mobilities: " << std::endl;
         #endif
-          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_value); 
-          viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_value); 
+          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_0_value); 
+          viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_0_value); 
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      mu n 0: " << mu_n_value << " mu p 0: " << mu_p_value << std::endl;
+          std::cout << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
         #endif
         }
         else
@@ -241,11 +241,11 @@ private:
                              vmat::make_entry(device_.matlib_data()     , material::value()))
           );
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      mu n 0: " << mu_n_value << " mu p 0: " << mu_p_value << std::endl;
+          std::cout << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
           std::cout << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
         #endif
-          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
-          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
+          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_0_value, alpha_n_value, temperature)); 
+          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_0_value, alpha_p_value, temperature)); 
         }
         else
         if(device_.get_mobility(current_segment_index) == mobility::ionized_impurity)
@@ -253,8 +253,54 @@ private:
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    activating ionized impurity scattering mobility model .." << std::endl;
         #endif
-//          NumericType alpha_n_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_electron_mobility());
-//          NumericType alpha_p_value    = device_.material_library()->get_parameter_value(material, viennamini::material::base_hole_mobility());
+          NumericType alpha_n_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_n()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType alpha_p_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::alpha_p()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType mu_min_n_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::mu_min_n()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType mu_min_p_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::mu_min_p()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType N_ref_n_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::N_ref_n()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+          NumericType N_ref_p_value    = device_.material_library()->query_value(
+            vmat::make_query(vmat::make_entry(device_.matlib_material() , material), 
+                             vmat::make_entry(device_.matlib_model(),     material::drift_diffusion()),
+                             vmat::make_entry(device_.matlib_model(),     material::ionized_impurity_scattering()),
+                             vmat::make_entry(device_.matlib_parameter(), material::N_ref_p()),
+                             vmat::make_entry(device_.matlib_data()     , material::value()))
+          );
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
+          std::cout << "      mu min n: " << mu_min_n_value << " mu min p: " << mu_min_p_value << std::endl;
+          std::cout << "      N ref n: " << N_ref_n_value << " N ref p: " << N_ref_p_value << std::endl;
+        #endif
+          
 //          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_n_value, alpha_n_value, temperature)); 
 //          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::ionized_impurity<QuantityType>(mu_p_value, alpha_p_value, temperature)); 
         }

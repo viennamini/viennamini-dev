@@ -47,22 +47,22 @@
       <model>
         <id>ionized_impurity_scattering</id>
         <parameter>
-          <name>mu_n_min</name>
+          <name>mu_min_n</name>
           <value>80</value>
           <unit>m^2/V*s</unit>
         </parameter>
         <parameter>
-          <name>mu_p_min</name>
+          <name>mu_min_p</name>
           <value>45</value>
           <unit>m^2/V*s</unit>
         </parameter>
         <parameter>
-          <name>N_n_ref</name>
+          <name>N_ref_n</name>
           <value>1.12E17</value>
           <unit>1/cm3</unit>
         </parameter>
         <parameter>
-          <name>N_p_ref</name>
+          <name>N_ref_p</name>
           <value>2.23E17</value>
           <unit>1/cm3</unit>
         </parameter>

@@ -156,7 +156,12 @@ namespace viennamini
     inline std::string alpha_p()                            { return "alpha_p"; }
     inline std::string tau_n()                              { return "tau_n"; }
     inline std::string tau_p()                              { return "tau_p"; }
+    inline std::string mu_min_n()                           { return "mu_min_n"; }
+    inline std::string mu_min_p()                           { return "mu_min_p"; }
+    inline std::string N_ref_n()                            { return "N_ref_n"; }
+    inline std::string N_ref_p()                            { return "N_ref_p"; }
     inline std::string value()                              { return "value"; }
+    inline std::string unit()                               { return "unit"; }
     inline std::string drift_diffusion()                    { return "drift_diffusion"; }
     inline std::string lattice_scattering()                 { return "lattice_scattering"; }
     inline std::string ionized_impurity_scattering()        { return "ionized_impurity_scattering"; }
