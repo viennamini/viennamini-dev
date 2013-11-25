@@ -13,7 +13,7 @@
 ======================================================================= */
 
 
-#include "viennamini/templates/capacitor2d.hpp"
+#include "templates/capacitor2d.hpp"
 #include "viennamini/simulator.hpp"
 
 int main()

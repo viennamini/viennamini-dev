@@ -149,9 +149,9 @@ public:
     
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::tetgen::algorithm() );
-    mesher_->set_input( "cell_size", 1.0 );      
-//    mesher_->set_input( "max_radius_edge_ratio", 1.5 );  // maximum radius edge ratio
-//    mesher_->set_input( "min_dihedral_angle", 0.17 );     // minimum dihedral angle in radiant, 0.17 are about 10 degrees
+    mesher_->set_input( "cell_size", 0.01 );      
+    mesher_->set_input( "max_radius_edge_ratio", 1.5 );  // maximum radius edge ratio
+    mesher_->set_input( "min_dihedral_angle", 0.17 );     // minimum dihedral angle in radiant, 0.17 are about 10 degrees
     mesher_->set_input( "delaunay", true  );    
 //    mesher_->set_input( "algorithm_type", "incremental_delaunay" ); 
     

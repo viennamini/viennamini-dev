@@ -13,9 +13,10 @@
 ======================================================================= */
 
 
-#include "viennamini/templates/capacitor1d.hpp"
 #include "viennamini/simulator.hpp"
 #include "viennamini/utils/timer.hpp"
+
+#include "templates/capacitor1d.hpp"
 
 #include <sstream>
 
