@@ -37,6 +37,24 @@
 
 #include <boost/lexical_cast.hpp>
 
+
+#define VIENNAMINI_PROBLEM(classname) \
+public: \
+  classname(viennamini::device& device, viennamini::config& config) : problem (device, config) { } \
+\
+  void run() \
+  {\
+    if(device_.is_line1d()) \
+      this->run_impl(device_.get_segmesh_line_1d(), device_.get_problem_description_line_1d()); \
+    else \
+    if(device_.is_triangular2d()) \
+      this->run_impl(device_.get_segmesh_triangular_2d(), device_.get_problem_description_triangular_2d()); \
+    else \
+    if(device_.is_tetrahedral3d()) \
+      this->run_impl(device_.get_segmesh_tetrahedral_3d(), device_.get_problem_description_tetrahedral_3d()); \
+    else throw device_not_supported_exception("at: problem_laplace::run()"); \
+  }
+
 namespace viennamini {
 
 

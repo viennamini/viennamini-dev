@@ -1,15 +1,15 @@
 /* =======================================================================
-   Copyright (c) 2011, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
-           ViennaFVM - The Vienna Finite Volume Method Library
+                 ViennaMini - The Vienna Device Simulator
                              -----------------
 
    authors:    Karl Rupp                          rupp@iue.tuwien.ac.at
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    To be discussed, see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
 

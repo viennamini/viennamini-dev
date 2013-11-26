@@ -1,5 +1,8 @@
 
 
+ADD_EXECUTABLE(new_problem     new_problem.cpp)
+TARGET_LINK_LIBRARIES(new_problem ${LIBRARIES})
+
 ADD_EXECUTABLE(nin2d_poisson_dd_np     nin2d_poisson_dd_np.cpp)
 TARGET_LINK_LIBRARIES(nin2d_poisson_dd_np ${LIBRARIES})
 

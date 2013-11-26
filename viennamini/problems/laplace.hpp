@@ -21,30 +21,8 @@ namespace viennamini {
 
 struct problem_laplace : public problem
 {
-public:
-  problem_laplace(viennamini::device& device, viennamini::config& config) : problem (device, config) { }
+  VIENNAMINI_PROBLEM(problem_laplace)
 
-  void run()
-  {
-    if(device_.is_line1d())
-    {
-      this->run_impl(device_.get_segmesh_line_1d(), device_.get_problem_description_line_1d());
-    }
-    else
-    if(device_.is_triangular2d())
-    {
-      this->run_impl(device_.get_segmesh_triangular_2d(), device_.get_problem_description_triangular_2d());
-    }
-    else 
-    if(device_.is_tetrahedral3d())
-    {
-      this->run_impl(device_.get_segmesh_tetrahedral_3d(), device_.get_problem_description_tetrahedral_3d());
-    }
-    else throw device_not_supported_exception("at: problem_laplace::run()");
-  }
-  
-  
-private:
   
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
   void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
