@@ -443,7 +443,7 @@ struct problem_poisson_dd_np : public problem
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)),                                                    /* = */ q * ((n - ND) - (p - NA)));
 
     EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - R_srh_left, /* = */ R_srh_right);
-    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - R_srh_left, /* = */ R_srh_right);
+    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_p * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) - R_srh_left, /* = */ R_srh_right);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
