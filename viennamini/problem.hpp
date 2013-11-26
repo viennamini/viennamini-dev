@@ -23,9 +23,9 @@
 #include "viennamath/expression.hpp"
 
 // ViennaFVM includes:
-#ifdef VIENNAMINI_VERBOSE
-  #define VIENNAFVM_VERBOSE
-#endif
+//#ifdef VIENNAMINI_VERBOSE
+//  #define VIENNAFVM_VERBOSE
+//#endif
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/problem_description.hpp"
 #include "viennafvm/forwards.h"
@@ -95,6 +95,13 @@ class recombination_not_supported_exception : public std::runtime_error {
 public:
   recombination_not_supported_exception() : std::runtime_error("") {}
 };
+
+/** @brief Exception for the case that the solution did not converge */
+class solution_not_converged_error : public std::runtime_error {
+public:
+  solution_not_converged_error(std::string const & str) : std::runtime_error(str) {}
+};
+
 
 struct problem
 {

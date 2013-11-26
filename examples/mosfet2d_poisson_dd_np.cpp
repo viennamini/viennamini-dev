@@ -85,7 +85,7 @@ int main()
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
-  mysim.config().nonlinear_breaktol()                 = 1.0E-3;
+  mysim.config().nonlinear_breaktol()                 = 1.0E-2;
   mysim.config().initial_guess_smoothing_iterations() = 4;
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
@@ -95,10 +95,10 @@ int main()
   //
   mysim.current_contact_workfunction(gate_contact)   = 0.4;
 
-  mysim.current_contact_potential   (gate_contact)   = 0.2;
-  mysim.current_contact_potential   (source_contact) = 0.0;
-  mysim.current_contact_potential   (drain_contact)  = 0.2;
-  mysim.current_contact_potential   (body_contact)   = 0.0;
+//  mysim.current_contact_potential   (gate_contact)   = 0.2;
+//  mysim.current_contact_potential   (source_contact) = 0.0;
+//  mysim.current_contact_potential   (drain_contact)  = 0.2;
+//  mysim.current_contact_potential   (body_contact)   = 0.0;
 
 
   // perform several simulations each with its own boundary setup, 
@@ -106,15 +106,15 @@ int main()
   // the gate and drain contacts are driven from 0.0V to 0.2V (0.3V for the drain) 
   // in 0.1V steps
   //
-//  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
-//  mysim.stepper().add(drain_contact, 0.0, 0.3, 0.1);
+  mysim.stepper().add(gate_contact,  0.0, 0.7, 0.1);
+  mysim.stepper().add(drain_contact, 0.0, 0.7, 0.1);
 
   mysim.set_output_filename_prefix("mosfet2d_dd_np_result");
 
   mysim.run();
 
-  // viennamini::csv mycsv = mysim.get_csv();
-  // mycsv.write("csv_result");
+  viennamini::csv mycsv = mysim.csv();
+  mycsv.write("result.csv");
 
   std::cout << "**********************************************************" << std::endl;
   std::cout << "* MOSFET 2D DD Bipolar simulation finished successfully! *" << std::endl;

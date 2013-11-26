@@ -16,7 +16,7 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include <boost/numeric/ublas/matrix_sparse.hpp>
+#include <vector>
 
 #include "viennamini/forwards.h"
 
@@ -26,44 +26,66 @@ namespace viennamini
 struct csv
 {
 private:
-  typedef boost::numeric::ublas::coordinate_matrix<numeric>   DatabaseType;
+  typedef std::vector<std::string>    HeaderLineType;
+  typedef std::vector<numeric>        DataLineType;
+  typedef std::vector<DataLineType>   MatrixType;
 
 public:
-  typedef DatabaseType                          database_type;
+  typedef HeaderLineType              header_line_type;
+  typedef DataLineType                data_line_type;
 
   csv()
   {
   }
 
-  csv(std::size_t m, std::size_t n) : database_(m, n, m*n)
+  void set_header(header_line_type& header_line)
   {
-  }
-
-  void resize(std::size_t m, std::size_t n)
-  {
-    database_.resize(m, n, true);
-  }
-
-  void add_column(std::string name)
-  {
+    header_.resize(header_line.size());
+    std::copy(header_line.begin(), header_line.end(), header_.begin());
   }
   
-//  values_type& get_column(std::string name)
-//  {
-//    return database_[name];
-//  }
-  
-  void write(std::ostream& stream = std::cout)
+  void add_line(data_line_type& data_line)
   {
-//    for(DatabaseType::iterator iter = database_.begin();
-//        iter != database_.end(); iter++)
-//    {
-//      
-//    }
+    matrix_.push_back(data_line);
+  }
+
+  void clear()
+  {
+    header_.clear();
+    matrix_.clear();
+  }
+
+  void write(std::string const& filename)
+  {
+    std::ofstream stream(filename.c_str());
+    this->write(stream);
+    stream.close();
+  }
+
+  void write(std::ostream& stream)
+  {
+    for(HeaderLineType::iterator iter = header_.begin(); 
+        iter != header_.end(); iter++)
+    {
+      stream << *iter << "  ";
+    }
+    stream << "\n";
+
+    for(MatrixType::iterator line_iter = matrix_.begin();
+        line_iter != matrix_.end(); line_iter++)
+    {
+      for(DataLineType::iterator col_iter = line_iter->begin();
+          col_iter != line_iter->end(); col_iter++)
+      {
+        stream << *col_iter << "  ";
+      }
+      stream << "\n";
+    }
   }
   
 private:
-  DatabaseType database_;
+  HeaderLineType  header_;
+  MatrixType      matrix_;
 };
 
 } // viennamini

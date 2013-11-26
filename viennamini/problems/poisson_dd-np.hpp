@@ -31,8 +31,6 @@ struct problem_poisson_dd_np : public problem
                 segment_values        & current_contact_workfunctions,
                 std::size_t             step_id)
   {
-    std::cout << "current step id: " << step_id << std::endl;
-  
     namespace vmat = viennamaterials;
 
     typedef typename SegmentedMeshT::mesh_type                MeshType;
@@ -460,6 +458,7 @@ struct problem_poisson_dd_np : public problem
     // Assemble and solve the problem
     //
     // -------------------------------------------------------------------------
+
     viennafvm::linsolv::viennacl  linear_solver;
     linear_solver.break_tolerance() = config().linear_breaktol();
     linear_solver.max_iterations()  = config().linear_iterations();
@@ -478,14 +477,41 @@ struct problem_poisson_dd_np : public problem
     stream() << std::endl;
   #endif
 
-    pde_solver(problem_description, pde_system, linear_solver);
+    bool converged = pde_solver(problem_description, pde_system, linear_solver);
     
+    if(!converged) throw solution_not_converged_error("PoissonDD NP did not converge");
+
     // -------------------------------------------------------------------------
     //
     // Post Processing
     //
     // -------------------------------------------------------------------------
-    
+
+    if(step_id == 0)
+    {
+      std::vector<std::string>  header;
+      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+          sit != segmesh.segmentation.end(); ++sit)
+      {
+        std::size_t current_segment_index = sit->id();
+        if(device().is_contact(current_segment_index))
+        {
+          if(device().is_contact_at_semiconductor(current_segment_index))
+          {
+            header.push_back( "U_"+device().get_name(current_segment_index) );
+            header.push_back( "I_"+device().get_name(current_segment_index) );
+          }
+          else
+          if(device().is_contact_at_oxide(current_segment_index))
+          {
+            header.push_back( "U_"+device().get_name(current_segment_index) );
+          }
+        }
+      }
+      csv().set_header(header);
+    }
+
+    viennamini::csv::data_line_type data_line;
     for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
         sit != segmesh.segmentation.end(); ++sit)
     {
@@ -495,21 +521,22 @@ struct problem_poisson_dd_np : public problem
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
           std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
-          
-          std::cout << "Segment: " << current_segment_index << " Current: " << 
-            get_terminal_current(segmesh.segmentation[current_segment_index],
+
+          data_line.push_back( current_contact_potentials[current_segment_index] );
+          data_line.push_back( get_terminal_current(segmesh.segmentation[current_segment_index],
                                  segmesh.segmentation[adjacent_semiconductor_segment_index],
                                  electron_density, 
-                                 hole_density) << std::endl;
+                                 hole_density) );
         }
         else
         if(device().is_contact_at_oxide(current_segment_index))
         {
-//          std::size_t adjacent_oxide_segment_index = device().get_adjacent_oxide_segment_for_contact(current_segment_index);
+          data_line.push_back(  current_contact_potentials[current_segment_index] );
         }
         else throw segment_undefined_contact_exception(current_segment_index);
       }
     }
+    csv().add_line(data_line);
   }
 };
 

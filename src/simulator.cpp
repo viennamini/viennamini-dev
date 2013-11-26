@@ -104,61 +104,92 @@ void simulator::run()
   {
     if(stepper().empty())
     {
-      this->run_impl(0);
+      if(manual_problem_)
+      {
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "[Simulator] processing manual problem .."  << std::endl;
+      #endif
+        problem_->set(this->device_handle(), this->config_handle());
+        problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+      }
+      else
+      {
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+      #endif
+        if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+        {
+          if(problem_) delete problem_;
+          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+          problem_->set(this->device_handle(), this->config_handle());
+          problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+        }
+        else
+        if(config().problem() == viennamini::id::laplace())
+        {
+
+          if(problem_) delete problem_;
+          problem_ = new viennamini::problem_laplace(this->stream());
+          problem_->set(this->device_handle(), this->config_handle());
+          problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+        }
+        else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
+      }
       
       if(config().write_result_files())
         problem_->write(output_file_prefix_, 0);
     }
-    else 
+    else // perform a sequence of simulations ..
     {
       // make sure, that the problem description is ready to hold
       // the simulation data for all upcoming simulations
       this->resize_problem_description_set();
     
-      while(stepper().apply_next())
+      if(manual_problem_)
       {
-        this->run_impl(stepper().get_current_step_id());
-        
-        if(config().write_result_files())
-          problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "[Simulator] processing manual problem .."  << std::endl;
+      #endif
+        problem_->set(this->device_handle(), this->config_handle());
+
+        while(stepper().apply_next())
+          problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
       }
+      else
+      {
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+      #endif
+        if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+        {
+          if(problem_) delete problem_;
+          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+          problem_->set(this->device_handle(), this->config_handle());
+          while(stepper().apply_next())
+            problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+        }
+        else
+        if(config().problem() == viennamini::id::laplace())
+        {
+
+          if(problem_) delete problem_;
+          problem_ = new viennamini::problem_laplace(this->stream());
+          problem_->set(this->device_handle(), this->config_handle());
+          while(stepper().apply_next())
+            problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+        }
+        else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
+      }
+
+      if(config().write_result_files())
+        problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
     }
   }
 }
 
 void simulator::run_impl(std::size_t step_id)
 {
-  if(manual_problem_)
-  {
-  #ifdef VIENNAMINI_VERBOSE
-    stream() << "[Simulator] processing manual problem .."  << std::endl;
-  #endif
-    problem_->set(this->device_handle(), this->config_handle());
-    problem_->run(current_contact_potentials_, current_contact_workfunctions_, step_id);
-  }
-  else
-  {
-  #ifdef VIENNAMINI_VERBOSE
-    stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
-  #endif
-    if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
-    {
-      if(problem_) delete problem_;
-      problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-      problem_->set(this->device_handle(), this->config_handle());
-      problem_->run(current_contact_potentials_, current_contact_workfunctions_, step_id);
-    }
-    else
-    if(config().problem() == viennamini::id::laplace())
-    {
 
-      if(problem_) delete problem_;
-      problem_ = new viennamini::problem_laplace(this->stream());
-      problem_->set(this->device_handle(), this->config_handle());
-      problem_->run(current_contact_potentials_, current_contact_workfunctions_, step_id);
-    }
-    else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
-  }
 }
 
 viennamini::stepper& simulator::stepper()
@@ -184,6 +215,11 @@ viennamini::numeric& simulator::current_contact_potential   (std::size_t segment
 viennamini::numeric& simulator::current_contact_workfunction(std::size_t segment_index)
 {
   return current_contact_workfunctions_[segment_index];
+}
+
+viennamini::csv& simulator::csv()
+{
+  return problem_->csv();
 }
 
 std::string simulator::encode_current_boundary_setup()

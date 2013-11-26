@@ -68,6 +68,8 @@ namespace viennamini
 
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
+
+    viennamini::csv                    & csv();
   
   private:
 
