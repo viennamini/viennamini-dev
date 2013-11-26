@@ -34,6 +34,7 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/physics.hpp"
+#include "viennamini/csv.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -162,6 +163,8 @@ public:
     else throw device_not_supported_exception("at: problem::write()"); 
   }
 
+  viennamini::csv& csv() { return csv_; }
+
   std::ostream& stream()
   {
     return stream_;
@@ -170,6 +173,7 @@ public:
 private:
   viennamini::device_handle            device_handle_;
   viennamini::config_handle            config_handle_;
+  viennamini::csv                      csv_;
   std::ostream                       & stream_;
 };
 

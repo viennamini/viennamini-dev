@@ -3,7 +3,7 @@
 #define VIENNAMINI_PHYSICS_HPP
 
 /* =======================================================================
-   Copyright (c) 2011, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
                  ViennaMini - The Vienna Device Simulator
