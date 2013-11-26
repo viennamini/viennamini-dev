@@ -63,15 +63,18 @@ namespace viennamini
 
     void                                 set_problem(viennamini::problem* active_problem);
 
-    void                                 write(std::string const filename);
+    void                                 set_output_filename_prefix(std::string const prefix);
   
   private:
+
+    void                                 run_impl(std::size_t step_id);
 
     viennamini::device_handle            device_handle_;
     viennamini::config_handle            config_handle_;
     viennamini::stepper                  stepper_;
     viennamini::problem                * problem_;
     std::ostream                       & stream_;
+    std::string                          output_file_prefix_;
     
     bool device_changed_;
     bool config_changed_;

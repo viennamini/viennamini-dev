@@ -59,11 +59,12 @@ int main()
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().problem()                            = viennamini::id::laplace();
-  mysim.config().write_initial_guesses()              = true;
+  mysim.config().write_initial_guess_files()          = true;
+  mysim.config().write_result_files()                 = true;
+
+  mysim.set_output_filename_prefix("nin2d_laplace");
 
   mysim.run();
-  
-  mysim.write("nin2d_laplace_result");
 
   std::cout << "****************************************************" << std::endl;
   std::cout << "* NIN 2D Laplace simulation finished successfully! *" << std::endl;

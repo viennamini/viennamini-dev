@@ -26,27 +26,35 @@ class stepper
 {
 private:
   typedef std::vector<numeric>                ValuesType;
-  typedef std::map<std::size_t, ValuesType>   SegmentValuesType;
-  typedef std::vector< std::vector< std::pair< std::size_t, numeric> > >  StepValuesType;
+  typedef std::pair< std::size_t, numeric>    StepEntryType;
+  typedef std::vector< StepEntryType >        StepSetupType;
+  typedef std::vector< StepSetupType >        StepValuesType;
 
 public:
   typedef ValuesType                          values_type;
-  typedef SegmentValuesType                   segment_values_type;
+  typedef StepEntryType                       step_entry_type;
+  typedef StepSetupType                       step_setup_type;
+  typedef StepValuesType                      step_values_type;
 
-  stepper                           (viennamini::device_handle& device);
+  stepper                                           (viennamini::device_handle& device);
 
-  void         add                  (std::size_t segment_index, numeric const& start, numeric const& end, numeric const& delta);
-  values_type  compute_value_range  (numeric const& start, numeric const& end, numeric const& delta);
-  void         update               ();
-  bool         apply_next           ();
-  void         write                (std::ostream& stream = std::cout);
-  std::size_t  size                 ();
-  bool         empty                ();
+  void              add                             (std::size_t segment_index, numeric const& start, numeric const& end, numeric const& delta);
+  values_type       compute_value_range             (numeric const& start, numeric const& end, numeric const& delta);
+  void              update                          ();
+  bool              apply_next                      ();
+  std::size_t       get_current_step_id             ();
+  step_setup_type&  get_step_setup                  (std::size_t step_id);
+  step_setup_type&  get_current_step_setup          ();
+  std::string       get_current_step_setup_string   ();
+  std::string       get_step_setup_string(          std::size_t step_id);
+  void              write                           (std::ostream& stream = std::cout);
+  std::size_t       size                            ();
+  bool              empty                           ();
 
 private:
   viennamini::device_handle&  device_;
-  SegmentValuesType           segment_values_;
   StepValuesType              step_values_;
+  StepValuesType::iterator    current_step_;
 };
 
 } // viennamini

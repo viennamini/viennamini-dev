@@ -42,8 +42,6 @@ int main()
   viennamini::config_handle & myconfig = device_generator->config();
   viennamini::device_handle & mydevice = device_generator->device();
 
-  mydevice->write("capacitor1d_device");
-
   // setup a simulator object and link to a material file
   //
   viennamini::simulator   mysim;
@@ -53,13 +51,14 @@ int main()
   mysim.set_device(mydevice);
   mysim.set_config(myconfig);
   
+  // write the simulation results to output files
+  //
+  mysim.set_output_filename_prefix("capacitor1d_result");  
+  
   // perform the simulation
   //
   mysim.run();
 
-  // write the simulation result to VTK files
-  //
-  mysim.write("capacitor1d_result");
   return 0;
 }
 

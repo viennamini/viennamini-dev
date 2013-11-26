@@ -44,7 +44,8 @@ struct config
   NumericType&  linear_breaktol();
   NumericType&  damping();
   IndexType&    initial_guess_smoothing_iterations();
-  bool&         write_initial_guesses();
+  bool&         write_initial_guess_files();
+  bool&         write_result_files();
   std::string&  problem();
   std::ostream& stream();
   
@@ -58,6 +59,7 @@ private:
   NumericType       damping_;
   std::string       problem_;
   bool              write_initial_guesses_;
+  bool              write_simulation_results_;
   std::ostream&     stream_;
 };
 

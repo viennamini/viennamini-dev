@@ -14,6 +14,7 @@
 
 
 #include "viennamini/simulator.hpp"
+#include "viennamini/utils/convert.hpp"
 #include "viennamini/problems/poisson_dd-np.hpp"
 #include "viennamini/problems/laplace.hpp"
 
@@ -26,6 +27,7 @@ simulator::simulator(std::ostream& stream) :
   stepper_         (device_handle_),
   problem_         (NULL),
   stream_          (stream),
+  output_file_prefix_("output"),
   device_changed_  (true),
   config_changed_  (true),
   manual_problem_  (false)
@@ -100,37 +102,60 @@ void simulator::run()
 
   if(config_changed_ || device_changed_)
   {
-    if(manual_problem_)
+    if(stepper().empty())
     {
-    #ifdef VIENNAMINI_VERBOSE
-      stream() << "[Simulator] processing manual problem .."  << std::endl;
-    #endif
+      this->run_impl(0);
+      
+      if(config().write_result_files())
+        problem_->write(output_file_prefix_);
+    }
+    else 
+    {
+      // resize the device's problem description container?!
+    
+      while(stepper().apply_next())
+      {
+        this->run_impl(stepper().get_current_step_id());
+        
+        if(config().write_result_files())
+          problem_->write(output_file_prefix_+"_"+stepper().get_current_step_setup_string());
+      }
+    }
+  }
+}
+
+void simulator::run_impl(std::size_t step_id)
+{
+  if(manual_problem_)
+  {
+  #ifdef VIENNAMINI_VERBOSE
+    stream() << "[Simulator] processing manual problem .."  << std::endl;
+  #endif
+    problem_->set(this->device_handle(), this->config_handle());
+    problem_->run();
+  }
+  else
+  {
+  #ifdef VIENNAMINI_VERBOSE
+    stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+  #endif
+    if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+    {
+      if(problem_) delete problem_;
+      problem_ = new viennamini::problem_poisson_dd_np(this->stream());
       problem_->set(this->device_handle(), this->config_handle());
       problem_->run();
     }
     else
+    if(config().problem() == viennamini::id::laplace())
     {
-    #ifdef VIENNAMINI_VERBOSE
-      stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
-    #endif
-      if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
-      {
-        if(problem_) delete problem_;
-        problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-        problem_->set(this->device_handle(), this->config_handle());
-        problem_->run();
-      }
-      else
-      if(config().problem() == viennamini::id::laplace())
-      {
 
-        if(problem_) delete problem_;
-        problem_ = new viennamini::problem_laplace(this->stream());
-        problem_->set(this->device_handle(), this->config_handle());
-        problem_->run();
-      }
-      else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
+      if(problem_) delete problem_;
+      problem_ = new viennamini::problem_laplace(this->stream());
+      problem_->set(this->device_handle(), this->config_handle());
+      problem_->run();
     }
+    else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
   }
 }
 
@@ -144,9 +169,9 @@ std::ostream& simulator::stream()
   return stream_;
 }
 
-void simulator::write(std::string const filename)
+void simulator::set_output_filename_prefix(std::string const prefix)
 {
-  if(problem_) problem_->write(filename);
+  output_file_prefix_ = prefix;
 }
 
 } // viennamini

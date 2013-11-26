@@ -123,7 +123,7 @@ struct problem_poisson : public problem
     
     viennafvm::pde_solver pde_solver;
 
-    if(config().write_initial_guesses())
+    if(config().write_initial_guess_files())
       this->write("initial");
 
   #ifdef VIENNAMINI_VERBOSE
@@ -175,7 +175,8 @@ void setup_simulation(viennamini::simulator&  mysim)
   mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().write_initial_guesses()              = true;
+  mysim.config().write_initial_guess_files()          = true;
+  mysim.config().write_result_files()                 = true;
 
 }
 
@@ -193,12 +194,15 @@ int main()
   mysim.set_problem(new viennamini::problem_poisson(mysim.stream()));
 
   //
+  // set the name of the output file, ViennaMini might add some additional to the end data
+  //
+  mysim.set_output_filename_prefix("new_problem_result");
+
+  //
   // run the simulation
   //
   mysim.run();
   
-  mysim.write("new_problem_result");
-
   std::cout << "*************************************************" << std::endl;
   std::cout << "* New Problem simulation finished successfully! *" << std::endl;
   std::cout << "*************************************************" << std::endl;

@@ -91,11 +91,12 @@ int main(int argc, char* argv[])
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
   mysim.config().initial_guess_smoothing_iterations() = 4;
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
-  mysim.config().write_initial_guesses()              = true;
+  mysim.config().write_initial_guess_files()          = true;
+  mysim.config().write_result_files()                 = true;
+
+  mysim.set_output_filename_prefix("trigate3d_dd_np_result");  
 
   mysim.run();
-  
-  mysim.write("trigate3d_dd_np_result");
 
   std::cout << "***********************************************************" << std::endl;
   std::cout << "* TRIGATE 3D DD Bipolar simulation finished successfully! *" << std::endl;

@@ -48,14 +48,15 @@ int main()
   //
   mysim.set_device(mydevice);
   mysim.set_config(myconfig);
+
+  // write the simulation results to output files
+  //
+  mysim.set_output_filename_prefix("capacitor2d_result");  
   
   // perform the simulation
   //
   mysim.run();
 
-  // write the simulation result to VTK files
-  //
-  mysim.write("capacitor2d_result");
   return 0;
 }
 

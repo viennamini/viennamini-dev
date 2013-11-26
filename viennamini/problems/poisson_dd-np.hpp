@@ -429,7 +429,7 @@ struct problem_poisson_dd_np : public problem
     pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
     pde_solver.set_damping(config().damping());
 
-    if(config().write_initial_guesses())
+    if(config().write_initial_guess_files())
       this->write("initial");
 
   #ifdef VIENNAMINI_VERBOSE

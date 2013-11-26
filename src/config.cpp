@@ -28,7 +28,8 @@ config::config(std::ostream& stream) : stream_(stream)
   damping_                             = 1.0;
   initial_guess_smoothing_iterations_  = 0;
   problem_                             = "";
-  write_initial_guesses_               = false;
+  write_initial_guesses_               = true;
+  write_simulation_results_            = true;
 }
 
 
@@ -67,9 +68,14 @@ config::IndexType&    config::initial_guess_smoothing_iterations()
   return initial_guess_smoothing_iterations_;
 }
 
-bool& config::write_initial_guesses()
+bool& config::write_initial_guess_files()
 {
   return write_initial_guesses_;
+}
+
+bool& config::write_result_files()
+{
+  return write_simulation_results_;
 }
 
 std::string& config::problem()

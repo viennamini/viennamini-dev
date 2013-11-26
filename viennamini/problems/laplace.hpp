@@ -122,7 +122,7 @@ struct problem_laplace : public problem
     
     viennafvm::pde_solver pde_solver;
 
-    if(config().write_initial_guesses())
+    if(config().write_initial_guess_files())
       this->write("initial");
 
   #ifdef VIENNAMINI_VERBOSE

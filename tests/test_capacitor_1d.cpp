@@ -121,7 +121,7 @@ struct test_driver
     {
       std::stringstream sstr;
       sstr << cnt;
-      mysim.write("capacitor2d_test_"+sstr.str());
+      mysim.set_output_filename_prefix("capacitor1d_test_"+sstr.str());
     }
   }
   
