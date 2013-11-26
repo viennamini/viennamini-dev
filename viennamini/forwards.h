@@ -221,6 +221,11 @@ namespace viennamini
   typedef ::viennagrid::result_of::segmentation<mesh_triangular_2d>::type                                         segmentation_triangular_2d;
   typedef ::viennagrid::result_of::segmentation<mesh_tetrahedral_3d>::type                                        segmentation_tetrahedral_3d;
 
+  typedef segmentation_line_1d::segment_handle_type                                                               segment_line_1d;
+  typedef segmentation_triangular_2d::segment_handle_type                                                         segment_triangular_2d;
+  typedef segmentation_tetrahedral_3d::segment_handle_type                                                        segment_tetrahedral_3d;
+
+
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_line_1d,  viennamini::segmentation_line_1d>               segmesh_line_1d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>   segmesh_triangular_2d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>  segmesh_tetrahedral_3d;

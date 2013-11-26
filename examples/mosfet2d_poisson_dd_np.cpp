@@ -108,8 +108,6 @@ int main()
   //
 //  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
 //  mysim.stepper().add(drain_contact, 0.0, 0.3, 0.1);
-  
-  
 
   mysim.set_output_filename_prefix("mosfet2d_dd_np_result");
 

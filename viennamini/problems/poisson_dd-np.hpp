@@ -16,6 +16,7 @@
 ======================================================================= */
 
 #include "viennamini/problem.hpp"
+#include "viennamini/post_processing.hpp"
 
 namespace viennamini {
 
@@ -478,10 +479,61 @@ struct problem_poisson_dd_np : public problem
   #endif
 
     pde_solver(problem_description, pde_system, linear_solver);
+    
+    // -------------------------------------------------------------------------
+    //
+    // Post Processing
+    //
+    // -------------------------------------------------------------------------
+    
+    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+        sit != segmesh.segmentation.end(); ++sit)
+    {
+      std::size_t current_segment_index = sit->id();
+      if(device().is_contact(current_segment_index))
+      {
+        if(device().is_contact_at_semiconductor(current_segment_index))
+        {
+          std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
+          
+          std::cout << "Segment: " << current_segment_index << " Current: " << 
+            get_terminal_current(segmesh.segmentation[current_segment_index],
+                                 segmesh.segmentation[adjacent_semiconductor_segment_index],
+                                 electron_density, 
+                                 hole_density) << std::endl;
+        }
+        else
+        if(device().is_contact_at_oxide(current_segment_index))
+        {
+//          std::size_t adjacent_oxide_segment_index = device().get_adjacent_oxide_segment_for_contact(current_segment_index);
+        }
+        else throw segment_undefined_contact_exception(current_segment_index);
+      }
+    }
   }
 };
 
 } // viennamini
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
