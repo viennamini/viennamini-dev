@@ -35,7 +35,7 @@ struct config
   typedef ValuesType        values_type;
   typedef SegmentValuesType segmentvalues_type;
 
-  config();
+  config(std::ostream& stream = std::cout);
 
   NumericType&  temperature();
   IndexType&    nonlinear_iterations();
@@ -45,8 +45,9 @@ struct config
   NumericType&  damping();
   IndexType&    initial_guess_smoothing_iterations();
   bool&         write_initial_guesses();
-  std::string& problem();
-
+  std::string&  problem();
+  std::ostream& stream();
+  
 private:
   IndexType         nonlinear_iterations_;
   IndexType         linear_iterations_;
@@ -55,10 +56,9 @@ private:
   NumericType       nonlinear_breaktol_;
   NumericType       linear_breaktol_;
   NumericType       damping_;
-//  SegmentValuesType segment_contact_values_;
-//  SegmentValuesType segment_contact_workfunctions_;
   std::string       problem_;
   bool              write_initial_guesses_;
+  std::ostream&     stream_;
 };
 
 

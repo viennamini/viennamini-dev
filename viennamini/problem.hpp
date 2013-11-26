@@ -38,8 +38,11 @@
 #include <boost/lexical_cast.hpp>
 
 
-#define VIENNAMINI_PROBLEM \
+#define VIENNAMINI_PROBLEM(classname) \
 public: \
+\
+  classname(std::ostream& stream) : viennamini::problem(stream) {} \
+\
   void run() \
   {\
     if(device().is_line1d()) \
@@ -97,7 +100,7 @@ public:
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
 
-  problem() 
+  problem(std::ostream& stream = std::cout) : stream_(stream)
   {
   }
 
@@ -150,10 +153,16 @@ public:
     }
     else throw device_not_supported_exception("at: problem::write()"); 
   }
-  
+
+  std::ostream& stream()
+  {
+    return stream_;
+  }
+
 private:
-    viennamini::device_handle            device_handle_;
-    viennamini::config_handle            config_handle_;
+  viennamini::device_handle            device_handle_;
+  viennamini::config_handle            config_handle_;
+  std::ostream                       & stream_;
 };
 
 } // viennamini

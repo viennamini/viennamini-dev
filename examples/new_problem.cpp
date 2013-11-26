@@ -22,9 +22,8 @@ namespace viennamini {
 
 struct problem_poisson : public problem
 {
-  VIENNAMINI_PROBLEM
+  VIENNAMINI_PROBLEM(problem_poisson)
 
-  
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
   void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
   {
@@ -54,10 +53,10 @@ struct problem_poisson : public problem
       std::size_t current_segment_index = sit->id();
 
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << std::endl;
-      std::cout << "[Problem][Poisson] Processing segment " << current_segment_index << std::endl;
-      std::cout << "  Name:     \"" << device().get_name(current_segment_index) << "\"" << std::endl;
-      std::cout << "  Material: \"" << device().get_material(current_segment_index) << "\"" << std::endl;
+      stream() << std::endl;
+      stream() << "[Problem][Poisson] Processing segment " << current_segment_index << std::endl;
+      stream() << "  Name:     \"" << device().get_name(current_segment_index) << "\"" << std::endl;
+      stream() << "  Material: \"" << device().get_material(current_segment_index) << "\"" << std::endl;
     #endif
 
       if(device().is_contact(current_segment_index))
@@ -65,14 +64,14 @@ struct problem_poisson : public problem
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "  identified as a contact next to a semiconductor .." << std::endl;
+          stream() << "  identified as a contact next to a semiconductor .." << std::endl;
         #endif
         }
         else
         if(device().is_contact_at_oxide(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "  identified as a contact next to an oxide .." << std::endl;
+          stream() << "  identified as a contact next to an oxide .." << std::endl;
         #endif
         }
         else throw segment_undefined_contact_exception(current_segment_index);
@@ -81,7 +80,7 @@ struct problem_poisson : public problem
       if(device().is_oxide(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "  identified as an oxide .." << std::endl;
+        stream() << "  identified as an oxide .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
@@ -89,7 +88,7 @@ struct problem_poisson : public problem
       if(device().is_semiconductor(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "  identified as a semiconductor .." << std::endl;
+        stream() << "  identified as a semiconductor .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
@@ -128,9 +127,9 @@ struct problem_poisson : public problem
       this->write("initial");
 
   #ifdef VIENNAMINI_VERBOSE
-    std::cout << std::endl;
-    std::cout << "[Problem][Laplace] solving .. " << std::endl;
-    std::cout << std::endl;
+    stream() << std::endl;
+    stream() << "[Problem][Poisson] solving .. " << std::endl;
+    stream() << std::endl;
   #endif
 
     pde_solver(problem_description, pde_system, linear_solver);
@@ -185,13 +184,13 @@ int main()
   //
   // prepare the simulator object and setup some example device 
   //
-  viennamini::simulator  mysim;
+  viennamini::simulator  mysim(std::cout);
   setup_simulation(mysim);
 
   //
   // instantiate the new 'Poisson' problem and pass it on to the simulator 
   //
-  mysim.set_problem(new viennamini::problem_poisson());
+  mysim.set_problem(new viennamini::problem_poisson(mysim.stream()));
 
   //
   // run the simulation

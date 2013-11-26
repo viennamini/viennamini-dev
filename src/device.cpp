@@ -55,7 +55,7 @@ struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
   bool operator()(T & ptr) const { return false; }
 };
 
-device::device() :   matlib_()
+device::device(std::ostream& stream) :   matlib_(), stream_(stream)
 {
 }
 
@@ -397,7 +397,7 @@ std::string device::get_material(int segment_index)
 void device::set_contact_potential(int segment_index, viennamini::numeric potential)
 {
 #ifdef VIENNAMINI_VERBOSE
-  std::cout << "[Device][Segment "<< segment_index << "] setting contact potential " << potential << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] setting contact potential " << potential << std::endl;
 #endif
   if(this->is_line1d())
   {
@@ -425,7 +425,7 @@ void device::set_contact_potential(int segment_index, viennamini::numeric potent
 void device::add_contact_workfunction(int segment_index, viennamini::numeric potential)
 {
 #ifdef VIENNAMINI_VERBOSE
-  std::cout << "[Device][Segment "<< segment_index << "] adding workfunction " << potential << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] adding workfunction " << potential << std::endl;
 #endif
   if(this->is_line1d())
   {
@@ -453,7 +453,7 @@ void device::add_contact_workfunction(int segment_index, viennamini::numeric pot
 void device::set_permittivity(int segment_index, viennamini::numeric epsr)
 {
 #ifdef VIENNAMINI_VERBOSE
-  std::cout << "[Device][Segment "<< segment_index << "] setting epsr " << epsr << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] setting epsr " << epsr << std::endl;
 #endif
   if(epsr == 0.0) throw epsr_is_zero_exception("at: device::set_permittivity()");
 
@@ -483,7 +483,7 @@ void device::set_permittivity(int segment_index, viennamini::numeric epsr)
 void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
 {
 #ifdef VIENNAMINI_VERBOSE
-  std::cout << "[Device][Segment "<< segment_index << "] setting NA " << NA << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] setting NA " << NA << std::endl;
 #endif
   segment_acceptor_doping_[segment_index] = NA;
 
@@ -513,7 +513,7 @@ void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
 void device::set_donator_doping(int segment_index, viennamini::numeric ND)
 {
 #ifdef VIENNAMINI_VERBOSE
-  std::cout << "[Device][Segment "<< segment_index << "] setting ND " << ND << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] setting ND " << ND << std::endl;
 #endif
   segment_donator_doping_[segment_index] = ND;
 
@@ -640,6 +640,11 @@ viennamaterials::accessor_handle& device::matlib_parameter()
 viennamaterials::accessor_handle& device::matlib_data()
 {
   return matlib_data_;
+}
+
+std::ostream& device::stream()
+{
+  return stream_;
 }
 
 } // viennamini

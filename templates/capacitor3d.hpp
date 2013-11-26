@@ -111,7 +111,8 @@ private:
   typedef viennagrid::result_of::plc_handle<MeshType>::type             MeshPLCHandleType;
 
 public:
-  capacitor3d(std::string const& material_library_file) : viennamini::device_template(material_library_file)
+  capacitor3d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+    : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0, 0.0);
     geometry_properties()["P2"]   = point_type(3.0, 0.0, 0.0);
@@ -172,8 +173,8 @@ public:
     device_.reset();
     config_.reset();
 
-    device_  = viennamini::device_handle(new viennamini::device());
-    config_  = viennamini::config_handle(new viennamini::config());
+    device_  = viennamini::device_handle(new viennamini::device(this->stream()));
+    config_  = viennamini::config_handle(new viennamini::config(this->stream()));
 
     device_->make_tetrahedral3d();
     device_->read_material_library(material_library_file_);
@@ -470,19 +471,19 @@ private:
     // Compute seed points for each segment
     //
     MeshPointType seed_point_segment_1 = get_seed_point( mesh, plcs.begin()+0, plcs.begin()+6 );
-    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
+//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
   
     MeshPointType seed_point_segment_2 = get_seed_point( mesh, plcs.begin()+5, plcs.begin()+11 );
-    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
+//    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
     MeshPointType seed_point_segment_3 = get_seed_point( mesh, plcs.begin()+10, plcs.begin()+16 );
-    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
+//    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
     MeshPointType seed_point_segment_4 = get_seed_point( mesh, plcs.begin()+15, plcs.begin()+21 );
-    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
+//    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
     MeshPointType seed_point_segment_5 = get_seed_point( mesh, plcs.begin()+20, plcs.begin()+26 );
-    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
+//    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
 
     viennamesh::seed_point_3d_container seed_points;
     seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
@@ -504,7 +505,7 @@ private:
     if(!mesher_->run())
     {
       // TODO provide exception
-      std::cout << "Error: Meshing failed" << std::endl;
+      stream() << "Error: Meshing failed" << std::endl;
       exit(-1);
     }
   }

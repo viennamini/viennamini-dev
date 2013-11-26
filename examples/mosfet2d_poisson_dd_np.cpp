@@ -18,7 +18,7 @@
 
 int main()
 {
-  viennamini::simulator  mysim;
+  viennamini::simulator  mysim(std::cout);
 
   mysim.device().read(viennamini::device_collection_path()+"/mosfet2d/mosfet2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");

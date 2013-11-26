@@ -30,7 +30,8 @@ private:
   typedef viennagrid::result_of::vertex_handle<MeshType>::type      MeshVertexHandleType;
 
 public:
-  capacitor1d(std::string const& material_library_file) : viennamini::device_template(material_library_file)
+  capacitor1d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+    : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["C11"]  = point_type(-0.5);
     geometry_properties()["C1"]   = point_type(0.0);
@@ -64,8 +65,8 @@ public:
     device_.reset();
     config_.reset();
 
-    device_  = viennamini::device_handle(new viennamini::device());
-    config_  = viennamini::config_handle(new viennamini::config());
+    device_  = viennamini::device_handle(new viennamini::device(this->stream()));
+    config_  = viennamini::config_handle(new viennamini::config(this->stream()));
 
     device_->make_line1d();
     device_->read_material_library(material_library_file_);
@@ -121,7 +122,7 @@ private:
     if(!mesher_->run())
     {
       // TODO provide exception
-      std::cout << "Error: Meshing failed" << std::endl;
+      stream() << "Error: Meshing failed" << std::endl;
       exit(-1);
     }
   }
@@ -137,7 +138,7 @@ private:
     if(!seed_point_locator->run())
     {
       // TODO provide exception
-      std::cout << "Error: Seed point locator failed" << std::endl;
+      stream() << "Error: Seed point locator failed" << std::endl;
       exit(-1);
     }
     
@@ -147,7 +148,7 @@ private:
     if(point_container().size() != 1)
     {
       // TODO provide exception
-      std::cout << "Error: More than one seed point computed" << std::endl;
+      stream() << "Error: More than one seed point computed" << std::endl;
       exit(-1);
     }
     

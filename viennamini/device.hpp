@@ -73,7 +73,7 @@ namespace viennamini
     typedef IndexMapType                                                                   index_map_type;
     typedef IndexKeysType                                                                  index_keys_type;
 
-    device();
+    device(std::ostream& stream = std::cout);
 
     void make_line1d();
     void make_triangular2d();
@@ -155,6 +155,8 @@ namespace viennamini
     viennamaterials::accessor_handle&  matlib_parameter();
     viennamaterials::accessor_handle&  matlib_data();
 
+    std::ostream & stream();
+
   private:
     GenericMeshType               generic_mesh_;
     GenericProblemDescriptionType generic_problem_description_;
@@ -181,6 +183,8 @@ namespace viennamini
     viennamaterials::accessor_handle matlib_model_;
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
+    
+    std::ostream& stream_;
   };
 
 

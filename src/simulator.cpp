@@ -20,11 +20,12 @@
 namespace viennamini
 {
 
-simulator::simulator() : 
-  device_handle_   (new viennamini::device()),
-  config_handle_   (new viennamini::config()), 
+simulator::simulator(std::ostream& stream) : 
+  device_handle_   (new viennamini::device(stream)),
+  config_handle_   (new viennamini::config(stream)), 
   stepper_         (device_handle_),
   problem_         (NULL),
+  stream_          (stream),
   device_changed_  (true),
   config_changed_  (true),
   manual_problem_  (false)
@@ -92,7 +93,7 @@ void simulator::run()
   if(device_changed_)
   {
   #ifdef VIENNAMINI_VERBOSE
-    std::cout << "[Simulator] device has changed, updating .."  << std::endl;
+    stream() << "[Simulator] device has changed, updating .."  << std::endl;
   #endif
     device().update();
   }
@@ -102,7 +103,7 @@ void simulator::run()
     if(manual_problem_)
     {
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << "[Simulator] processing manual problem .."  << std::endl;
+      stream() << "[Simulator] processing manual problem .."  << std::endl;
     #endif
       problem_->set(this->device_handle(), this->config_handle());
       problem_->run();
@@ -110,12 +111,12 @@ void simulator::run()
     else
     {
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+      stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
     #endif
       if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
       {
         if(problem_) delete problem_;
-        problem_ = new viennamini::problem_poisson_dd_np();
+        problem_ = new viennamini::problem_poisson_dd_np(this->stream());
         problem_->set(this->device_handle(), this->config_handle());
         problem_->run();
       }
@@ -124,7 +125,7 @@ void simulator::run()
       {
 
         if(problem_) delete problem_;
-        problem_ = new viennamini::problem_laplace();
+        problem_ = new viennamini::problem_laplace(this->stream());
         problem_->set(this->device_handle(), this->config_handle());
         problem_->run();
       }
@@ -136,6 +137,11 @@ void simulator::run()
 viennamini::stepper& simulator::stepper()
 {
   return stepper_;
+}
+
+std::ostream& simulator::stream()
+{
+  return stream_;
 }
 
 void simulator::write(std::string const filename)

@@ -18,7 +18,7 @@
 
 namespace viennamini {
 
-config::config()
+config::config(std::ostream& stream) : stream_(stream)
 {
   temperature_                         = 300.0;
   nonlinear_iterations_                = 100;
@@ -76,5 +76,11 @@ std::string& config::problem()
 {
   return problem_;
 }
+
+std::ostream& config::stream()
+{
+  return stream_;
+}
+
 } // viennamini
 

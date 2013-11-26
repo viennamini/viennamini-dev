@@ -21,7 +21,7 @@ namespace viennamini {
 
 struct problem_poisson_dd_np : public problem
 {
-  VIENNAMINI_PROBLEM
+  VIENNAMINI_PROBLEM(problem_poisson_dd_np)
   
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
   void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
@@ -76,10 +76,10 @@ struct problem_poisson_dd_np : public problem
       std::string name     = device().get_name(current_segment_index);
 
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << std::endl;
-      std::cout << "[Problem][PoissonDD NP] Processing segment " << current_segment_index << std::endl;
-      std::cout << "  Name:     \"" << name << "\"" << std::endl;
-      std::cout << "  Material: \"" << material << "\"" << std::endl;
+      stream() << std::endl;
+      stream() << "[Problem][PoissonDD NP] Processing segment " << current_segment_index << std::endl;
+      stream() << "  Name:     \"" << name << "\"" << std::endl;
+      stream() << "  Material: \"" << material << "\"" << std::endl;
     #endif
       
       //
@@ -97,7 +97,7 @@ struct problem_poisson_dd_np : public problem
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "  identified as a contact next to a semiconductor .." << std::endl;
+          stream() << "  identified as a contact next to a semiconductor .." << std::endl;
         #endif
           std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
           NumericType ND_value    = device().get_donator_doping(adjacent_semiconductor_segment_index);
@@ -113,10 +113,10 @@ struct problem_poisson_dd_np : public problem
           NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config().temperature(), ni_value);
         
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "  ND:      " << ND_value << std::endl;
-          std::cout << "  NA:      " << NA_value << std::endl;
-          std::cout << "  ni:      " << ni_value << std::endl;
-          std::cout << "  builtin: " << builtin_pot << std::endl;
+          stream() << "  ND:      " << ND_value << std::endl;
+          stream() << "  NA:      " << NA_value << std::endl;
+          stream() << "  ni:      " << ni_value << std::endl;
+          stream() << "  builtin: " << builtin_pot << std::endl;
         #endif
 
           // add the builtin potential to the dirichlet potential boundary
@@ -134,7 +134,7 @@ struct problem_poisson_dd_np : public problem
         if(device().is_contact_at_oxide(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "  identified as a contact next to an oxide .." << std::endl;
+          stream() << "  identified as a contact next to an oxide .." << std::endl;
         #endif
         }
         else throw segment_undefined_contact_exception(current_segment_index);
@@ -143,7 +143,7 @@ struct problem_poisson_dd_np : public problem
       if(device().is_oxide(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "  identified as an oxide .." << std::endl;
+        stream() << "  identified as an oxide .." << std::endl;
       #endif
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
       }
@@ -151,7 +151,7 @@ struct problem_poisson_dd_np : public problem
       if(device().is_semiconductor(current_segment_index))
       {
       #ifdef VIENNAMINI_VERBOSE
-        std::cout << "  identified as a semiconductor .." << std::endl;
+        stream() << "  identified as a semiconductor .." << std::endl;
       #endif
       
         NumericType ni_value    = device().material_library()->query_value(
@@ -189,19 +189,19 @@ struct problem_poisson_dd_np : public problem
         if(device().get_mobility(current_segment_index) == mobility::base)
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    using base mobilities: " << std::endl;
+          stream() << "    using base mobilities: " << std::endl;
         #endif
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_0_value); 
           viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_0_value); 
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
+          stream() << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
         #endif
         }
         else
         if(device().get_mobility(current_segment_index) == mobility::lattice)
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    activating lattice scattering mobility model .." << std::endl;
+          stream() << "    activating lattice scattering mobility model .." << std::endl;
         #endif
           NumericType alpha_n_value    = device().material_library()->query_value(
             vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
@@ -218,8 +218,8 @@ struct problem_poisson_dd_np : public problem
                              vmat::make_entry(device().matlib_data()     , material::value()))
           );
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
-          std::cout << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
+          stream() << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
+          stream() << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
         #endif
           viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_0_value, alpha_n_value, temperature)); 
           viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_0_value, alpha_p_value, temperature)); 
@@ -228,7 +228,7 @@ struct problem_poisson_dd_np : public problem
         if(device().get_mobility(current_segment_index) == mobility::ionized_impurity)
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    activating ionized impurity scattering mobility model .." << std::endl;
+          stream() << "    activating ionized impurity scattering mobility model .." << std::endl;
         #endif
           NumericType alpha_n_lattice_value    = device().material_library()->query_value(
             vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
@@ -288,9 +288,9 @@ struct problem_poisson_dd_np : public problem
                              vmat::make_entry(device().matlib_data()     , material::value()))
           );
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
-          std::cout << "      mu min n: " << mu_min_n_value << " mu min p: " << mu_min_p_value << std::endl;
-          std::cout << "      N ref n: " << N_ref_n_value << " N ref p: " << N_ref_p_value << std::endl;
+          stream() << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
+          stream() << "      mu min n: " << mu_min_n_value << " mu min p: " << mu_min_p_value << std::endl;
+          stream() << "      N ref n: " << N_ref_n_value << " N ref p: " << N_ref_p_value << std::endl;
         #endif
           
           typedef mobility::lattice_scattering<QuantityType>                            LatticeType;
@@ -310,7 +310,7 @@ struct problem_poisson_dd_np : public problem
         if(device().get_recombination(current_segment_index) == recombination::none)
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    deactivating recombination models .." << std::endl;
+          stream() << "    deactivating recombination models .." << std::endl;
         #endif
           viennafvm::set_initial_value(recombination,     segmesh.segmentation(current_segment_index), 0.0); // switch off
           
@@ -323,7 +323,7 @@ struct problem_poisson_dd_np : public problem
         if(device().get_recombination(current_segment_index) == recombination::srh)
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    activating SRH recombination model .." << std::endl;
+          stream() << "    activating SRH recombination model .." << std::endl;
         #endif
           viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
@@ -362,8 +362,8 @@ struct problem_poisson_dd_np : public problem
           viennafvm::set_initial_value(hole_lifetime,     segmesh.segmentation(current_segment_index), tau_p);
           
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "      tau n 0: " << tau_n_0 << " tau p 0: " << tau_p_0 << std::endl;
-          std::cout << "      N ref n: " << N_ref_n << " N ref p: " << N_ref_p << std::endl;
+          stream() << "      tau n 0: " << tau_n_0 << " tau p 0: " << tau_p_0 << std::endl;
+          stream() << "      N ref n: " << N_ref_n << " N ref p: " << N_ref_p << std::endl;
         #endif
           viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
           viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
@@ -433,9 +433,9 @@ struct problem_poisson_dd_np : public problem
       this->write("initial");
 
   #ifdef VIENNAMINI_VERBOSE
-    std::cout << std::endl;
-    std::cout << "[Problem][PoissonDD NP] solving .. " << std::endl;
-    std::cout << std::endl;
+    stream() << std::endl;
+    stream() << "[Problem][PoissonDD NP] solving .. " << std::endl;
+    stream() << std::endl;
   #endif
 
     pde_solver(problem_description, pde_system, linear_solver);

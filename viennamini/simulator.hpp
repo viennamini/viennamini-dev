@@ -43,7 +43,7 @@ namespace viennamini
   class simulator
   {
   public:
-    simulator();
+    simulator(std::ostream& stream = std::cout);
     ~simulator();
 
     void                                 run();
@@ -59,6 +59,7 @@ namespace viennamini
     viennamini::config_handle          & config_handle();
 
     viennamini::stepper                & stepper();
+    std::ostream                       & stream();
 
     void                                 set_problem(viennamini::problem* active_problem);
 
@@ -70,6 +71,7 @@ namespace viennamini
     viennamini::config_handle            config_handle_;
     viennamini::stepper                  stepper_;
     viennamini::problem                * problem_;
+    std::ostream                       & stream_;
     
     bool device_changed_;
     bool config_changed_;
