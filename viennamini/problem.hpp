@@ -43,16 +43,22 @@ public: \
 \
   classname(std::ostream& stream) : viennamini::problem(stream) {} \
 \
-  void run() \
+  void run(segment_values& current_contact_potentials, segment_values& current_contact_workfunctions, std::size_t step_id) \
   {\
     if(device().is_line1d()) \
-      this->run_impl(device().get_segmesh_line_1d(), device().get_problem_description_line_1d()); \
+    {\
+      this->run_impl(device().get_segmesh_line_1d(), device().get_problem_description_line_1d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+    }\
     else \
     if(device().is_triangular2d()) \
-      this->run_impl(device().get_segmesh_triangular_2d(), device().get_problem_description_triangular_2d()); \
+    {\
+      this->run_impl(device().get_segmesh_triangular_2d(), device().get_problem_description_triangular_2d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+    }\
     else \
     if(device().is_tetrahedral3d()) \
-      this->run_impl(device().get_segmesh_tetrahedral_3d(), device().get_problem_description_tetrahedral_3d()); \
+    {\
+      this->run_impl(device().get_segmesh_tetrahedral_3d(), device().get_problem_description_tetrahedral_3d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+    }\
     else throw device_not_supported_exception("at: problem_laplace::run()"); \
   }
 
@@ -121,14 +127,16 @@ public:
     return *config_handle_;
   }
 
-  virtual void run() = 0;
+  virtual void run(segment_values& current_contact_potentials, 
+                   segment_values& current_contact_workfunctions, 
+                   std::size_t step_id) = 0;
 
-  void write(std::string const& filename)
+  void write(std::string const& filename, std::size_t step_id)
   {
     if(device().is_line1d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_line_1d().quantities(), 
+        device().get_problem_description_line_1d(step_id).quantities(), 
         filename, 
         device().get_segmesh_line_1d().mesh, 
         device().get_segmesh_line_1d().segmentation);
@@ -137,7 +145,7 @@ public:
     if(device().is_triangular2d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_triangular_2d().quantities(), 
+        device().get_problem_description_triangular_2d(step_id).quantities(), 
         filename, 
         device().get_segmesh_triangular_2d().mesh, 
         device().get_segmesh_triangular_2d().segmentation);
@@ -146,7 +154,7 @@ public:
     if(device().is_tetrahedral3d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_tetrahedral_3d().quantities(), 
+        device().get_problem_description_tetrahedral_3d(step_id).quantities(), 
         filename, 
         device().get_segmesh_tetrahedral_3d().mesh, 
         device().get_segmesh_tetrahedral_3d().segmentation);

@@ -25,6 +25,7 @@
 #include "viennamini/device.hpp"
 #include "viennamini/problem.hpp"
 #include "viennamini/stepper.hpp"
+#include "viennamini/utils/convert.hpp"
 
 namespace viennamini
 {
@@ -43,6 +44,7 @@ namespace viennamini
   class simulator
   {
   public:
+  
     simulator(std::ostream& stream = std::cout);
     ~simulator();
 
@@ -61,13 +63,17 @@ namespace viennamini
     viennamini::stepper                & stepper();
     std::ostream                       & stream();
 
-    void                                 set_problem(viennamini::problem* active_problem);
+    viennamini::numeric                & current_contact_potential   (std::size_t segment_index);
+    viennamini::numeric                & current_contact_workfunction(std::size_t segment_index);
 
+    void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
   
   private:
 
+    std::string                          encode_current_boundary_setup(); 
     void                                 run_impl(std::size_t step_id);
+    void                                 resize_problem_description_set();
 
     viennamini::device_handle            device_handle_;
     viennamini::config_handle            config_handle_;
@@ -75,6 +81,9 @@ namespace viennamini
     viennamini::problem                * problem_;
     std::ostream                       & stream_;
     std::string                          output_file_prefix_;
+    
+    segment_values                       current_contact_potentials_;
+    segment_values                       current_contact_workfunctions_;
     
     bool device_changed_;
     bool config_changed_;

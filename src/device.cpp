@@ -61,20 +61,29 @@ device::device(std::ostream& stream) :   matlib_(), stream_(stream)
 
 void device::make_line1d()
 {
-  generic_mesh_                = segmesh_line_1d_ptr(new segmesh_line_1d_ptr::element_type);
-  generic_problem_description_ = problem_description_line_1d(get_segmesh_line_1d().mesh);
+  generic_mesh_                     = segmesh_line_1d_ptr(new segmesh_line_1d_ptr::element_type);
+  
+  generic_problem_description_set_  = problem_description_line_1d_set();
+  this->get_problem_description_line_1d_set().push_back( problem_description_line_1d(get_segmesh_line_1d().mesh) );
+//  generic_problem_description_ = problem_description_line_1d(get_segmesh_line_1d().mesh);
 }
 
 void device::make_triangular2d()
 {
   generic_mesh_                = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
-  generic_problem_description_ = problem_description_triangular_2d(get_segmesh_triangular_2d().mesh);
+
+  generic_problem_description_set_  = problem_description_triangular_2d_set();
+  this->get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(get_segmesh_triangular_2d().mesh) );
+//  generic_problem_description_ = problem_description_triangular_2d(get_segmesh_triangular_2d().mesh);
 }
 
 void device::make_tetrahedral3d()
 {
   generic_mesh_                 = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
-  generic_problem_description_  = problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh);
+
+  generic_problem_description_set_  = problem_description_tetrahedral_3d_set();
+  this->get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh) );
+//  generic_problem_description_  = problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh);
 }
 
 bool device::is_line1d()
@@ -107,19 +116,34 @@ segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
   return *boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
 }
 
-problem_description_line_1d&  device::get_problem_description_line_1d()
+problem_description_line_1d_set&  device::get_problem_description_line_1d_set()
 {
-  return boost::get<problem_description_line_1d>(generic_problem_description_);
+  return boost::get<problem_description_line_1d_set>(generic_problem_description_set_);
 }
 
-problem_description_triangular_2d&  device::get_problem_description_triangular_2d()
+problem_description_triangular_2d_set&  device::get_problem_description_triangular_2d_set()
 {
-  return boost::get<problem_description_triangular_2d>(generic_problem_description_);
+  return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_);
 }
 
-problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_3d()
+problem_description_tetrahedral_3d_set& device::get_problem_description_tetrahedral_3d_set()
 {
-  return boost::get<problem_description_tetrahedral_3d>(generic_problem_description_);
+  return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_);
+}
+
+problem_description_line_1d&  device::get_problem_description_line_1d(std::size_t id)
+{
+  return boost::get<problem_description_line_1d_set>(generic_problem_description_set_)[id];
+}
+
+problem_description_triangular_2d&  device::get_problem_description_triangular_2d(std::size_t id)
+{
+  return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_)[id];
+}
+
+problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_3d(std::size_t id)
+{
+  return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_)[id];
 }
 
 void device::make_contact(int segment_index)
@@ -238,9 +262,9 @@ device::GenericMeshType& device::generic_mesh()
   return generic_mesh_; 
 }
 
-device::GenericProblemDescriptionType & device::generic_problem_description()
+device::GenericProblemDescriptionType & device::generic_problem_description_set()
 {
-  return generic_problem_description_;
+  return generic_problem_description_set_;
 }
 
 material_library_handle & device::material_library()
@@ -394,62 +418,6 @@ std::string device::get_material(int segment_index)
   return segment_materials_[segment_index];
 }
 
-void device::set_contact_potential(int segment_index, viennamini::numeric potential)
-{
-#ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] setting contact potential " << potential << std::endl;
-#endif
-  if(this->is_line1d())
-  {
-    typedef problem_description_line_1d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::potential());
-    viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_line_1d().segmentation(segment_index), potential);
-  }
-  else
-  if(this->is_triangular2d())
-  {
-    typedef problem_description_triangular_2d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::potential());
-    viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), potential);
-  }
-  else
-  if(this->is_tetrahedral3d())
-  {
-    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::potential());
-    viennafvm::set_dirichlet_boundary(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), potential);
-  }
-  else throw device_not_supported_exception("at: device::set_contact_potential()");
-}
-
-void device::add_contact_workfunction(int segment_index, viennamini::numeric potential)
-{
-#ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] adding workfunction " << potential << std::endl;
-#endif
-  if(this->is_line1d())
-  {
-    typedef problem_description_line_1d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::potential());
-    viennafvm::addto_dirichlet_boundary(quan, this->get_segmesh_line_1d().segmentation(segment_index), potential);
-  }
-  else
-  if(this->is_triangular2d())
-  {
-    typedef problem_description_triangular_2d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::potential());
-    viennafvm::addto_dirichlet_boundary(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), potential);
-  }
-  else
-  if(this->is_tetrahedral3d())
-  {
-    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
-    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::potential());
-    viennafvm::addto_dirichlet_boundary(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), potential);
-  }
-  else throw device_not_supported_exception("at: device::add_contact_workfunction()");
-}
-
 void device::set_permittivity(int segment_index, viennamini::numeric epsr)
 {
 #ifdef VIENNAMINI_VERBOSE
@@ -575,7 +543,6 @@ void device::update_problem_description()
   if(this->is_line1d())
   {
     get_problem_description_line_1d().clear_quantities();
-    get_problem_description_line_1d().add_quantity(viennamini::id::potential());
     get_problem_description_line_1d().add_quantity(viennamini::id::permittivity());
     get_problem_description_line_1d().add_quantity(viennamini::id::donator_doping());
     get_problem_description_line_1d().add_quantity(viennamini::id::acceptor_doping());
@@ -584,7 +551,6 @@ void device::update_problem_description()
   if(this->is_triangular2d())
   {
     get_problem_description_triangular_2d().clear_quantities();
-    get_problem_description_triangular_2d().add_quantity(viennamini::id::potential());
     get_problem_description_triangular_2d().add_quantity(viennamini::id::permittivity());
     get_problem_description_triangular_2d().add_quantity(viennamini::id::donator_doping());
     get_problem_description_triangular_2d().add_quantity(viennamini::id::acceptor_doping());
@@ -593,7 +559,6 @@ void device::update_problem_description()
   if(this->is_tetrahedral3d())
   {
     get_problem_description_tetrahedral_3d().clear_quantities();
-    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::potential());
     get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::permittivity());
     get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::donator_doping());
     get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::acceptor_doping());

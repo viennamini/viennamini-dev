@@ -36,7 +36,6 @@ int main()
   mysim.device().make_contact         (left_contact);
   mysim.device().set_name             (left_contact, "left_contact");
   mysim.device().set_material         (left_contact, "Cu");
-  mysim.device().set_contact_potential(left_contact, 0.0);
 
   mysim.device().make_semiconductor   (left);
   mysim.device().set_name             (left, "left");
@@ -65,7 +64,6 @@ int main()
   mysim.device().make_contact         (right_contact);
   mysim.device().set_name             (right_contact, "right_contact");
   mysim.device().set_material         (right_contact, "Cu");
-  mysim.device().set_contact_potential(right_contact, 0.5);
 
   mysim.config().temperature()                        = 300;
   mysim.config().damping()                            = 1.0;
@@ -77,6 +75,9 @@ int main()
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
+
+  mysim.current_contact_potential   (left_contact)   = 0.0;
+  mysim.current_contact_potential   (right_contact) = 0.2;
 
   mysim.set_output_filename_prefix("nin2d_dd_np_result");
 

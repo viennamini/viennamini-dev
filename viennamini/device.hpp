@@ -59,8 +59,8 @@ namespace viennamini
   
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null, segmesh_line_1d_ptr,         segmesh_triangular_2d_ptr,         segmesh_tetrahedral_3d_ptr>         GenericMeshType;
-    typedef boost::variant<null, problem_description_line_1d, problem_description_triangular_2d, problem_description_tetrahedral_3d> GenericProblemDescriptionType;
+    typedef boost::variant<null, segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
+    typedef boost::variant<null, problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
     
     typedef std::vector<std::size_t>                                                       IndicesType;  
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
@@ -87,9 +87,13 @@ namespace viennamini
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
 
-    problem_description_line_1d&        get_problem_description_line_1d();
-    problem_description_triangular_2d&  get_problem_description_triangular_2d();
-    problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d();
+    problem_description_line_1d&        get_problem_description_line_1d        (std::size_t id = 0);
+    problem_description_triangular_2d&  get_problem_description_triangular_2d  (std::size_t id = 0);
+    problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d (std::size_t id = 0);
+    
+    problem_description_line_1d_set&        get_problem_description_line_1d_set        ();
+    problem_description_triangular_2d_set&  get_problem_description_triangular_2d_set  ();
+    problem_description_tetrahedral_3d_set& get_problem_description_tetrahedral_3d_set ();
     
     void make_contact       (int segment_index);
     void make_oxide         (int segment_index);
@@ -107,7 +111,7 @@ namespace viennamini
     void update();
 
     GenericMeshType               & generic_mesh();
-    GenericProblemDescriptionType & generic_problem_description();
+    GenericProblemDescriptionType & generic_problem_description_set();
     material_library_handle       & material_library();
 
 
@@ -126,9 +130,6 @@ namespace viennamini
     std::string get_name          (int segment_index);
     std::string get_material      (int segment_index);
 
-
-    void set_contact_potential    (int segment_index, viennamini::numeric potential);
-    void add_contact_workfunction (int segment_index, viennamini::numeric workfunction);
     void set_permittivity         (int segment_index, viennamini::numeric epsr);
     void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
     void set_donator_doping       (int segment_index, viennamini::numeric ND);
@@ -159,7 +160,7 @@ namespace viennamini
 
   private:
     GenericMeshType               generic_mesh_;
-    GenericProblemDescriptionType generic_problem_description_;
+    GenericProblemDescriptionType generic_problem_description_set_;
 
     IndicesType                contact_segments_indices_;
     IndicesType                oxide_segments_indices_;

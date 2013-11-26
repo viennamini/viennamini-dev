@@ -36,7 +36,7 @@ public:
   typedef StepSetupType                       step_setup_type;
   typedef StepValuesType                      step_values_type;
 
-  stepper                                           (viennamini::device_handle& device);
+  stepper                                           (segment_values& current_contact_potentials);
 
   void              add                             (std::size_t segment_index, numeric const& start, numeric const& end, numeric const& delta);
   values_type       compute_value_range             (numeric const& start, numeric const& end, numeric const& delta);
@@ -45,16 +45,14 @@ public:
   std::size_t       get_current_step_id             ();
   step_setup_type&  get_step_setup                  (std::size_t step_id);
   step_setup_type&  get_current_step_setup          ();
-  std::string       get_current_step_setup_string   ();
-  std::string       get_step_setup_string(          std::size_t step_id);
   void              write                           (std::ostream& stream = std::cout);
   std::size_t       size                            ();
   bool              empty                           ();
 
 private:
-  viennamini::device_handle&  device_;
   StepValuesType              step_values_;
   StepValuesType::iterator    current_step_;
+  segment_values            & current_contact_potentials_; 
 };
 
 } // viennamini

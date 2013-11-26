@@ -36,13 +36,10 @@ int main()
   mysim.device().make_contact             (gate_contact);
   mysim.device().set_name                 (gate_contact, "gate_contact");
   mysim.device().set_material             (gate_contact, "Cu");
-  mysim.device().set_contact_potential    (gate_contact, 0.2);
-  mysim.device().add_contact_workfunction (gate_contact, 0.4);
 
   mysim.device().make_contact           (source_contact);
   mysim.device().set_name               (source_contact, "source_contact");
   mysim.device().set_material           (source_contact, "Cu");
-  mysim.device().set_contact_potential  (source_contact, 0.0);
 
   mysim.device().make_oxide             (oxide);
   mysim.device().set_name               (oxide, "oxide");
@@ -51,7 +48,6 @@ int main()
   mysim.device().make_contact           (drain_contact);
   mysim.device().set_name               (drain_contact, "drain_contact");
   mysim.device().set_material           (drain_contact, "Cu");
-  mysim.device().set_contact_potential  (drain_contact, 0.2);
 
   mysim.device().make_semiconductor     (source);
   mysim.device().set_name               (source, "source");
@@ -83,7 +79,6 @@ int main()
   mysim.device().make_contact           (body_contact);
   mysim.device().set_name               (body_contact, "body_contact");
   mysim.device().set_material           (body_contact, "Cu");
-  mysim.device().set_contact_potential  (body_contact, 0.0);
 
   mysim.config().temperature()                        = 300;
   mysim.config().damping()                            = 1.0;
@@ -96,9 +91,25 @@ int main()
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
 
+  // manually set the contact potentials
+  //
+  mysim.current_contact_workfunction(gate_contact)   = 0.4;
 
-  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
-  mysim.stepper().add(drain_contact, 0.0, 0.3, 0.1);
+  mysim.current_contact_potential   (gate_contact)   = 0.2;
+  mysim.current_contact_potential   (source_contact) = 0.0;
+  mysim.current_contact_potential   (drain_contact)  = 0.2;
+  mysim.current_contact_potential   (body_contact)   = 0.0;
+
+
+  // perform several simulations each with its own boundary setup, 
+  // define such a parameter sweep via the 'stepper', in this case
+  // the gate and drain contacts are driven from 0.0V to 0.2V (0.3V for the drain) 
+  // in 0.1V steps
+  //
+//  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
+//  mysim.stepper().add(drain_contact, 0.0, 0.3, 0.1);
+  
+  
 
   mysim.set_output_filename_prefix("mosfet2d_dd_np_result");
 

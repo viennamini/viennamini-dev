@@ -515,7 +515,6 @@ private:
     device_->make_contact         (1);
     device_->set_name             (1, contact_a_);
     device_->set_material         (1, "Cu");
-    device_->set_contact_potential(1, 1.0);
     
     device_->make_semiconductor   (2);
     device_->set_name             (2, plate_a_);
@@ -532,7 +531,6 @@ private:
     device_->make_contact         (5);
     device_->set_name             (5, contact_b_);
     device_->set_material         (5, "Cu");
-    device_->set_contact_potential(5, 0.0);
   }
   
 

@@ -13,7 +13,6 @@
 ======================================================================= */
 
 #include "viennamini/stepper.hpp"
-#include "viennamini/device.hpp"
 #include "viennamini/utils/convert.hpp"
 
 namespace viennamini {
@@ -26,7 +25,8 @@ public:
 };
 
 
-stepper::stepper(viennamini::device_handle& device) : device_(device)
+stepper::stepper(segment_values& current_contact_potentials) 
+  : current_contact_potentials_(current_contact_potentials)
 {
 }
 
@@ -91,7 +91,8 @@ bool stepper::apply_next()
       iter != current_step_->end(); iter++)
   {
 //    std::cout << "applying " << iter->second << std::endl;
-    device_->set_contact_potential(iter->first, iter->second);
+//    device_->set_contact_potential(iter->first, iter->second);
+    current_contact_potentials_[iter->first] = iter->second;
   }
 
   ++current_step_;
@@ -114,22 +115,22 @@ stepper::step_setup_type&  stepper::get_current_step_setup()
   return this->get_step_setup(this->get_current_step_id());
 }
 
-std::string  stepper::get_current_step_setup_string()
-{
-  return this->get_step_setup_string(this->get_current_step_id());
-}
+//std::string  stepper::get_current_step_setup_string()
+//{
+//  return this->get_step_setup_string(this->get_current_step_id());
+//}
 
-std::string  stepper::get_step_setup_string(std::size_t step_id)
-{
-  std::string result;
-  for(StepSetupType::iterator iter = step_values_[step_id].begin();
-      iter != step_values_[step_id].end(); iter++)
-  {
-    result += device_->get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
-    if((iter+1) != step_values_[step_id].end()) result += "_";
-  }
-  return result;
-}
+//std::string  stepper::get_step_setup_string(std::size_t step_id)
+//{
+//  std::string result;
+//  for(StepSetupType::iterator iter = step_values_[step_id].begin();
+//      iter != step_values_[step_id].end(); iter++)
+//  {
+//    result += device_->get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
+//    if((iter+1) != step_values_[step_id].end()) result += "_";
+//  }
+//  return result;
+//}
 
 void stepper::write(std::ostream& stream)
 {

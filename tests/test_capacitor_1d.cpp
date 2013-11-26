@@ -103,14 +103,14 @@ struct test_driver
     viennamini::config_handle & myconfig = device_generator->config();
     viennamini::device_handle & mydevice = device_generator->device();
 
-    mydevice->set_contact_potential(1, myxlv.v1_);
-    mydevice->set_contact_potential(5, myxlv.v2_);
-
     mydevice->set_permittivity(2, myepsr.epsr1_);
     mydevice->set_permittivity(3, myepsr.epsr2_);
     mydevice->set_permittivity(4, myepsr.epsr3_);
 
     viennamini::simulator   mysim;
+
+    mysim.current_contact_potential(1) = myxlv.v1_;
+    mysim.current_contact_potential(5) = myxlv.v2_;
 
     mysim.set_device(mydevice);
     mysim.set_config(myconfig);

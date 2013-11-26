@@ -59,8 +59,6 @@ int main(int argc, char* argv[])
   mysim.device().make_contact             (gate_contact);
   mysim.device().set_name                 (gate_contact, "gate_contact");
   mysim.device().set_material             (gate_contact, "Cu");
-  mysim.device().set_contact_potential    (gate_contact, 0.2);
-  mysim.device().add_contact_workfunction (gate_contact, 0.4);
 
   mysim.device().make_semiconductor     (body);
   mysim.device().set_name               (body, "body");
@@ -71,17 +69,14 @@ int main(int argc, char* argv[])
   mysim.device().make_contact           (body_contact);
   mysim.device().set_name               (body_contact, "body_contact");
   mysim.device().set_material           (body_contact, "Cu");
-  mysim.device().set_contact_potential  (body_contact, 0.0);
   
   mysim.device().make_contact           (source_contact);
   mysim.device().set_name               (source_contact, "source_contact");
   mysim.device().set_material           (source_contact, "Cu");
-  mysim.device().set_contact_potential  (source_contact, 0.0);
 
   mysim.device().make_contact           (drain_contact);
   mysim.device().set_name               (drain_contact, "drain_contact");
   mysim.device().set_material           (drain_contact, "Cu");
-  mysim.device().set_contact_potential  (drain_contact, 0.2);
 
   mysim.config().temperature()                        = 300;
   mysim.config().damping()                            = 1.0;
@@ -93,6 +88,14 @@ int main(int argc, char* argv[])
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
+
+  // manually set the contact potentials
+  //
+  mysim.current_contact_workfunction(gate_contact)   = 0.4;
+  mysim.current_contact_potential   (gate_contact)   = 0.2;
+  mysim.current_contact_potential   (source_contact) = 0.0;
+  mysim.current_contact_potential   (drain_contact)  = 0.2;
+  mysim.current_contact_potential   (body_contact)   = 0.0;
 
   mysim.set_output_filename_prefix("trigate3d_dd_np_result");  
 

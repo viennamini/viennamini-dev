@@ -21,6 +21,7 @@
 //#include "viennamini/device.hpp"
 
 #include <iostream>
+#include <map>
 
 // ViennaGrid includes
 #include "viennagrid/forwards.hpp"
@@ -210,6 +211,7 @@ namespace viennamini
   //
   
   typedef double                                                                                                  numeric;
+  typedef std::map<std::size_t, numeric>                                                                          segment_values;
 
   typedef ::viennagrid::mesh< viennagrid::config::line_1d >                                                       mesh_line_1d;
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;
@@ -236,6 +238,9 @@ namespace viennamini
   typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;
   typedef ::viennafvm::problem_description<mesh_tetrahedral_3d>                                                   problem_description_tetrahedral_3d;
 
+  typedef std::vector<problem_description_line_1d>                                                                problem_description_line_1d_set;
+  typedef std::vector<problem_description_triangular_2d>                                                          problem_description_triangular_2d_set;
+  typedef std::vector<problem_description_tetrahedral_3d>                                                         problem_description_tetrahedral_3d_set;
 
 
 

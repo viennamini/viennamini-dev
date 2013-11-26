@@ -24,12 +24,17 @@ struct problem_poisson : public problem
 {
   VIENNAMINI_PROBLEM(problem_poisson)
 
-  template<typename SegmentedMeshT, typename ProblemDescriptionT>
-  void run_impl(SegmentedMeshT& segmesh, ProblemDescriptionT& problem_description)
+  template<typename SegmentedMeshT, typename ProblemDescriptionSetT>
+  void run_impl(SegmentedMeshT& segmesh, 
+                ProblemDescriptionSetT& problem_description_set, 
+                segment_values        & current_contact_potentials, 
+                segment_values        & current_contact_workfunctions,
+                std::size_t             step_id)
   {
     typedef typename SegmentedMeshT::mesh_type                MeshType;
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
-    typedef typename ProblemDescriptionT::quantity_type       QuantityType;
+    typedef typename ProblemDescriptionSetT::value_type       ProblemDescriptionType;
+    typedef typename ProblemDescriptionType::quantity_type    QuantityType;
     
 
     // -------------------------------------------------------------------------
@@ -38,8 +43,12 @@ struct problem_poisson : public problem
     //
     // -------------------------------------------------------------------------
     
-    QuantityType & permittivity      = problem_description.get_quantity(viennamini::id::permittivity());
-    QuantityType & potential         = problem_description.get_quantity(viennamini::id::potential());
+    QuantityType & permittivity_initial      = problem_description_set[0].get_quantity(viennamini::id::permittivity());
+    
+    ProblemDescriptionType& problem_description = problem_description_set[step_id];
+    
+    QuantityType & permittivity             = problem_description.add_quantity(permittivity_initial);
+    QuantityType & potential                = problem_description.add_quantity(viennamini::id::potential());
     
     // -------------------------------------------------------------------------
     //
@@ -66,6 +75,16 @@ struct problem_poisson : public problem
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to a semiconductor .." << std::endl;
         #endif
+        #ifdef VIENNAMINI_VERBOSE
+          stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+        #endif
+        
+          // potential dirichlet boundary
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
+            current_contact_potentials[current_segment_index] + 
+            current_contact_workfunctions[current_segment_index]
+          );
         }
         else
         if(device().is_contact_at_oxide(current_segment_index))
@@ -73,6 +92,16 @@ struct problem_poisson : public problem
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to an oxide .." << std::endl;
         #endif
+        #ifdef VIENNAMINI_VERBOSE
+          stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+        #endif
+        
+          // potential dirichlet boundary
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
+            current_contact_potentials[current_segment_index] + 
+            current_contact_workfunctions[current_segment_index]
+          );
         }
         else throw segment_undefined_contact_exception(current_segment_index);
       }
@@ -124,7 +153,7 @@ struct problem_poisson : public problem
     viennafvm::pde_solver pde_solver;
 
     if(config().write_initial_guess_files())
-      this->write("initial");
+      this->write("initial_"+viennamini::convert<std::string>()(step_id), step_id);
 
   #ifdef VIENNAMINI_VERBOSE
     stream() << std::endl;
@@ -153,7 +182,6 @@ void setup_simulation(viennamini::simulator&  mysim)
   mysim.device().make_contact         (left_contact);
   mysim.device().set_name             (left_contact, "left_contact");
   mysim.device().set_material         (left_contact, "Cu");
-  mysim.device().set_contact_potential(left_contact, 0.0);
 
   mysim.device().make_semiconductor   (left);
   mysim.device().set_name             (left, "left");
@@ -170,7 +198,6 @@ void setup_simulation(viennamini::simulator&  mysim)
   mysim.device().make_contact         (right_contact);
   mysim.device().set_name             (right_contact, "right_contact");
   mysim.device().set_material         (right_contact, "Cu");
-  mysim.device().set_contact_potential(right_contact, 0.2);
 
   mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;
@@ -178,6 +205,9 @@ void setup_simulation(viennamini::simulator&  mysim)
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
 
+
+  mysim.current_contact_potential   (left_contact)   = 0.0;
+  mysim.current_contact_potential   (right_contact) = 0.2;
 }
 
 int main()
@@ -202,7 +232,7 @@ int main()
   // run the simulation
   //
   mysim.run();
-  
+
   std::cout << "*************************************************" << std::endl;
   std::cout << "* New Problem simulation finished successfully! *" << std::endl;
   std::cout << "*************************************************" << std::endl;
