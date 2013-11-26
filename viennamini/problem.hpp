@@ -38,20 +38,18 @@
 #include <boost/lexical_cast.hpp>
 
 
-#define VIENNAMINI_PROBLEM(classname) \
+#define VIENNAMINI_PROBLEM \
 public: \
-  classname(viennamini::device& device, viennamini::config& config) : problem (device, config) { } \
-\
   void run() \
   {\
-    if(device_.is_line1d()) \
-      this->run_impl(device_.get_segmesh_line_1d(), device_.get_problem_description_line_1d()); \
+    if(device().is_line1d()) \
+      this->run_impl(device().get_segmesh_line_1d(), device().get_problem_description_line_1d()); \
     else \
-    if(device_.is_triangular2d()) \
-      this->run_impl(device_.get_segmesh_triangular_2d(), device_.get_problem_description_triangular_2d()); \
+    if(device().is_triangular2d()) \
+      this->run_impl(device().get_segmesh_triangular_2d(), device().get_problem_description_triangular_2d()); \
     else \
-    if(device_.is_tetrahedral3d()) \
-      this->run_impl(device_.get_segmesh_tetrahedral_3d(), device_.get_problem_description_tetrahedral_3d()); \
+    if(device().is_tetrahedral3d()) \
+      this->run_impl(device().get_segmesh_tetrahedral_3d(), device().get_problem_description_tetrahedral_3d()); \
     else throw device_not_supported_exception("at: problem_laplace::run()"); \
   }
 
@@ -99,46 +97,63 @@ public:
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
 
-  problem(viennamini::device& device, viennamini::config& config) 
-    : device_(device), config_(config) 
+  problem() 
   {
+  }
+
+  void set(viennamini::device_handle& device_handle, 
+           viennamini::config_handle& config_handle)
+  {
+    device_handle_ = device_handle;
+    config_handle_ = config_handle;
+  }
+
+  viennamini::device & device()
+  {
+    return *device_handle_;
+  }
+
+  viennamini::config & config()
+  {
+    return *config_handle_;
   }
 
   virtual void run() = 0;
 
   void write(std::string const& filename)
   {
-    if(device_.is_line1d())
+    if(device().is_line1d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device_.get_problem_description_line_1d().quantities(), 
+        device().get_problem_description_line_1d().quantities(), 
         filename, 
-        device_.get_segmesh_line_1d().mesh, 
-        device_.get_segmesh_line_1d().segmentation);
+        device().get_segmesh_line_1d().mesh, 
+        device().get_segmesh_line_1d().segmentation);
     }
     else
-    if(device_.is_triangular2d())
+    if(device().is_triangular2d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device_.get_problem_description_triangular_2d().quantities(), 
+        device().get_problem_description_triangular_2d().quantities(), 
         filename, 
-        device_.get_segmesh_triangular_2d().mesh, 
-        device_.get_segmesh_triangular_2d().segmentation);
+        device().get_segmesh_triangular_2d().mesh, 
+        device().get_segmesh_triangular_2d().segmentation);
     }
     else 
-    if(device_.is_tetrahedral3d())
+    if(device().is_tetrahedral3d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device_.get_problem_description_tetrahedral_3d().quantities(), 
+        device().get_problem_description_tetrahedral_3d().quantities(), 
         filename, 
-        device_.get_segmesh_tetrahedral_3d().mesh, 
-        device_.get_segmesh_tetrahedral_3d().segmentation);
+        device().get_segmesh_tetrahedral_3d().mesh, 
+        device().get_segmesh_tetrahedral_3d().segmentation);
     }
     else throw device_not_supported_exception("at: problem::write()"); 
   }
   
-  viennamini::device&           device_;
-  viennamini::config&           config_;
+private:
+    viennamini::device_handle            device_handle_;
+    viennamini::config_handle            config_handle_;
 };
 
 } // viennamini

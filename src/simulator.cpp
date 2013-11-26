@@ -21,12 +21,13 @@ namespace viennamini
 {
 
 simulator::simulator() : 
-  device_          (new viennamini::device()),
-  config_          (new viennamini::config()), 
-  stepper_         (device_),
+  device_handle_   (new viennamini::device()),
+  config_handle_   (new viennamini::config()), 
+  stepper_         (device_handle_),
   problem_         (NULL),
   device_changed_  (true),
-  config_changed_  (true)
+  config_changed_  (true),
+  manual_problem_  (false)
 {
 }
 
@@ -37,36 +38,53 @@ simulator::~simulator()
 
 viennamini::device const& simulator::device() const
 {
-  return *device_;
+  return *device_handle_;
 }
 
 viennamini::device      & simulator::device()
 {
   device_changed_ = true; 
-  return *device_;
+  return *device_handle_;
 }
 
 void simulator::set_device(viennamini::device_handle& new_device)
 {
-  device_.reset();
-  device_ = new_device;
+  device_handle_.reset();
+  device_handle_ = new_device;
+}
+
+viennamini::device_handle& simulator::device_handle()
+{
+  return device_handle_;
 }
 
 viennamini::config const& simulator::config() const
 {
-  return *config_;
+  return *config_handle_;
 }
 
 viennamini::config      & simulator::config()
 {
   config_changed_ = true; 
-  return *config_;
+  return *config_handle_;
 }
 
 void simulator::set_config(viennamini::config_handle& new_config)
 {
-  config_.reset();
-  config_ = new_config;
+  config_handle_.reset();
+  config_handle_ = new_config;
+}
+
+viennamini::config_handle& simulator::config_handle()
+{
+  return config_handle_;
+}
+
+void simulator::set_problem(viennamini::problem* active_problem)
+{
+  if(!active_problem) throw problem_not_available_exception("");
+  problem_ = active_problem;
+  manual_problem_ = true;
 }
 
 void simulator::run()
@@ -81,24 +99,37 @@ void simulator::run()
 
   if(config_changed_ || device_changed_)
   {
-  #ifdef VIENNAMINI_VERBOSE
-    std::cout << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
-  #endif
-    if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+    if(manual_problem_)
     {
-      if(problem_) delete problem_;
-      problem_ = new viennamini::problem_poisson_dd_np(device(), config());
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << "[Simulator] processing manual problem .."  << std::endl;
+    #endif
+      problem_->set(this->device_handle(), this->config_handle());
       problem_->run();
     }
     else
-    if(config().problem() == viennamini::id::laplace())
     {
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+    #endif
+      if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+      {
+        if(problem_) delete problem_;
+        problem_ = new viennamini::problem_poisson_dd_np();
+        problem_->set(this->device_handle(), this->config_handle());
+        problem_->run();
+      }
+      else
+      if(config().problem() == viennamini::id::laplace())
+      {
 
-      if(problem_) delete problem_;
-      problem_ = new viennamini::problem_laplace(device(), config());
-      problem_->run();
+        if(problem_) delete problem_;
+        problem_ = new viennamini::problem_laplace();
+        problem_->set(this->device_handle(), this->config_handle());
+        problem_->run();
+      }
+      else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
     }
-    else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
   }
 }
 

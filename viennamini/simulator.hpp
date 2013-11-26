@@ -34,6 +34,12 @@ namespace viennamini
     undefined_problem_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  /** @brief Exception for the case that a manually provided problem is not available, i.e., it's not instantiated */
+  class problem_not_available_exception : public std::runtime_error {
+  public:
+    problem_not_available_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
   class simulator
   {
   public:
@@ -45,24 +51,29 @@ namespace viennamini
     viennamini::device            const& device() const;
     viennamini::device                 & device();
     void                                 set_device(viennamini::device_handle& new_device);
+    viennamini::device_handle          & device_handle();
 
     viennamini::config            const& config() const;
     viennamini::config                 & config();
     void                                 set_config(viennamini::config_handle& new_config);
+    viennamini::config_handle          & config_handle();
 
     viennamini::stepper                & stepper();
+
+    void                                 set_problem(viennamini::problem* active_problem);
 
     void                                 write(std::string const filename);
   
   private:
 
-    viennamini::device_handle            device_;
-    viennamini::config_handle            config_;
+    viennamini::device_handle            device_handle_;
+    viennamini::config_handle            config_handle_;
     viennamini::stepper                  stepper_;
     viennamini::problem                * problem_;
     
     bool device_changed_;
     bool config_changed_;
+    bool manual_problem_;
   };
 }
 
