@@ -1,14 +1,25 @@
-set(VIENNADATA_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/viennadata")
-set(VIENNADATA_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennadata/install")
-set(VIENNADATA_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VIENNADATA_INSTALL_DIR} -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOXYGEN_DOCS=OFF -DBUILD_MANUAL=OFF -DENABLE_DIST=OFF)
 
+IF(DOWNLOAD)
+  ExternalProject_Add(viennadata
+    PREFIX viennadata
+    GIT_REPOSITORY https://github.com/viennadata/viennadata-dev.git
+    GIT_TAG master
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennadata"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennadata SOURCE_DIR)
+ELSE(DOWNLOAD)
+  ExternalProject_Add(viennadata
+    PREFIX viennadata
+    SOURCE_DIR $ENV{VIENNADATAPATH}
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennadata"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennadata SOURCE_DIR)
+ENDIF(DOWNLOAD)
 
-ExternalProject_Add(viennadata
-  PREFIX ${VIENNADATA_PREFIX}
-  GIT_REPOSITORY https://github.com/viennadata/viennadata-dev.git
-  GIT_TAG master
-  CMAKE_ARGS ${VIENNADATA_CMAKE_ARGS}
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-)
+SET(VIENNADATA_INCLUDE_DIRS ${SOURCE_DIR})

@@ -1,14 +1,25 @@
-set(VIENNACL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/viennacl")
-set(VIENNACL_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennacl/install")
-set(VIENNACL_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VIENNAGRID_INSTALL_DIR} -DBUILD_DOXYGEN_DOCS=OFF -DBUILD_MANUAL=OFF -DENABLE_DIST=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF)
 
+IF(DOWNLOAD)
+  ExternalProject_Add(viennacl
+    PREFIX viennacl
+    GIT_REPOSITORY https://github.com/viennacl/viennacl-dev.git
+    GIT_TAG master
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennacl"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennacl SOURCE_DIR)
+ELSE(DOWNLOAD)
+  ExternalProject_Add(viennacl
+    PREFIX viennacl
+    SOURCE_DIR $ENV{VIENNACLPATH}
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennacl"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennacl SOURCE_DIR)
+ENDIF(DOWNLOAD)
 
-ExternalProject_Add(viennacl
-  PREFIX ${VIENNACL_PREFIX}
-  GIT_REPOSITORY https://github.com/viennacl/viennacl-dev.git
-  GIT_TAG master
-  CMAKE_ARGS ${VIENNACL_CMAKE_ARGS}
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-)
+SET(VIENNACL_INCLUDE_DIRS ${SOURCE_DIR})

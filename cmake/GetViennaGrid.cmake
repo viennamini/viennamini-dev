@@ -1,14 +1,26 @@
-set(VIENNAGRID_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/viennagrid")
-set(VIENNAGRID_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennagrid/install")
-set(VIENNAGRID_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VIENNAGRID_INSTALL_DIR} -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DBUILD_DOXYGEN_DOCS=OFF -DBUILD_MANUAL=OFF -DENABLE_DIST=OFF)
+
+IF(DOWNLOAD)
+  ExternalProject_Add(viennagrid
+    PREFIX viennagrid
+    GIT_REPOSITORY https://github.com/viennagrid/viennagrid-dev.git
+    GIT_TAG master
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennagrid"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennagrid SOURCE_DIR)
+ELSE(DOWNLOAD)
+  ExternalProject_Add(viennagrid
+    PREFIX viennagrid
+    SOURCE_DIR $ENV{VIENNAGRIDPATH}
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennagrid"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  ExternalProject_Get_Property(viennagrid SOURCE_DIR)
+ENDIF(DOWNLOAD)
 
 
-ExternalProject_Add(viennagrid
-  PREFIX ${VIENNAGRID_PREFIX}
-  GIT_REPOSITORY https://github.com/viennagrid/viennagrid-dev.git
-  GIT_TAG master
-  CMAKE_ARGS ${VIENNAGRID_CMAKE_ARGS}
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-)
+SET(VIENNAGRID_INCLUDE_DIRS ${SOURCE_DIR})

@@ -10,11 +10,11 @@ cmake_minimum_required(VERSION 2.8.2)
 #if you don't want the full compiler output, remove the following line
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
-SET(VIENNASTAR "Local" CACHE STRING "Use local ViennaStar libraries or download them automatically, supported values are: Local,Download")
+OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
-option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_TESTS "Build the tests" ON)
-option(VIENNAMINI_VERBOSE "Verbose messaging" OFF)
+OPTION(BUILD_EXAMPLES "Build the examples" ON)
+OPTION(BUILD_TESTS "Build the tests" ON)
+OPTION(VIENNAMINI_VERBOSE "Verbose messaging" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -22,6 +22,11 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 IF (NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "Release")
 ENDIF()
+
+#IF (NOT BUILD_SHARED_LIBS)
+#  message(setting libs to shared..)
+#  SET(BUILD_SHARED_LIBS ON)
+#ENDIF()
 
 #set compiler flags
 SET(CMAKE_CXX_FLAGS "-Wall -pedantic")
@@ -54,69 +59,63 @@ ELSEIF(PARALLEL_MODE STREQUAL "openmp")
 ENDIF()
 
 INCLUDE_DIRECTORIES(".")
-STRING(TOLOWER "${VIENNASTAR}" VIENNASTAR) 
-IF(VIENNASTAR STREQUAL "local")
-  MESSAGE(STATUS "Using local ViennaStar ..")
 
-  FIND_PACKAGE(ViennaFVM REQUIRED)
-  IF(VIENNAFVM_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAFVM_INCLUDE_DIRS})
-  ENDIF(VIENNAFVM_FOUND)
+# ------------------------------------------------------------------------------
+#
+# INCLUDE EXTERNAL PROJECTS
+#
+# ------------------------------------------------------------------------------
+IF(DOWNLOAD)
+  MESSAGE(STATUS "Downloading ViennaStar during the build step ..")
+ELSE(DOWNLOAD)
+  MESSAGE(STATUS "Using local ViennaStar via VIENNA*PATH environment variables ..")
+ENDIF(DOWNLOAD)
 
-  FIND_PACKAGE(ViennaGrid REQUIRED)
-  IF(VIENNAGRID_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAGRID_INCLUDE_DIRS})
-  ENDIF(VIENNAGRID_FOUND)
+SET(BUILD_VIENNASTAR_SHARED OFF)
 
-  FIND_PACKAGE(ViennaMath REQUIRED)
-  IF(VIENNAMATH_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAMATH_INCLUDE_DIRS})
-  ENDIF(VIENNAMATH_FOUND)
-  
-  FIND_PACKAGE(ViennaCL REQUIRED)
-  IF(VIENNACL_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
-  ENDIF(VIENNACL_FOUND)
+INCLUDE(cmake/GetViennaFVM.cmake)
+MESSAGE(STATUS "ViennaFVM Include Path: " ${VIENNAFVM_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAFVM_INCLUDE_DIRS})  
 
-  FIND_PACKAGE(ViennaData REQUIRED)
-  IF(VIENNADATA_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNADATA_INCLUDE_DIRS})
-  ENDIF(VIENNADATA_FOUND)
+INCLUDE(cmake/GetViennaGrid.cmake)
+MESSAGE(STATUS "ViennaGrid Include Path: " ${VIENNAGRID_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAGRID_INCLUDE_DIRS})  
 
-  FIND_PACKAGE(ViennaMaterials REQUIRED)
-  IF(VIENNAMATERIALS_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAMATERIALS_INCLUDE_DIRS})
-    SET(LIBRARIES ${LIBRARIES} ${VIENNAMATERIALS_LIBRARIES})
-  ENDIF(VIENNAMATERIALS_FOUND)
+INCLUDE(cmake/GetViennaData.cmake)
+MESSAGE(STATUS "ViennaData Include Path: " ${VIENNADATA_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNADATA_INCLUDE_DIRS})  
 
-  FIND_PACKAGE(ViennaMesh REQUIRED)
-  IF(VIENNAMESH_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
-  ENDIF(VIENNAMESH_FOUND)
+INCLUDE(cmake/GetViennaMath.cmake)
+MESSAGE(STATUS "ViennaMath Include Path: " ${VIENNAMATH_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAMATH_INCLUDE_DIRS})  
 
-  FIND_PACKAGE(ViennaDeviceCollection REQUIRED)
-  IF(VIENNADEVICECOLLECTION_FOUND)
-    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/viennamini/device_collection.hpp.in
-                   ${CMAKE_BINARY_DIR}/viennamini/device_collection.hpp)
-    INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
-  ENDIF(VIENNADEVICECOLLECTION_FOUND)
+INCLUDE(cmake/GetViennaCL.cmake)
+MESSAGE(STATUS "ViennaCL Include Path: " ${VIENNACL_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
 
-ELSEIF(VIENNASTAR STREQUAL "download")
-  MESSAGE(STATUS "Downloading ViennaStar libraries ..")
-  FIND_PACKAGE(Git REQUIRED)
-  IF(GIT_FOUND)
-    INCLUDE(cmake/GetViennaGrid.cmake)
-    INCLUDE(cmake/GetViennaMath.cmake)
-    INCLUDE(cmake/GetViennaCL.cmake)
-    INCLUDE(cmake/GetViennaData.cmake)
-    INCLUDE(cmake/GetViennaMaterials.cmake)
-    INCLUDE(cmake/GetViennaMesh.cmake)
-  ENDIF(GIT_FOUND)
-ENDIF()
+INCLUDE(cmake/GetViennaMaterials.cmake)
+MESSAGE(STATUS "ViennaMaterials Include Path: " ${VIENNAMATERIALS_INCLUDE_DIRS})
+MESSAGE(STATUS "ViennaMaterials Libraries: " ${VIENNAMATERIALS_LIBRARIES})
+INCLUDE_DIRECTORIES(${VIENNAMATERIALS_INCLUDE_DIRS})
+SET(LIBRARIES ${LIBRARIES} ${VIENNAMATERIALS_LIBRARIES})
+
+INCLUDE(cmake/GetViennaMesh.cmake)
+MESSAGE(STATUS "ViennaMesh Include Path: " ${VIENNAMESH_INCLUDE_DIRS})
+MESSAGE(STATUS "ViennaMesh Libraries: " ${VIENNAMESH_LIBRARIES})
+INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
+SET(LIBRARIES ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+FIND_PACKAGE(ViennaDeviceCollection)
+IF(VIENNADEVICECOLLECTION_FOUND)
+  CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/viennamini/device_collection.hpp.in
+                 ${CMAKE_BINARY_DIR}/viennamini/device_collection.hpp)
+  INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+ENDIF(VIENNADEVICECOLLECTION_FOUND)
+
 
 # build the ViennaMini library
 AUX_SOURCE_DIRECTORY(src/ LIBSOURCES) 
-ADD_LIBRARY(viennamini SHARED ${LIBSOURCES})
+ADD_LIBRARY(viennamini ${LIBSOURCES})
 ADD_DEPENDENCIES(viennamini viennamaterials)
 ADD_DEPENDENCIES(viennamini viennamesh)
 TARGET_LINK_LIBRARIES(viennamini ${LIBRARIES})
@@ -129,6 +128,7 @@ ENDIF(BUILD_EXAMPLES)
 IF(BUILD_TESTS)
   ADD_SUBDIRECTORY(tests)
 ENDIF(BUILD_TESTS)
+
 
 ##Compatibility with Qt-Creator
 file( GLOB_RECURSE QtCreatorCompatibility_SRC
