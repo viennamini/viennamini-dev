@@ -152,8 +152,7 @@ void simulator::run()
       #endif
         problem_->set(this->device_handle(), this->config_handle());
 
-        while(stepper().apply_next())
-          problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+        this->execute_loop();
       }
       else
       {
@@ -165,8 +164,7 @@ void simulator::run()
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_poisson_dd_np(this->stream());
           problem_->set(this->device_handle(), this->config_handle());
-          while(stepper().apply_next())
-            problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+          this->execute_loop();
         }
         else
         if(config().problem() == viennamini::id::laplace())
@@ -175,21 +173,27 @@ void simulator::run()
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_laplace(this->stream());
           problem_->set(this->device_handle(), this->config_handle());
-          while(stepper().apply_next())
-            problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+          this->execute_loop();
         }
         else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
       }
-
-      if(config().write_result_files())
-        problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
     }
   }
 }
 
-void simulator::run_impl(std::size_t step_id)
+void simulator::execute_loop()
 {
-
+  while(stepper().apply_next())
+  {
+    // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
+    stream() << "Executing simulation " << stepper().get_current_step_id()+1 << " of " << stepper().size();
+    problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+    if(config().write_result_files())
+    {
+      stream() << "  --> " << output_file_prefix_+"_"+this->encode_current_boundary_setup() << std::endl;
+      problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
+    }
+  }
 }
 
 viennamini::stepper& simulator::stepper()

@@ -39,11 +39,13 @@ protected:
   typedef viennamini::numeric                                                   NumericType;
   typedef viennagrid::spatial_point<NumericType, viennagrid::cartesian_cs<3> >  PointType;
   typedef std::map<std::string, PointType>                                      GeometryPropertiesType;
-  
+  typedef std::map<std::string, std::size_t>                                    SegmentIndexMapType;
+
 public:
   typedef NumericType                   numeric_type;
   typedef GeometryPropertiesType        geometry_properties_type;
   typedef PointType                     point_type;
+  typedef SegmentIndexMapType           segment_index_map_type;
 
   device_template(std::string const& material_library_file, std::ostream& stream = std::cout) 
     : material_library_file_(material_library_file), stream_(stream)
@@ -71,11 +73,14 @@ public:
     return stream_;
   }
 
+  segment_index_map_type& segment_indices() { return segment_indices_; }
+
 protected:
   geometry_properties_type        geometry_properties_;
   viennamini::device_handle       device_;
   viennamini::config_handle       config_;
   std::string                     material_library_file_;
+  segment_index_map_type          segment_indices_;
   std::ostream&                   stream_;
 };
 

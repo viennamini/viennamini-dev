@@ -64,7 +64,7 @@ int main()
   mysim.device().set_donator_doping     (drain, 1.0E24);
   mysim.device().set_acceptor_doping    (drain, 1.0E8);
 //  mysim.device().set_mobility           (drain, viennamini::mobility::lattice);
-  mysim.device().set_mobility           (source, viennamini::mobility::ionized_impurity);
+  mysim.device().set_mobility           (drain, viennamini::mobility::ionized_impurity);
 //  mysim.device().set_recombination      (drain, viennamini::recombination::srh);
 
   mysim.device().make_semiconductor     (body);
@@ -73,7 +73,7 @@ int main()
   mysim.device().set_donator_doping     (body, 1.0E12);
   mysim.device().set_acceptor_doping    (body, 1.0E20);
   mysim.device().set_mobility           (body, viennamini::mobility::lattice);
-//  mysim.device().set_mobility           (source, viennamini::mobility::ionized_impurity);
+//  mysim.device().set_mobility           (body, viennamini::mobility::ionized_impurity);
 //  mysim.device().set_recombination      (body, viennamini::recombination::srh);
 
   mysim.device().make_contact           (body_contact);
@@ -86,7 +86,6 @@ int main()
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-2;
-  mysim.config().initial_guess_smoothing_iterations() = 4;
   mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
@@ -95,10 +94,10 @@ int main()
   //
   mysim.current_contact_workfunction(gate_contact)   = 0.4;
 
-//  mysim.current_contact_potential   (gate_contact)   = 0.2;
-//  mysim.current_contact_potential   (source_contact) = 0.0;
-//  mysim.current_contact_potential   (drain_contact)  = 0.2;
-//  mysim.current_contact_potential   (body_contact)   = 0.0;
+  mysim.current_contact_potential   (gate_contact)   = 0.2;
+  mysim.current_contact_potential   (source_contact) = 0.0;
+  mysim.current_contact_potential   (drain_contact)  = 0.2;
+  mysim.current_contact_potential   (body_contact)   = 0.0;
 
 
   // perform several simulations each with its own boundary setup, 
@@ -106,15 +105,16 @@ int main()
   // the gate and drain contacts are driven from 0.0V to 0.2V (0.3V for the drain) 
   // in 0.1V steps
   //
-  mysim.stepper().add(gate_contact,  0.0, 0.7, 0.1);
-  mysim.stepper().add(drain_contact, 0.0, 0.7, 0.1);
+//  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
+//  mysim.stepper().add(drain_contact, 0.0, 0.2, 0.1);
+//  mysim.stepper().write(std::cout);
 
   mysim.set_output_filename_prefix("mosfet2d_dd_np_result");
 
   mysim.run();
 
   viennamini::csv mycsv = mysim.csv();
-  mycsv.write("result.csv");
+  mycsv.write("mosfet2d_characteristics.csv");
 
   std::cout << "**********************************************************" << std::endl;
   std::cout << "* MOSFET 2D DD Bipolar simulation finished successfully! *" << std::endl;

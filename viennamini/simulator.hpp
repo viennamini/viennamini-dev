@@ -68,13 +68,13 @@ namespace viennamini
 
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
-
+    
     viennamini::csv                    & csv();
   
   private:
 
+    void                                 execute_loop();
     std::string                          encode_current_boundary_setup(); 
-    void                                 run_impl(std::size_t step_id);
     void                                 resize_problem_description_set();
 
     viennamini::device_handle            device_handle_;

@@ -77,6 +77,8 @@ stepper::values_type  stepper::compute_value_range(numeric const& start, numeric
   stepper::values_type cont;
   for(numeric i = start; ; i+=delta)
   {
+    if(std::fabs(i) < 1.0E-10) i = 0.0;
+//    std::cout << start << " " << end << " " << delta << ": " << i << std::endl;
     cont.push_back(i);
     if(std::fabs(i-end)<1.0E-10) break;
   }
@@ -90,7 +92,7 @@ bool stepper::apply_next()
   for(StepValuesType::value_type::iterator iter = current_step_->begin();
       iter != current_step_->end(); iter++)
   {
-//    std::cout << "applying " << iter->second << std::endl;
+//    std::cout << "applying at " << iter->first << " value " << iter->second << std::endl;
 //    device_->set_contact_potential(iter->first, iter->second);
     current_contact_potentials_[iter->first] = iter->second;
   }
@@ -115,34 +117,20 @@ stepper::step_setup_type&  stepper::get_current_step_setup()
   return this->get_step_setup(this->get_current_step_id());
 }
 
-//std::string  stepper::get_current_step_setup_string()
-//{
-//  return this->get_step_setup_string(this->get_current_step_id());
-//}
-
-//std::string  stepper::get_step_setup_string(std::size_t step_id)
-//{
-//  std::string result;
-//  for(StepSetupType::iterator iter = step_values_[step_id].begin();
-//      iter != step_values_[step_id].end(); iter++)
-//  {
-//    result += device_->get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
-//    if((iter+1) != step_values_[step_id].end()) result += "_";
-//  }
-//  return result;
-//}
-
 void stepper::write(std::ostream& stream)
 {
   stream << "Writing stepping sequence: " << std::endl;
-  stream << "  sequence size: " << this->size() << std::endl;
+  stream << "  Sequence size: " << this->size() << std::endl;
   for(StepValuesType::iterator iter = step_values_.begin();
       iter != step_values_.end(); iter++)
   {
+    stream << "    Simulation step: " << std::distance(step_values_.begin(), iter)+1;
     for(StepSetupType::iterator iter2 = iter->begin();
         iter2 != iter->end(); iter2++)
     {
-      stream << " si: " << iter2->first << " - val: " << iter2->second << ", ";
+       stream << " Segment: " << iter2->first << " - BC: " << iter2->second;
+       if((iter2+1) != iter->end())
+         stream << ", ";
     }
     stream << "\n";
   }

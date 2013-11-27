@@ -26,6 +26,7 @@
 #include "viennamini/detect_interfaces.hpp"
 #include "viennamini/constants.hpp"
 #include "viennamini/utils/file_extension.hpp"
+#include "viennamini/utils/is_zero.hpp"
 #include "viennamini/material_accessors.hpp"
 
 namespace viennamini
@@ -238,7 +239,7 @@ void device::update()
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
 
-      this->set_permittivity(*contact_iter, epsr_value);
+      this->set_permittivity(*contact_iter, epsr_value * viennamini::eps0::val());
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -252,7 +253,7 @@ void device::update()
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
 
-     this->set_permittivity(*contact_iter, epsr_value );
+     this->set_permittivity(*contact_iter, epsr_value * viennamini::eps0::val() );
     }
   }
 }
@@ -395,16 +396,12 @@ void device::set_material(int segment_index, std::string const& new_material)
   {
     namespace vmat = viennamaterials;
 
-    vmat::query epsr_query = vmat::make_query(vmat::make_entry(this->matlib_material() , new_material), 
-                                              vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-                                              vmat::make_entry(this->matlib_data()     , material::value()));
-
     numeric epsr_value    = this->material_library()->query_value(
       vmat::make_query(vmat::make_entry(this->matlib_material() , new_material), 
                        vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                        vmat::make_entry(this->matlib_data()     , material::value()))
     );
-    this->set_permittivity(segment_index, epsr_value);
+    this->set_permittivity(segment_index, epsr_value * viennamini::eps0::val());
   }
 }
 
@@ -418,32 +415,32 @@ std::string device::get_material(int segment_index)
   return segment_materials_[segment_index];
 }
 
-void device::set_permittivity(int segment_index, viennamini::numeric epsr)
+void device::set_permittivity(int segment_index, viennamini::numeric eps) // eps = eps0 * epsr
 {
 #ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] setting epsr " << epsr << std::endl;
+  stream() << "[Device][Segment "<< segment_index << "] setting eps " << eps << std::endl;
 #endif
-  if(epsr == 0.0) throw epsr_is_zero_exception("at: device::set_permittivity()");
+  if( viennamini::is_zero(eps)) throw eps_is_zero_exception("at: device::set_permittivity()");
 
   if(this->is_line1d())
   {
     typedef problem_description_line_1d::quantity_type  QuantityType;
     QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::permittivity());
-    viennafvm::set_initial_value(quan, this->get_segmesh_line_1d().segmentation(segment_index), epsr * viennamini::eps0::val());
+    viennafvm::set_initial_value(quan, this->get_segmesh_line_1d().segmentation(segment_index), eps);
   }
   else
   if(this->is_triangular2d())
   {
     typedef problem_description_triangular_2d::quantity_type  QuantityType;
     QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::permittivity());
-    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), epsr * viennamini::eps0::val());
+    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), eps);
   }
   else
   if(this->is_tetrahedral3d())
   {
     typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
     QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::permittivity());
-    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), epsr * viennamini::eps0::val());
+    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), eps);
   }
   else throw device_not_supported_exception("at: device::set_permittivity()");
 }

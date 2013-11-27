@@ -43,10 +43,12 @@ struct problem_laplace : public problem
     //
     // -------------------------------------------------------------------------
     QuantityType & permittivity_initial      = problem_description_set[0].get_quantity(viennamini::id::permittivity());
-    
+
     ProblemDescriptionType& problem_description = problem_description_set[step_id];
-    
+
     QuantityType & permittivity             = problem_description.add_quantity(permittivity_initial);
+    if(viennamini::is_zero(permittivity.get_sum()))  throw required_quantity_is_zero_exception("Permittivity is not available");
+
     QuantityType & potential                = problem_description.add_quantity(viennamini::id::potential());
     
     // -------------------------------------------------------------------------
@@ -138,9 +140,9 @@ struct problem_laplace : public problem
     // -------------------------------------------------------------------------
 
     FunctionSymbolType psi  (potential.id());
-    FunctionSymbolType epsr (permittivity.id());
+    FunctionSymbolType eps  (permittivity.id());
 
-    EquationType laplace_eq = viennamath::make_equation( viennamath::div(epsr * viennamath::grad(psi)), /* = */ 0);
+    EquationType laplace_eq = viennamath::make_equation( viennamath::div(eps * viennamath::grad(psi)), /* = */ 0);
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;

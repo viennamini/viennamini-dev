@@ -42,10 +42,10 @@ namespace viennamini
     unknown_material_library_file_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
-  /** @brief Exception for the case that the epsr value is zero, indicating a problem with accessing the material database */
-  class epsr_is_zero_exception : public std::runtime_error {
+  /** @brief Exception for the case that the eps value is zero, indicating a problem with accessing the material database */
+  class eps_is_zero_exception : public std::runtime_error {
   public:
-    epsr_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
+    eps_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
 

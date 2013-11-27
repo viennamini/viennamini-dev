@@ -23,9 +23,9 @@
 #include "viennamath/expression.hpp"
 
 // ViennaFVM includes:
-//#ifdef VIENNAMINI_VERBOSE
-//  #define VIENNAFVM_VERBOSE
-//#endif
+#ifdef VIENNAMINI_VERBOSE
+  #define VIENNAFVM_VERBOSE
+#endif
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/problem_description.hpp"
 #include "viennafvm/forwards.h"
@@ -35,6 +35,7 @@
 #include "viennamini/forwards.h"
 #include "viennamini/physics.hpp"
 #include "viennamini/csv.hpp"
+#include "viennamini/utils/is_zero.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -102,6 +103,11 @@ public:
   solution_not_converged_error(std::string const & str) : std::runtime_error(str) {}
 };
 
+/** @brief Exception for the case that a required quantity does not contain values */
+class required_quantity_is_zero_exception : public std::runtime_error {
+public:
+  required_quantity_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
+};
 
 struct problem
 {
@@ -151,7 +157,7 @@ public:
     }
     else
     if(device().is_triangular2d())
-    {
+    { 
       viennafvm::io::write_solution_to_VTK_file(
         device().get_problem_description_triangular_2d(step_id).quantities(), 
         filename, 
