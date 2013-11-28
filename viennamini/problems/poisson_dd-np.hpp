@@ -478,7 +478,7 @@ struct problem_poisson_dd_np : public problem
     {
       config().damping() = 0.9;
   #ifdef VIENNAMINI_VERBOSE
-    stream() << "[Problem][PoissonDD NP] setting damping to " << config().damping() << std::endl;
+    stream() << "[Problem][PoissonDD NP] limiting nonlinear damping to " << config().damping() << std::endl;
   #endif
     }
     pde_solver.set_damping(config().damping());

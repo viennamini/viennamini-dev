@@ -54,7 +54,7 @@ public:
 
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::triangle::algorithm() );
-    mesher_->set_input( "cell_size", 0.01 );
+    mesher_->set_input( "cell_size", 0.005 );
     mesher_->set_input( "min_angle", 0.35 );     // in radiant
     mesher_->set_input( "delaunay", true  );
 //    mesher_->set_input( "algorithm_type", "incremental_delaunay" );
@@ -87,7 +87,6 @@ public:
     device_->read_material_library(material_library_file_);
     config_->problem() = viennamini::id::poisson_drift_diffusion_np();
     config_->temperature()                        = 300;
-    config_->damping()                            = 0.8;
     config_->linear_breaktol()                    = 1.0E-14;
     config_->linear_iterations()                  = 1000;
     config_->nonlinear_iterations()               = 100;
@@ -218,14 +217,14 @@ private:
     device_->make_semiconductor   (segment_indices_[semiconductor_p]);
     device_->set_name             (segment_indices_[semiconductor_p], semiconductor_p);
     device_->set_material         (segment_indices_[semiconductor_p], "Si");
-    device_->set_donator_doping   (segment_indices_[semiconductor_p], 1.0E8);
-    device_->set_acceptor_doping  (segment_indices_[semiconductor_p], 1.0E24);
+    device_->set_donator_doping   (segment_indices_[semiconductor_p], 1.0E11);
+    device_->set_acceptor_doping  (segment_indices_[semiconductor_p], 1.0E21);
 
     device_->make_semiconductor   (segment_indices_[semiconductor_n]);
     device_->set_name             (segment_indices_[semiconductor_n], semiconductor_n);
     device_->set_material         (segment_indices_[semiconductor_n], "Si");
-    device_->set_donator_doping   (segment_indices_[semiconductor_n], 1.0E22);
-    device_->set_acceptor_doping  (segment_indices_[semiconductor_n], 1.0E10);
+    device_->set_donator_doping   (segment_indices_[semiconductor_n], 1.0E21);
+    device_->set_acceptor_doping  (segment_indices_[semiconductor_n], 1.0E11);
 
     device_->make_contact         (segment_indices_[cathode]);
     device_->set_name             (segment_indices_[cathode], cathode);
