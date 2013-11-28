@@ -14,16 +14,18 @@ IF(VIENNADEVICECOLLECTION_FOUND)
 
   ADD_EXECUTABLE(nin2d_laplace     nin2d_laplace.cpp)
   TARGET_LINK_LIBRARIES(nin2d_laplace ${LIBRARIES})
-ELSE(VIENNADEVICECOLLECTION_FOUND)
-  ADD_EXECUTABLE(template_capacitor1d     template_capacitor1d.cpp)
-  TARGET_LINK_LIBRARIES(template_capacitor1d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
-
-  ADD_EXECUTABLE(template_capacitor2d     template_capacitor2d.cpp)
-  TARGET_LINK_LIBRARIES(template_capacitor2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
-
-  ADD_EXECUTABLE(template_capacitor3d     template_capacitor3d.cpp)
-  TARGET_LINK_LIBRARIES(template_capacitor3d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
-
-  ADD_EXECUTABLE(template_diode_np2d     template_diode_np2d.cpp)
-  TARGET_LINK_LIBRARIES(template_diode_np2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
 ENDIF(VIENNADEVICECOLLECTION_FOUND)
+
+# For the following examples, we do not need the ViennaDeviceCollection
+#
+ADD_EXECUTABLE(template_capacitor1d     template_capacitor1d.cpp)
+TARGET_LINK_LIBRARIES(template_capacitor1d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+ADD_EXECUTABLE(template_capacitor2d     template_capacitor2d.cpp)
+TARGET_LINK_LIBRARIES(template_capacitor2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+ADD_EXECUTABLE(template_capacitor3d     template_capacitor3d.cpp)
+TARGET_LINK_LIBRARIES(template_capacitor3d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+ADD_EXECUTABLE(template_diode_np2d     template_diode_np2d.cpp)
+TARGET_LINK_LIBRARIES(template_diode_np2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
