@@ -25,7 +25,7 @@ config::config(std::ostream& stream) : stream_(stream)
   nonlinear_breaktol_                  = 1.E-3;
   linear_breaktol_                     = 1.E-14;
   linear_iterations_                   = 1000;
-  damping_                             = 0.5;
+  damping_                             = 0.9;
   initial_guess_smoothing_iterations_  = 0;
   problem_                             = "";
   write_initial_guesses_               = true;

@@ -441,6 +441,8 @@ struct problem_poisson_dd_np : public problem
 //    viennamath::expr R_srh_right = R_switch * -1 * (ni * ni) / (tau_p*(n + n1)+1.e-5*(p + p1));
 
     EquationType poisson_eq = viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)),                                                    /* = */ q * ((n - ND) - (p - NA)));
+//    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(D * viennamath::grad(n) - mu * viennamath::grad(psi) * n) , /* = */ 0.0);
+//    EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(D * viennamath::grad(p) + mu * viennamath::grad(psi) * p) , /* = */ 0.0);
     EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) , /* = */ 0.0);
     EquationType cont_eq_p  = viennamath::make_equation( viennamath::div(mu_p * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) , /* = */ 0.0);
 //    EquationType cont_eq_n  = viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) - R_srh_left, /* = */ R_srh_right);
@@ -454,10 +456,6 @@ struct problem_poisson_dd_np : public problem
 
     pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
-//    EquationType laplace_eq = viennamath::make_equation( viennamath::div(eps * viennamath::grad(psi)), /* = */ 0);
-//    viennafvm::linear_pde_system<> pde_system;
-//    pde_system.add_pde(laplace_eq, psi);
-//    pde_system.is_linear(true);
     // -------------------------------------------------------------------------
     //
     // Assemble and solve the problem
@@ -473,12 +471,13 @@ struct problem_poisson_dd_np : public problem
     pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
 
     // temporary fix to ensure proper handling of minority carriers
+    // atm the damping must not be 1.0, so to be sure, we limit the damping to 0.9
     // see ViennaFVM commit:
     // https://github.com/viennafvm/viennafvm-dev/commit/3144e05af36be3beb02ee9be85d6d07c34031395
     //
-    if(config().damping() > 0.5)
+    if(config().damping() >= 0.9)
     {
-      config().damping() = 0.5;
+      config().damping() = 0.9;
   #ifdef VIENNAMINI_VERBOSE
     stream() << "[Problem][PoissonDD NP] setting damping to " << config().damping() << std::endl;
   #endif
