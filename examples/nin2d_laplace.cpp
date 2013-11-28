@@ -25,6 +25,7 @@ int main()
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
+  mysim.device().temperature() = 300;
 
   // identify segments
   const int left_contact     = 1;
@@ -53,12 +54,12 @@ int main()
   mysim.device().set_name             (right_contact, "right_contact");
   mysim.device().set_material         (right_contact, "Cu");
 
-  mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().problem()                            = viennamini::id::laplace();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
+
+  mysim.problem_id() = viennamini::id::laplace();
 
   mysim.current_contact_potential   (left_contact)  = 0.0;
   mysim.current_contact_potential   (right_contact) = 0.2;

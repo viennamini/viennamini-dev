@@ -20,23 +20,15 @@ namespace viennamini {
 
 config::config(std::ostream& stream) : stream_(stream)
 {
-  temperature_                         = 300.0;
   nonlinear_iterations_                = 100;
   nonlinear_breaktol_                  = 1.E-3;
   linear_breaktol_                     = 1.E-14;
   linear_iterations_                   = 1000;
   damping_                             = 0.9;
-  initial_guess_smoothing_iterations_  = 0;
-  problem_                             = "";
   write_initial_guesses_               = true;
   write_simulation_results_            = true;
 }
 
-
-config::NumericType&  config::temperature()
-{
-  return temperature_;
-}
 
 config::IndexType&    config::nonlinear_iterations()
 {
@@ -63,11 +55,6 @@ config::NumericType&  config::damping()
   return damping_;
 }
 
-config::IndexType&    config::initial_guess_smoothing_iterations()
-{
-  return initial_guess_smoothing_iterations_;
-}
-
 bool& config::write_initial_guess_files()
 {
   return write_initial_guesses_;
@@ -76,11 +63,6 @@ bool& config::write_initial_guess_files()
 bool& config::write_result_files()
 {
   return write_simulation_results_;
-}
-
-std::string& config::problem()
-{
-  return problem_;
 }
 
 std::ostream& config::stream()

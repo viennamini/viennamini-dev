@@ -46,18 +46,17 @@ namespace viennamini
   public:
 
     simulator(std::ostream& stream = std::cout);
+    simulator(device_template* device_generator, std::ostream& stream = std::cout);
     ~simulator();
 
     void                                 run();
 
     viennamini::device            const& device() const;
     viennamini::device                 & device();
-    void                                 set_device(viennamini::device_handle& new_device);
     viennamini::device_handle          & device_handle();
 
     viennamini::config            const& config() const;
     viennamini::config                 & config();
-    void                                 set_config(viennamini::config_handle& new_config);
     viennamini::config_handle          & config_handle();
 
     viennamini::stepper                & stepper();
@@ -66,10 +65,13 @@ namespace viennamini
     viennamini::numeric                & current_contact_potential   (std::size_t segment_index);
     viennamini::numeric                & current_contact_workfunction(std::size_t segment_index);
 
+    std::string                        & problem_id();
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
 
     viennamini::csv                    & csv();
+
+    device_template                    & device_generator();
 
   private:
 
@@ -77,9 +79,12 @@ namespace viennamini
     std::string                          encode_current_boundary_setup();
     void                                 resize_problem_description_set();
 
+    viennamini::stepper                  stepper_;
+
+    device_template                    * device_generator_;
+    std::string                          problem_id_;
     viennamini::device_handle            device_handle_;
     viennamini::config_handle            config_handle_;
-    viennamini::stepper                  stepper_;
     viennamini::problem                * problem_;
     std::ostream                       & stream_;
     std::string                          output_file_prefix_;

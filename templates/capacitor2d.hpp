@@ -32,8 +32,8 @@ private:
   typedef viennagrid::result_of::line_handle<MeshType>::type        MeshLineHandleType;
 
 public:
-  capacitor2d(std::string const& material_library_file, std::ostream& stream = std::cout)
-    : viennamini::device_template(material_library_file, stream)
+  capacitor2d(std::ostream& stream = std::cout)
+    : viennamini::device_template(stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0);
     geometry_properties()["P2"]   = point_type(3.0, 0.0);
@@ -62,6 +62,11 @@ public:
     insulator_ = "Insulator";
     plate_b_   = "PlateB";
     contact_b_ = "ContactB";
+
+    problem_id_ = viennamini::id::laplace();
+
+    device_handle_  = viennamini::device_handle(new viennamini::device(this->stream()));
+    config_handle_  = viennamini::config_handle(new viennamini::config(this->stream()));
   }
 
   ~capacitor2d()
@@ -71,18 +76,10 @@ public:
   /* virtual */
   void generate()
   {
-    device_.reset();
-    config_.reset();
-
-    device_  = viennamini::device_handle(new viennamini::device(this->stream()));
-    config_  = viennamini::config_handle(new viennamini::config(this->stream()));
-
-    device_->make_triangular2d();
-    device_->read_material_library(material_library_file_);
-    config_->problem() = viennamini::id::laplace();
+    device_handle_->make_triangular2d();
 
     this->generate_mesh();
-    device_->update_problem_description();
+    device_handle_->update_problem_description();
     this->assign_segments();
   }
 
@@ -179,7 +176,7 @@ private:
     // creating a parameter set object
     mesher_->set_input("seed_points", seed_points);
 
-    mesher_->reference_output( "default", device_->get_segmesh_triangular_2d() );
+    mesher_->reference_output( "default", device_handle_->get_segmesh_triangular_2d() );
     if(!mesher_->run())
     {
       // TODO provide exception
@@ -213,25 +210,25 @@ private:
 
   void assign_segments()
   {
-    device_->make_contact         (1);
-    device_->set_name             (1, contact_a_);
-    device_->set_material         (1, "Cu");
+    device_handle_->make_contact         (1);
+    device_handle_->set_name             (1, contact_a_);
+    device_handle_->set_material         (1, "Cu");
 
-    device_->make_semiconductor   (2);
-    device_->set_name             (2, plate_a_);
-    device_->set_material         (2, "SiO2");
+    device_handle_->make_semiconductor   (2);
+    device_handle_->set_name             (2, plate_a_);
+    device_handle_->set_material         (2, "SiO2");
 
-    device_->make_semiconductor   (3);
-    device_->set_name             (3, insulator_);
-    device_->set_material         (3, "Si");
+    device_handle_->make_semiconductor   (3);
+    device_handle_->set_name             (3, insulator_);
+    device_handle_->set_material         (3, "Si");
 
-    device_->make_semiconductor   (4);
-    device_->set_name             (4, plate_b_);
-    device_->set_material         (4, "SiO2");
+    device_handle_->make_semiconductor   (4);
+    device_handle_->set_name             (4, plate_b_);
+    device_handle_->set_material         (4, "SiO2");
 
-    device_->make_contact         (5);
-    device_->set_name             (5, contact_b_);
-    device_->set_material         (5, "Cu");
+    device_handle_->make_contact         (5);
+    device_handle_->set_name             (5, contact_b_);
+    device_handle_->set_material         (5, "Cu");
   }
 
 

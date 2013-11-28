@@ -34,8 +34,8 @@ private:
 public:
   typedef SegmentIndexMapType segment_index_map_type;
 
-  diode_np2d(std::string const& material_library_file, std::ostream& stream = std::cout)
-    : viennamini::device_template(material_library_file, stream)
+  diode_np2d(std::ostream& stream = std::cout)
+    : viennamini::device_template(stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0);
     geometry_properties()["P2"]   = point_type(4.0, 0.0);
@@ -68,6 +68,11 @@ public:
     segment_indices_[semiconductor_p]  = 2;
     segment_indices_[semiconductor_n]  = 3;
     segment_indices_[cathode]          = 4;
+
+    problem_id_ = viennamini::id::poisson_drift_diffusion_np();
+
+    device_handle_  = viennamini::device_handle(new viennamini::device(this->stream()));
+    config_handle_  = viennamini::config_handle(new viennamini::config(this->stream()));
   }
 
   ~diode_np2d()
@@ -77,24 +82,16 @@ public:
   /* virtual */
   void generate()
   {
-    device_.reset();
-    config_.reset();
-
-    device_  = viennamini::device_handle(new viennamini::device(this->stream()));
-    config_  = viennamini::config_handle(new viennamini::config(this->stream()));
-
-    device_->make_triangular2d();
-    device_->read_material_library(material_library_file_);
-    config_->problem() = viennamini::id::poisson_drift_diffusion_np();
-    config_->temperature()                        = 300;
-    config_->linear_breaktol()                    = 1.0E-14;
-    config_->linear_iterations()                  = 1000;
-    config_->nonlinear_iterations()               = 100;
-    config_->nonlinear_breaktol()                 = 1.0E-2;
+    device_handle_->make_triangular2d();
+    config_handle_->linear_breaktol()                    = 1.0E-14;
+    config_handle_->linear_iterations()                  = 1000;
+    config_handle_->nonlinear_iterations()               = 100;
+    config_handle_->nonlinear_breaktol()                 = 1.0E-2;
 
     this->generate_mesh();
-    device_->scale(1.0E-9);
-    device_->update_problem_description();
+    device_handle_->scale(1.0E-9);
+    device_handle_->temperature() = 300;
+    device_handle_->update_problem_description();
     this->assign_segments();
   }
 
@@ -176,7 +173,7 @@ private:
     // creating a parameter set object
     mesher_->set_input("seed_points", seed_points);
 
-    mesher_->reference_output( "default", device_->get_segmesh_triangular_2d() );
+    mesher_->reference_output( "default", device_handle_->get_segmesh_triangular_2d() );
     if(!mesher_->run())
     {
       // TODO provide exception
@@ -210,25 +207,25 @@ private:
 
   void assign_segments()
   {
-    device_->make_contact         (segment_indices_[anode]);
-    device_->set_name             (segment_indices_[anode], anode);
-    device_->set_material         (segment_indices_[anode], "Cu");
+    device_handle_->make_contact         (segment_indices_[anode]);
+    device_handle_->set_name             (segment_indices_[anode], anode);
+    device_handle_->set_material         (segment_indices_[anode], "Cu");
 
-    device_->make_semiconductor   (segment_indices_[semiconductor_p]);
-    device_->set_name             (segment_indices_[semiconductor_p], semiconductor_p);
-    device_->set_material         (segment_indices_[semiconductor_p], "Si");
-    device_->set_donator_doping   (segment_indices_[semiconductor_p], 1.0E11);
-    device_->set_acceptor_doping  (segment_indices_[semiconductor_p], 1.0E21);
+    device_handle_->make_semiconductor   (segment_indices_[semiconductor_p]);
+    device_handle_->set_name             (segment_indices_[semiconductor_p], semiconductor_p);
+    device_handle_->set_material         (segment_indices_[semiconductor_p], "Si");
+    device_handle_->set_donator_doping   (segment_indices_[semiconductor_p], 1.0E11);
+    device_handle_->set_acceptor_doping  (segment_indices_[semiconductor_p], 1.0E21);
 
-    device_->make_semiconductor   (segment_indices_[semiconductor_n]);
-    device_->set_name             (segment_indices_[semiconductor_n], semiconductor_n);
-    device_->set_material         (segment_indices_[semiconductor_n], "Si");
-    device_->set_donator_doping   (segment_indices_[semiconductor_n], 1.0E21);
-    device_->set_acceptor_doping  (segment_indices_[semiconductor_n], 1.0E11);
+    device_handle_->make_semiconductor   (segment_indices_[semiconductor_n]);
+    device_handle_->set_name             (segment_indices_[semiconductor_n], semiconductor_n);
+    device_handle_->set_material         (segment_indices_[semiconductor_n], "Si");
+    device_handle_->set_donator_doping   (segment_indices_[semiconductor_n], 1.0E21);
+    device_handle_->set_acceptor_doping  (segment_indices_[semiconductor_n], 1.0E11);
 
-    device_->make_contact         (segment_indices_[cathode]);
-    device_->set_name             (segment_indices_[cathode], cathode);
-    device_->set_material         (segment_indices_[cathode], "Cu");
+    device_handle_->make_contact         (segment_indices_[cathode]);
+    device_handle_->set_name             (segment_indices_[cathode], cathode);
+    device_handle_->set_material         (segment_indices_[cathode], "Cu");
   }
 
 public:

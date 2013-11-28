@@ -47,19 +47,19 @@ public:
   typedef PointType                     point_type;
   typedef SegmentIndexMapType           segment_index_map_type;
 
-  device_template(std::string const& material_library_file, std::ostream& stream = std::cout)
-    : material_library_file_(material_library_file), stream_(stream)
+  device_template(std::ostream& stream = std::cout)
+    : stream_(stream)
   {
     // deactivate ViennaMesh debug output
-//    viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
-//    viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+    viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+    viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
   }
 
   virtual ~device_template() {}
 
   geometry_properties_type&        geometry_properties()   { return geometry_properties_;  }
-  viennamini::device_handle &      device()                { return device_;      }
-  viennamini::config_handle &      config()                { return config_;      }
+  viennamini::device_handle &      device_handle()         { return device_handle_;      }
+  viennamini::config_handle &      config_handle()         { return config_handle_;      }
 
   void set_geometry_property(std::string const& key, numeric_type x, numeric_type y = 0, numeric_type z = 0)
   {
@@ -67,6 +67,11 @@ public:
   }
 
   virtual void         generate()         = 0;
+
+  std::string&  problem_id()
+  {
+    return problem_id_;
+  }
 
   std::ostream& stream()
   {
@@ -77,10 +82,10 @@ public:
 
 protected:
   geometry_properties_type        geometry_properties_;
-  viennamini::device_handle       device_;
-  viennamini::config_handle       config_;
-  std::string                     material_library_file_;
+  viennamini::device_handle       device_handle_;
+  viennamini::config_handle       config_handle_;
   segment_index_map_type          segment_indices_;
+  std::string                     problem_id_;
   std::ostream&                   stream_;
 };
 

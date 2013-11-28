@@ -37,27 +37,21 @@ struct config
 
   config(std::ostream& stream = std::cout);
 
-  NumericType&  temperature();
   IndexType&    nonlinear_iterations();
   NumericType&  nonlinear_breaktol();
   IndexType&    linear_iterations();
   NumericType&  linear_breaktol();
   NumericType&  damping();
-  IndexType&    initial_guess_smoothing_iterations();
   bool&         write_initial_guess_files();
   bool&         write_result_files();
-  std::string&  problem();
   std::ostream& stream();
 
 private:
   IndexType         nonlinear_iterations_;
   IndexType         linear_iterations_;
-  IndexType         initial_guess_smoothing_iterations_;
-  NumericType       temperature_;
   NumericType       nonlinear_breaktol_;
   NumericType       linear_breaktol_;
   NumericType       damping_;
-  std::string       problem_;
   bool              write_initial_guesses_;
   bool              write_simulation_results_;
   std::ostream&     stream_;

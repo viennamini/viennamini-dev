@@ -52,7 +52,6 @@ namespace viennamini
   class device
   {
   private:
-
     typedef std::map<std::size_t, role::segment_role_ids>                                         SegmentRolesType;
     typedef std::map<std::size_t, recombination::recombination_ids>                               SegmentRecombinationsType;
     typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
@@ -105,6 +104,8 @@ namespace viennamini
     bool is_oxide                   (int segment_index);
     bool is_semiconductor           (int segment_index);
 
+    viennamini::numeric&  temperature();
+
     std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
     std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);
 
@@ -147,6 +148,7 @@ namespace viennamini
 
     std::string& description();
 
+    IndicesType&   segment_indices();
     IndicesType&   contact_segments_indices();
     IndicesType&   oxide_segments_indices();
     IndicesType&   semiconductor_segments_indices();
@@ -162,6 +164,7 @@ namespace viennamini
     GenericMeshType               generic_mesh_;
     GenericProblemDescriptionType generic_problem_description_set_;
 
+    IndicesType                segment_indices_;
     IndicesType                contact_segments_indices_;
     IndicesType                oxide_segments_indices_;
     IndicesType                semiconductor_segments_indices_;
@@ -177,6 +180,8 @@ namespace viennamini
     SegmentMobilityType        segment_mobility_;
     IndexValuesType            segment_donator_doping_;
     IndexValuesType            segment_acceptor_doping_;
+
+    viennamini::numeric        temperature_;
 
     viennamini::material_library_handle  matlib_;
 

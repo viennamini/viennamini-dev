@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
   mysim.device().read(viennamini::device_collection_path()+"/half-trigate3d/half-trigate3d.mesh", viennamini::tetrahedral_3d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
+  mysim.device().temperature() = 300;
 
   const int source          = 1;
   const int channel         = 2;
@@ -78,15 +79,14 @@ int main(int argc, char* argv[])
   mysim.device().set_name               (drain_contact, "drain_contact");
   mysim.device().set_material           (drain_contact, "Cu");
 
-  mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-3;
-  mysim.config().initial_guess_smoothing_iterations() = 4;
-  mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
+
+  mysim.problem_id() = viennamini::id::poisson_drift_diffusion_np();
 
   // manually set the contact potentials
   //

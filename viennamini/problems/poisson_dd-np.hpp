@@ -104,7 +104,7 @@ struct problem_poisson_dd_np : public problem
       // Set quantities on all segments
       //
       // temperature
-      viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), config().temperature());
+      viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), device().temperature());
 
       // thermal potential
       viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature));
@@ -132,7 +132,7 @@ struct problem_poisson_dd_np : public problem
                         vmat::make_entry(device().matlib_material() , device().get_material(adjacent_semiconductor_segment_index)),
                         vmat::make_entry(device().matlib_parameter(), material::intrinsic_carrier_concentration()),
                         vmat::make_entry(device().matlib_data()     , material::value())));
-          NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config().temperature(), ni_value);
+          NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, device().temperature(), ni_value);
 
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;

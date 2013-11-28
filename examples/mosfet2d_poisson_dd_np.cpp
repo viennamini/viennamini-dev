@@ -23,6 +23,7 @@ int main()
   mysim.device().read(viennamini::device_collection_path()+"/mosfet2d/mosfet2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
+  mysim.device().temperature() = 300;
 
   const int gate_contact    = 1;
   const int source_contact  = 2;
@@ -80,14 +81,14 @@ int main()
   mysim.device().set_name               (body_contact, "body_contact");
   mysim.device().set_material           (body_contact, "Cu");
 
-  mysim.config().temperature()                        = 300;
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-2;
-  mysim.config().problem()                            = viennamini::id::poisson_drift_diffusion_np();
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
+
+  mysim.problem_id() = viennamini::id::poisson_drift_diffusion_np();
 
   // manually set the contact potentials
   //

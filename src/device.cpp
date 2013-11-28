@@ -56,7 +56,8 @@ struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
   bool operator()(T & ptr) const { return false; }
 };
 
-device::device(std::ostream& stream) :   matlib_(), stream_(stream)
+
+device::device(std::ostream& stream) :     temperature_(300.0), matlib_(), stream_(stream)
 {
 }
 
@@ -187,6 +188,11 @@ bool device::is_contact_at_semiconductor(int segment_index)
   return !(contact_semiconductor_interfaces_.find(segment_index) == contact_semiconductor_interfaces_.end());
 }
 
+viennamini::numeric&  device::temperature()
+{
+  return temperature_;
+}
+
 std::size_t device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
 {
   return contact_semiconductor_interfaces_[segment_index];
@@ -215,6 +221,35 @@ void device::update()
     if(siter->second == role::contact)       contact_segments_indices_.push_back(siter->first);
     else
     if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
+  }
+
+  // record the segment indices
+  //
+  if(this->is_line1d())
+  {
+    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
+        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
+    {
+      segment_indices_.push_back(sit->id());
+    }
+  }
+  else
+  if(this->is_triangular2d())
+  {
+    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
+        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
+    {
+      segment_indices_.push_back(sit->id());
+    }
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
+        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
+    {
+      segment_indices_.push_back(sit->id());
+    }
   }
 
   // identify contact-semiconductor/oxide interfaces
@@ -566,6 +601,11 @@ void device::update_problem_description()
 std::string& device::description()
 {
   return description_;
+}
+
+device::IndicesType&   device::segment_indices()
+{
+  return segment_indices_;
 }
 
 device::IndicesType&   device::contact_segments_indices()

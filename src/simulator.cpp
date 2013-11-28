@@ -14,6 +14,7 @@
 
 
 #include "viennamini/simulator.hpp"
+#include "viennamini/device_template.hpp"
 #include "viennamini/utils/convert.hpp"
 #include "viennamini/problems/poisson_dd-np.hpp"
 #include "viennamini/problems/laplace.hpp"
@@ -22,15 +23,33 @@ namespace viennamini
 {
 
 simulator::simulator(std::ostream& stream) :
+  stepper_         (current_contact_potentials_),
+  device_generator_(NULL),
+  problem_id_      (""),
   device_handle_   (new viennamini::device(stream)),
   config_handle_   (new viennamini::config(stream)),
-  stepper_         (current_contact_potentials_),
   problem_         (NULL),
   stream_          (stream),
   output_file_prefix_("output"),
   device_changed_  (true),
   config_changed_  (true),
   manual_problem_  (false)
+{
+}
+
+simulator::simulator(device_template* device_generator, std::ostream& stream) :
+  stepper_         (current_contact_potentials_),
+  device_generator_(device_generator),
+  problem_id_      (device_generator->problem_id()),
+  device_handle_   (device_generator->device_handle()),
+  config_handle_   (device_generator->config_handle()),
+  problem_         (NULL),
+  stream_          (device_generator->stream()),
+  output_file_prefix_("output"),
+  device_changed_  (true),
+  config_changed_  (true),
+  manual_problem_  (false)
+
 {
 }
 
@@ -50,12 +69,6 @@ viennamini::device      & simulator::device()
   return *device_handle_;
 }
 
-void simulator::set_device(viennamini::device_handle& new_device)
-{
-  device_handle_.reset();
-  device_handle_ = new_device;
-}
-
 viennamini::device_handle& simulator::device_handle()
 {
   return device_handle_;
@@ -72,15 +85,14 @@ viennamini::config      & simulator::config()
   return *config_handle_;
 }
 
-void simulator::set_config(viennamini::config_handle& new_config)
-{
-  config_handle_.reset();
-  config_handle_ = new_config;
-}
-
 viennamini::config_handle& simulator::config_handle()
 {
   return config_handle_;
+}
+
+std::string& simulator::problem_id()
+{
+  return problem_id_;
 }
 
 void simulator::set_problem(viennamini::problem* active_problem)
@@ -117,7 +129,7 @@ void simulator::run()
       #ifdef VIENNAMINI_VERBOSE
         stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
       #endif
-        if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
         {
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_poisson_dd_np(this->stream());
@@ -125,7 +137,7 @@ void simulator::run()
           problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
         }
         else
-        if(config().problem() == viennamini::id::laplace())
+        if(problem_id() == viennamini::id::laplace())
         {
 
           if(problem_) delete problem_;
@@ -133,7 +145,7 @@ void simulator::run()
           problem_->set(this->device_handle(), this->config_handle());
           problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
         }
-        else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
+        else throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
       }
 
       if(config().write_result_files())
@@ -157,9 +169,9 @@ void simulator::run()
       else
       {
       #ifdef VIENNAMINI_VERBOSE
-        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+        stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
       #endif
-        if(config().problem() == viennamini::id::poisson_drift_diffusion_np())
+        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
         {
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_poisson_dd_np(this->stream());
@@ -167,7 +179,7 @@ void simulator::run()
           this->execute_loop();
         }
         else
-        if(config().problem() == viennamini::id::laplace())
+        if(problem_id() == viennamini::id::laplace())
         {
 
           if(problem_) delete problem_;
@@ -175,7 +187,7 @@ void simulator::run()
           problem_->set(this->device_handle(), this->config_handle());
           this->execute_loop();
         }
-        else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
+        else throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
       }
     }
   }
@@ -219,6 +231,11 @@ viennamini::numeric& simulator::current_contact_potential   (std::size_t segment
 viennamini::numeric& simulator::current_contact_workfunction(std::size_t segment_index)
 {
   return current_contact_workfunctions_[segment_index];
+}
+
+viennamini::device_template& simulator::device_generator()
+{
+  return *device_generator_;
 }
 
 viennamini::csv& simulator::csv()
