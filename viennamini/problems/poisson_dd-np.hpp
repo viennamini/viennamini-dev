@@ -23,11 +23,11 @@ namespace viennamini {
 struct problem_poisson_dd_np : public problem
 {
   VIENNAMINI_PROBLEM(problem_poisson_dd_np)
-  
+
   template<typename SegmentedMeshT, typename ProblemDescriptionSetT>
-  void run_impl(SegmentedMeshT& segmesh, 
-                ProblemDescriptionSetT& problem_description_set, 
-                segment_values        & current_contact_potentials, 
+  void run_impl(SegmentedMeshT& segmesh,
+                ProblemDescriptionSetT& problem_description_set,
+                segment_values        & current_contact_potentials,
                 segment_values        & current_contact_workfunctions,
                 std::size_t             step_id)
   {
@@ -43,7 +43,7 @@ struct problem_poisson_dd_np : public problem
     // Extract ViennaFVM::Quantities
     //
     // -------------------------------------------------------------------------
-    
+
     // access the already available quantities in the device's problem description
     // of the 'initial' description, i.e., at index 0
     //
@@ -54,7 +54,7 @@ struct problem_poisson_dd_np : public problem
     // access the 'current' problem description, each simulation iteration has its own
     //
     ProblemDescriptionType& problem_description = problem_description_set[step_id];
-    
+
     QuantityType & permittivity             = problem_description.add_quantity(permittivity_initial);
     QuantityType & donator_doping           = problem_description.add_quantity(donator_doping_initial);
     QuantityType & acceptor_doping          = problem_description.add_quantity(acceptor_doping_initial);
@@ -84,7 +84,7 @@ struct problem_poisson_dd_np : public problem
     //
     // -------------------------------------------------------------------------
 
-    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
@@ -98,16 +98,16 @@ struct problem_poisson_dd_np : public problem
       stream() << "  Name:     \"" << name << "\"" << std::endl;
       stream() << "  Material: \"" << material << "\"" << std::endl;
     #endif
-      
+
       //
-      // Set quantities on all segments 
+      // Set quantities on all segments
       //
       // temperature
-      viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), config().temperature()); 
+      viennafvm::set_initial_value(temperature, segmesh.segmentation(current_segment_index), config().temperature());
 
       // thermal potential
-      viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature)); 
-      
+      viennafvm::set_initial_value(thermal_pot, segmesh.segmentation(current_segment_index), thermal_potential<QuantityType>(temperature));
+
 
       if(device().is_contact(current_segment_index))
       {
@@ -116,7 +116,7 @@ struct problem_poisson_dd_np : public problem
           current_contact_potentials[current_segment_index] = 0.0;
         if(current_contact_workfunctions.find(current_segment_index) == current_contact_workfunctions.end())
           current_contact_workfunctions[current_segment_index] = 0.0;
-      
+
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
@@ -128,11 +128,11 @@ struct problem_poisson_dd_np : public problem
 
           NumericType ni_value    = device().material_library()->query_value(
             vmat::make_query(
-                        vmat::make_entry(device().matlib_material() , device().get_material(adjacent_semiconductor_segment_index)), 
+                        vmat::make_entry(device().matlib_material() , device().get_material(adjacent_semiconductor_segment_index)),
                         vmat::make_entry(device().matlib_parameter(), material::intrinsic_carrier_concentration()),
                         vmat::make_entry(device().matlib_data()     , material::value())));
           NumericType builtin_pot = viennamini::built_in_potential_impl(ND_value, NA_value, config().temperature(), ni_value);
-        
+
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
@@ -143,15 +143,15 @@ struct problem_poisson_dd_np : public problem
         #endif
 
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
             current_contact_workfunctions[current_segment_index] +
             builtin_pot
           );
 
 //          // add the builtin potential to the dirichlet potential boundary
-//          viennafvm::addto_dirichlet_boundary(potential, 
-//                                            segmesh.segmentation(current_segment_index), 
+//          viennafvm::addto_dirichlet_boundary(potential,
+//                                            segmesh.segmentation(current_segment_index),
 //                                            builtin_pot);
 
           // electrons dirichlet boundary
@@ -166,15 +166,15 @@ struct problem_poisson_dd_np : public problem
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to an oxide .." << std::endl;
         #endif
-        
+
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
         #endif
-        
+
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
             current_contact_workfunctions[current_segment_index]
           );
         }
@@ -194,18 +194,18 @@ struct problem_poisson_dd_np : public problem
       #ifdef VIENNAMINI_VERBOSE
         stream() << "  identified as a semiconductor .." << std::endl;
       #endif
-      
+
         NumericType ni_value    = device().material_library()->query_value(
-          vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+          vmat::make_query(vmat::make_entry(device().matlib_material() , material),
                            vmat::make_entry(device().matlib_parameter(), material::intrinsic_carrier_concentration()),
                            vmat::make_entry(device().matlib_data()     , material::value()))
         );
 
         // intrinsic carrier concentration
-        viennafvm::set_initial_value(intrinsic_concentration, segmesh.segmentation(current_segment_index), ni_value); 
+        viennafvm::set_initial_value(intrinsic_concentration, segmesh.segmentation(current_segment_index), ni_value);
 
         // potential
-        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration, temperature)); 
+        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration, temperature));
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
 
         // electrons
@@ -218,18 +218,18 @@ struct problem_poisson_dd_np : public problem
 
         // mobility
         NumericType mu_n_0_value    = device().material_library()->query_value(
-          vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+          vmat::make_query(vmat::make_entry(device().matlib_material() , material),
                            vmat::make_entry(device().matlib_parameter(), material::base_electron_mobility()),
                            vmat::make_entry(device().matlib_data()     , material::value()))
         );
         NumericType mu_p_0_value    = device().material_library()->query_value(
-          vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+          vmat::make_query(vmat::make_entry(device().matlib_material() , material),
                            vmat::make_entry(device().matlib_parameter(), material::base_hole_mobility()),
                            vmat::make_entry(device().matlib_data()     , material::value()))
         );
 
-        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_0_value); 
-        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_0_value); 
+        viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index),  mu_n_0_value);
+        viennafvm::set_initial_value(hole_mobility, segmesh.segmentation(current_segment_index),      mu_p_0_value);
       #ifdef VIENNAMINI_VERBOSE
         stream() << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
       #endif
@@ -242,14 +242,14 @@ struct problem_poisson_dd_np : public problem
 //          stream() << "    activating lattice scattering mobility model .." << std::endl;
 //        #endif
 //          NumericType alpha_n_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::lattice_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_n()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType alpha_p_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::lattice_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_p()),
@@ -259,8 +259,8 @@ struct problem_poisson_dd_np : public problem
 //          stream() << "      mu n 0: " << mu_n_0_value << " mu p 0: " << mu_p_0_value << std::endl;
 //          stream() << "      alpha n: " << alpha_n_value << " alpha p: " << alpha_p_value << std::endl;
 //        #endif
-//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_0_value, alpha_n_value, temperature)); 
-//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_0_value, alpha_p_value, temperature)); 
+//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_n_0_value, alpha_n_value, temperature));
+//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), mobility::lattice_scattering<QuantityType>(mu_p_0_value, alpha_p_value, temperature));
 //        }
 //        else
 //        if(device().get_mobility(current_segment_index) == mobility::ionized_impurity)
@@ -269,57 +269,57 @@ struct problem_poisson_dd_np : public problem
 //          stream() << "    activating ionized impurity scattering mobility model .." << std::endl;
 //        #endif
 //          NumericType alpha_n_lattice_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::lattice_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_n()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType alpha_p_lattice_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::lattice_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_p()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
-//        
+//
 //          NumericType alpha_n_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_n()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType alpha_p_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::alpha_p()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType mu_min_n_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::mu_min_n()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType mu_min_p_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::mu_min_p()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType N_ref_n_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::N_ref_n()),
 //                             vmat::make_entry(device().matlib_data()     , material::value()))
 //          );
 //          NumericType N_ref_p_value    = device().material_library()->query_value(
-//            vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//            vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                             vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                             vmat::make_entry(device().matlib_model(),     material::ionized_impurity_scattering()),
 //                             vmat::make_entry(device().matlib_parameter(), material::N_ref_p()),
@@ -330,17 +330,17 @@ struct problem_poisson_dd_np : public problem
 //          stream() << "      mu min n: " << mu_min_n_value << " mu min p: " << mu_min_p_value << std::endl;
 //          stream() << "      N ref n: " << N_ref_n_value << " N ref p: " << N_ref_p_value << std::endl;
 //        #endif
-//          
+//
 //          typedef mobility::lattice_scattering<QuantityType>                            LatticeType;
 //          LatticeType lattice_n(mu_n_0_value, alpha_n_lattice_value, temperature);
 //          LatticeType lattice_p(mu_p_0_value, alpha_p_lattice_value, temperature);
-//          
+//
 //          typedef mobility::ionized_impurity_scattering<LatticeType, QuantityType>      IonizedImpurityType;
 //          IonizedImpurityType   ionized_impurities_n(lattice_n, donator_doping, acceptor_doping, alpha_n_value, mu_min_n_value, N_ref_n_value);
 //          IonizedImpurityType   ionized_impurities_p(lattice_p, donator_doping, acceptor_doping, alpha_p_value, mu_min_p_value, N_ref_p_value);
-//          
-//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), ionized_impurities_n); 
-//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), ionized_impurities_p); 
+//
+//          viennafvm::set_initial_value(electron_mobility, segmesh.segmentation(current_segment_index), ionized_impurities_n);
+//          viennafvm::set_initial_value(hole_mobility,     segmesh.segmentation(current_segment_index), ionized_impurities_p);
 //        }
 //        else throw mobility_not_supported_exception();
 
@@ -351,11 +351,11 @@ struct problem_poisson_dd_np : public problem
 //          stream() << "    deactivating recombination models .." << std::endl;
 //        #endif
 //          viennafvm::set_initial_value(recombination,     segmesh.segmentation(current_segment_index), 0.0); // switch off
-//          
+//
 //          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), 0.0);
 //          viennafvm::set_initial_value(hole_lifetime,     segmesh.segmentation(current_segment_index), 0.0);
-//          viennafvm::set_initial_value(srh_n1,            segmesh.segmentation(current_segment_index), 0.0); 
-//          viennafvm::set_initial_value(srh_p1,            segmesh.segmentation(current_segment_index), 0.0); 
+//          viennafvm::set_initial_value(srh_n1,            segmesh.segmentation(current_segment_index), 0.0);
+//          viennafvm::set_initial_value(srh_p1,            segmesh.segmentation(current_segment_index), 0.0);
 //        }
 //        else
 //        if(device().get_recombination(current_segment_index) == recombination::srh)
@@ -366,28 +366,28 @@ struct problem_poisson_dd_np : public problem
 //          viennafvm::set_initial_value(recombination, segmesh.segmentation(current_segment_index), 1.0); // switch
 
 //          NumericType tau_n_0 = device().material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//              vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                               vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                               vmat::make_entry(device().matlib_model(),     material::shockley_read_hall_recombination()),
 //                               vmat::make_entry(device().matlib_parameter(), material::tau_n_0()),
 //                               vmat::make_entry(device().matlib_data()     , material::value()))  );
 
 //          NumericType tau_p_0 = device().material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//              vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                               vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                               vmat::make_entry(device().matlib_model(),     material::shockley_read_hall_recombination()),
 //                               vmat::make_entry(device().matlib_parameter(), material::tau_p_0()),
 //                               vmat::make_entry(device().matlib_data()     , material::value()))  );
 
 //          NumericType N_ref_n = device().material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//              vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                               vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                               vmat::make_entry(device().matlib_model(),     material::shockley_read_hall_recombination()),
 //                               vmat::make_entry(device().matlib_parameter(), material::N_ref_n()),
 //                               vmat::make_entry(device().matlib_data()     , material::value()))  );
 
 //          NumericType N_ref_p = device().material_library()->query_value(
-//              vmat::make_query(vmat::make_entry(device().matlib_material() , material), 
+//              vmat::make_query(vmat::make_entry(device().matlib_material() , material),
 //                               vmat::make_entry(device().matlib_model(),     material::drift_diffusion()),
 //                               vmat::make_entry(device().matlib_model(),     material::shockley_read_hall_recombination()),
 //                               vmat::make_entry(device().matlib_parameter(), material::N_ref_p()),
@@ -398,13 +398,13 @@ struct problem_poisson_dd_np : public problem
 
 //          viennafvm::set_initial_value(electron_lifetime, segmesh.segmentation(current_segment_index), tau_n);
 //          viennafvm::set_initial_value(hole_lifetime,     segmesh.segmentation(current_segment_index), tau_p);
-//          
+//
 //        #ifdef VIENNAMINI_VERBOSE
 //          stream() << "      tau n 0: " << tau_n_0 << " tau p 0: " << tau_p_0 << std::endl;
 //          stream() << "      N ref n: " << N_ref_n << " N ref p: " << N_ref_p << std::endl;
 //        #endif
-//          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density); 
-//          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density); 
+//          viennafvm::set_initial_value(srh_n1,                segmesh.segmentation(current_segment_index), electron_density);
+//          viennafvm::set_initial_value(srh_p1,                segmesh.segmentation(current_segment_index), hole_density);
 //        }
 //        else throw recombination_not_supported_exception();
       }
@@ -456,8 +456,8 @@ struct problem_poisson_dd_np : public problem
 
 //    EquationType laplace_eq = viennamath::make_equation( viennamath::div(eps * viennamath::grad(psi)), /* = */ 0);
 //    viennafvm::linear_pde_system<> pde_system;
-//    pde_system.add_pde(laplace_eq, psi); 
-//    pde_system.is_linear(true); 
+//    pde_system.add_pde(laplace_eq, psi);
+//    pde_system.is_linear(true);
     // -------------------------------------------------------------------------
     //
     // Assemble and solve the problem
@@ -467,10 +467,22 @@ struct problem_poisson_dd_np : public problem
     viennafvm::linsolv::viennacl  linear_solver;
     linear_solver.break_tolerance() = config().linear_breaktol();
     linear_solver.max_iterations()  = config().linear_iterations();
-    
+
     viennafvm::pde_solver pde_solver;
     pde_solver.set_nonlinear_iterations(config().nonlinear_iterations());
     pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
+
+    // temporary fix to ensure proper handling of minority carriers
+    // see ViennaFVM commit:
+    // https://github.com/viennafvm/viennafvm-dev/commit/3144e05af36be3beb02ee9be85d6d07c34031395
+    //
+    if(config().damping() > 0.5)
+    {
+      config().damping() = 0.5;
+  #ifdef VIENNAMINI_VERBOSE
+    stream() << "[Problem][PoissonDD NP] setting damping to " << config().damping() << std::endl;
+  #endif
+    }
     pde_solver.set_damping(config().damping());
 
     if(config().write_initial_guess_files())
@@ -483,7 +495,7 @@ struct problem_poisson_dd_np : public problem
   #endif
 
     bool converged = pde_solver(problem_description, pde_system, linear_solver);
-    
+
     if(!converged) throw solution_not_converged_error("PoissonDD NP did not converge");
 
     // -------------------------------------------------------------------------
@@ -495,7 +507,7 @@ struct problem_poisson_dd_np : public problem
     if(step_id == 0)
     {
       std::vector<std::string>  header;
-      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
       {
         std::size_t current_segment_index = sit->id();
@@ -517,7 +529,7 @@ struct problem_poisson_dd_np : public problem
     }
 
     viennamini::csv::data_line_type data_line;
-    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
@@ -530,7 +542,7 @@ struct problem_poisson_dd_np : public problem
           data_line.push_back( current_contact_potentials[current_segment_index] );
           data_line.push_back( get_terminal_current(segmesh.segmentation[current_segment_index],
                                  segmesh.segmentation[adjacent_semiconductor_segment_index],
-                                 electron_density, 
+                                 electron_density,
                                  hole_density) );
         }
         else
