@@ -1,0 +1,14 @@
+<viennamini>
+  <simulator>
+    <problem>poisson_dd_np</problem>
+
+  </simulator>
+  <device>
+  </device>
+  <config>
+    <nonlinear_iterations>100</nonlinear_iterations>
+    <nonlinear_breaktol>1.0E-2</nonlinear_breaktol>
+    <linear_iterations>1000</linear_iterations>
+    <linear_breaktol>1.0E-13</linear_breaktol>
+  </config>
+</viennamini>
