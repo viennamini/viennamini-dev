@@ -34,7 +34,7 @@ struct electric_field
   template<typename CellT>
   result_type operator()(CellT const& cell)
   {
-    
+    return 0.0; // silence compiler for now
   }
 
 private:

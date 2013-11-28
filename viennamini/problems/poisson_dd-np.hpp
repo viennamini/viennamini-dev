@@ -504,21 +504,20 @@ struct problem_poisson_dd_np : public problem
     //
     // -------------------------------------------------------------------------
 
-    QuantityType & electric_field = problem_description.add_quantity(viennamini::id::electric_field());
-
     // Compute the electric field
     //
-    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
-        sit != segmesh.segmentation.end(); ++sit)
-    {
-      std::size_t current_segment_index = sit->id();
-      // compute the electric field on all segments except the contacts
-      //
-      if(!device().is_contact(current_segment_index))
-      {
-        viennafvm::set_initial_value(electric_field, segmesh.segmentation(current_segment_index), postproc::electric_field<QuantityType>(potential));
-      }
-    }
+//    QuantityType & electric_field = problem_description.add_quantity(viennamini::id::electric_field());
+//    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+//        sit != segmesh.segmentation.end(); ++sit)
+//    {
+//      std::size_t current_segment_index = sit->id();
+//      // compute the electric field on all segments except the contacts
+//      //
+//      if(!device().is_contact(current_segment_index))
+//      {
+//        viennafvm::set_initial_value(electric_field, segmesh.segmentation(current_segment_index), postproc::electric_field<QuantityType>(potential));
+//      }
+//    }
 
     if(step_id == 0)
     {
