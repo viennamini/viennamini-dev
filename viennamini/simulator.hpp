@@ -44,7 +44,7 @@ namespace viennamini
   class simulator
   {
   public:
-  
+
     simulator(std::ostream& stream = std::cout);
     ~simulator();
 
@@ -68,13 +68,13 @@ namespace viennamini
 
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
-    
+
     viennamini::csv                    & csv();
-  
+
   private:
 
     void                                 execute_loop();
-    std::string                          encode_current_boundary_setup(); 
+    std::string                          encode_current_boundary_setup();
     void                                 resize_problem_description_set();
 
     viennamini::device_handle            device_handle_;
@@ -83,10 +83,10 @@ namespace viennamini
     viennamini::problem                * problem_;
     std::ostream                       & stream_;
     std::string                          output_file_prefix_;
-    
+
     segment_values                       current_contact_potentials_;
     segment_values                       current_contact_workfunctions_;
-    
+
     bool device_changed_;
     bool config_changed_;
     bool manual_problem_;

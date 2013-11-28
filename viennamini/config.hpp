@@ -48,7 +48,7 @@ struct config
   bool&         write_result_files();
   std::string&  problem();
   std::ostream& stream();
-  
+
 private:
   IndexType         nonlinear_iterations_;
   IndexType         linear_iterations_;

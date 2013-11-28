@@ -115,7 +115,7 @@ public:
   typedef viennamini::numeric           NumericType;
   typedef viennamath::function_symbol   FunctionSymbolType;
   typedef viennamath::equation          EquationType;
-  
+
   typedef FunctionSymbolType            function_symbol_type;
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
@@ -124,7 +124,7 @@ public:
   {
   }
 
-  void set(viennamini::device_handle& device_handle, 
+  void set(viennamini::device_handle& device_handle,
            viennamini::config_handle& config_handle)
   {
     device_handle_ = device_handle;
@@ -141,8 +141,8 @@ public:
     return *config_handle_;
   }
 
-  virtual void run(segment_values& current_contact_potentials, 
-                   segment_values& current_contact_workfunctions, 
+  virtual void run(segment_values& current_contact_potentials,
+                   segment_values& current_contact_workfunctions,
                    std::size_t step_id) = 0;
 
   void write(std::string const& filename, std::size_t step_id)
@@ -150,30 +150,30 @@ public:
     if(device().is_line1d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_line_1d(step_id).quantities(), 
-        filename, 
-        device().get_segmesh_line_1d().mesh, 
+        device().get_problem_description_line_1d(step_id).quantities(),
+        filename,
+        device().get_segmesh_line_1d().mesh,
         device().get_segmesh_line_1d().segmentation);
     }
     else
     if(device().is_triangular2d())
-    { 
+    {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_triangular_2d(step_id).quantities(), 
-        filename, 
-        device().get_segmesh_triangular_2d().mesh, 
+        device().get_problem_description_triangular_2d(step_id).quantities(),
+        filename,
+        device().get_segmesh_triangular_2d().mesh,
         device().get_segmesh_triangular_2d().segmentation);
     }
-    else 
+    else
     if(device().is_tetrahedral3d())
     {
       viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_tetrahedral_3d(step_id).quantities(), 
-        filename, 
-        device().get_segmesh_tetrahedral_3d().mesh, 
+        device().get_problem_description_tetrahedral_3d(step_id).quantities(),
+        filename,
+        device().get_segmesh_tetrahedral_3d().mesh,
         device().get_segmesh_tetrahedral_3d().segmentation);
     }
-    else throw device_not_supported_exception("at: problem::write()"); 
+    else throw device_not_supported_exception("at: problem::write()");
   }
 
   viennamini::csv& csv() { return csv_; }

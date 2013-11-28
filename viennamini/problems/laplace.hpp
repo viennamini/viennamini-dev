@@ -23,11 +23,11 @@ struct problem_laplace : public problem
 {
   VIENNAMINI_PROBLEM(problem_laplace)
 
-  
+
   template<typename SegmentedMeshT, typename ProblemDescriptionSetT>
-  void run_impl(SegmentedMeshT& segmesh, 
-                ProblemDescriptionSetT& problem_description_set, 
-                segment_values        & current_contact_potentials, 
+  void run_impl(SegmentedMeshT& segmesh,
+                ProblemDescriptionSetT& problem_description_set,
+                segment_values        & current_contact_potentials,
                 segment_values        & current_contact_workfunctions,
                 std::size_t             step_id)
   {
@@ -35,7 +35,7 @@ struct problem_laplace : public problem
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
     typedef typename ProblemDescriptionSetT::value_type       ProblemDescriptionType;
     typedef typename ProblemDescriptionType::quantity_type    QuantityType;
-    
+
 
     // -------------------------------------------------------------------------
     //
@@ -50,14 +50,14 @@ struct problem_laplace : public problem
     if(viennamini::is_zero(permittivity.get_sum()))  throw required_quantity_is_zero_exception("Permittivity is not available");
 
     QuantityType & potential                = problem_description.add_quantity(viennamini::id::potential());
-    
+
     // -------------------------------------------------------------------------
     //
     // Assign segment roles: setup initial guesses and boundary conditions
     //
     // -------------------------------------------------------------------------
-    
-    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin(); 
+
+    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
@@ -76,21 +76,21 @@ struct problem_laplace : public problem
           current_contact_potentials[current_segment_index] = 0.0;
         if(current_contact_workfunctions.find(current_segment_index) == current_contact_workfunctions.end())
           current_contact_workfunctions[current_segment_index] = 0.0;
-      
+
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to a semiconductor .." << std::endl;
         #endif
-        
+
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
         #endif
-        
+
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
             current_contact_workfunctions[current_segment_index]
           );
         }
@@ -100,15 +100,15 @@ struct problem_laplace : public problem
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to an oxide .." << std::endl;
         #endif
-        
+
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
         #endif
-        
+
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
             current_contact_workfunctions[current_segment_index]
           );
         }
@@ -146,8 +146,8 @@ struct problem_laplace : public problem
 
     // Specify the PDE system:
     viennafvm::linear_pde_system<> pde_system;
-    pde_system.add_pde(laplace_eq, psi); 
-    pde_system.is_linear(true); 
+    pde_system.add_pde(laplace_eq, psi);
+    pde_system.is_linear(true);
 
     // -------------------------------------------------------------------------
     //
@@ -157,7 +157,7 @@ struct problem_laplace : public problem
     viennafvm::linsolv::viennacl  linear_solver;
     linear_solver.break_tolerance() = config().linear_breaktol();
     linear_solver.max_iterations()  = config().linear_iterations();
-    
+
     viennafvm::pde_solver pde_solver;
 
     if(config().write_initial_guess_files())

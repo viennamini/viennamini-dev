@@ -111,7 +111,7 @@ private:
   typedef viennagrid::result_of::plc_handle<MeshType>::type             MeshPLCHandleType;
 
 public:
-  capacitor3d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+  capacitor3d(std::string const& material_library_file, std::ostream& stream = std::cout)
     : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0, 0.0);
@@ -131,7 +131,7 @@ public:
     geometry_properties()["PI6"]   = point_type(2.0, 0.0, 2.0);
     geometry_properties()["PI7"]   = point_type(2.0, 1.0, 2.0);
     geometry_properties()["PI8"]   = point_type(1.0, 1.0, 2.0);
-    
+
     geometry_properties()["PC1"]   = point_type(0.0, 0.3, 0.0);
     geometry_properties()["PC3"]   = point_type(0.0, 0.3, 0.3);
     geometry_properties()["PC4"]   = point_type(0.0, 0.0, 0.3);
@@ -147,15 +147,15 @@ public:
     geometry_properties()["PC21"]  = point_type(3.3, 0.7, 1.7);
     geometry_properties()["PC51"]  = point_type(3.3, 1.0, 1.7);
     geometry_properties()["PC61"]  = point_type(3.3, 0.7, 2.0);
-    
+
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::tetgen::algorithm() );
-    mesher_->set_input( "cell_size", 0.01 );      
+    mesher_->set_input( "cell_size", 0.01 );
     mesher_->set_input( "max_radius_edge_ratio", 1.5 );  // maximum radius edge ratio
     mesher_->set_input( "min_dihedral_angle", 0.17 );     // minimum dihedral angle in radiant, 0.17 are about 10 degrees
-    mesher_->set_input( "delaunay", true  );    
-//    mesher_->set_input( "algorithm_type", "incremental_delaunay" ); 
-    
+    mesher_->set_input( "delaunay", true  );
+//    mesher_->set_input( "algorithm_type", "incremental_delaunay" );
+
     contact_a_ = "ContactA";
     plate_a_   = "PlateA";
     insulator_ = "Insulator";
@@ -167,7 +167,7 @@ public:
   {
   }
 
-  /* virtual */ 
+  /* virtual */
   void generate()
   {
     device_.reset();
@@ -184,7 +184,7 @@ public:
     device_->update_problem_description();
     this->assign_segments();
   }
-  
+
 private:
   void generate_mesh()
   {
@@ -192,13 +192,13 @@ private:
     MeshType & mesh = mesh_handle();
 
     std::vector<MeshVertexHandleType> vertices;
-    std::vector<MeshLineHandleType>   linesFront;      
+    std::vector<MeshLineHandleType>   linesFront;
     std::vector<MeshLineHandleType>   linesBack;
-    std::vector<MeshLineHandleType>   linesTop;        
+    std::vector<MeshLineHandleType>   linesTop;
     std::vector<MeshLineHandleType>   linesBottom;
-    std::vector<MeshLineHandleType>   linesRight;   
+    std::vector<MeshLineHandleType>   linesRight;
     std::vector<MeshLineHandleType>   linesLeft;
-    std::vector<MeshLineHandleType>   linesIntRight;   
+    std::vector<MeshLineHandleType>   linesIntRight;
     std::vector<MeshLineHandleType>   linesIntLeft;
     std::vector<MeshLineHandleType>   linesSegment2;
     std::vector<MeshLineHandleType>   linesSegment3;
@@ -312,7 +312,7 @@ private:
     // left (contains interface to Segment 1)
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc1]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc1], vertices[pc3]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc3], vertices[pc4]) );
@@ -327,7 +327,7 @@ private:
     // front
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc4]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc4], vertices[p5]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p5],  vertices[pi5]) );
@@ -347,7 +347,7 @@ private:
     // bottom
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p1],  vertices[pc1]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc1], vertices[p4]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p4],  vertices[pi4]) );
@@ -365,7 +365,7 @@ private:
     //
     // Segment 3
     //
-    
+
     // front
     {
       plcs.push_back( make_quad_plc( mesh, vertex_line_map, vertices[pi5], vertices[pi6], vertices[pi2], vertices[pi1] ) );
@@ -399,7 +399,7 @@ private:
     // top
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi6],  vertices[p6]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p6], vertices[pc6]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc6],  vertices[p7]) );
@@ -411,7 +411,7 @@ private:
     // back
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pi7],  vertices[p7]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p7], vertices[pc5]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc5],  vertices[p3]) );
@@ -427,7 +427,7 @@ private:
     // right (contains interface to Segment 5)
     {
       std::vector<MeshLineHandleType> lines;
-      
+
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc6],  vertices[p7]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[p7], vertices[pc5]) );
       lines.push_back( get_make_line(mesh, vertex_line_map, vertices[pc5], vertices[pc2]) );
@@ -472,7 +472,7 @@ private:
     //
     MeshPointType seed_point_segment_1 = get_seed_point( mesh, plcs.begin()+0, plcs.begin()+6 );
 //    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
-  
+
     MeshPointType seed_point_segment_2 = get_seed_point( mesh, plcs.begin()+5, plcs.begin()+11 );
 //    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
@@ -486,12 +486,12 @@ private:
 //    std::cout << "seed pnt 5: " << seed_point_segment_5 << std::endl;
 
     viennamesh::seed_point_3d_container seed_points;
-    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) );
     seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
     seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
     seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
     seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
-    mesher_->set_input("seed_points", seed_points);  
+    mesher_->set_input("seed_points", seed_points);
 
     // ---------------------------------------------------------------------------
     //
@@ -515,7 +515,7 @@ private:
     device_->make_contact         (1);
     device_->set_name             (1, contact_a_);
     device_->set_material         (1, "Cu");
-    
+
     device_->make_semiconductor   (2);
     device_->set_name             (2, plate_a_);
     device_->set_material         (2, "SiO2");
@@ -523,7 +523,7 @@ private:
     device_->make_semiconductor   (3);
     device_->set_name             (3, insulator_);
     device_->set_material         (3, "Si");
-    
+
     device_->make_semiconductor   (4);
     device_->set_name             (4, plate_b_);
     device_->set_material         (4, "SiO2");
@@ -532,7 +532,7 @@ private:
     device_->set_name             (5, contact_b_);
     device_->set_material         (5, "Cu");
   }
-  
+
 
 private:
   viennamesh::algorithm_handle mesher_;

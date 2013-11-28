@@ -24,8 +24,8 @@
 namespace viennamini {
 
 template<typename SegmentT, typename QuantityT>
-double get_terminal_current(SegmentT        & terminal, 
-                            SegmentT        & semiconductor, 
+double get_terminal_current(SegmentT        & terminal,
+                            SegmentT        & semiconductor,
                             QuantityT  const& current_density)
 {
   typedef typename viennagrid::result_of::cell<SegmentT>::type                 CellType;
@@ -54,9 +54,9 @@ double get_terminal_current(SegmentT        & terminal,
 }
 
 template<typename SegmentT, typename QuantityT>
-double get_terminal_current(SegmentT       & terminal, 
-                            SegmentT       & semiconductor, 
-                            QuantityT const& electron_density, 
+double get_terminal_current(SegmentT       & terminal,
+                            SegmentT       & semiconductor,
+                            QuantityT const& electron_density,
                             QuantityT const& hole_density)
 {
   typedef typename viennagrid::result_of::cell<SegmentT>::type                 CellType;

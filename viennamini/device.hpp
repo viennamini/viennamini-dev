@@ -26,7 +26,7 @@
 #include "boost/variant.hpp"
 
 
-namespace viennamini 
+namespace viennamini
 {
 
   /** @brief Exception for the case that the device type is not supported */
@@ -52,17 +52,17 @@ namespace viennamini
   class device
   {
   private:
-    
+
     typedef std::map<std::size_t, role::segment_role_ids>                                         SegmentRolesType;
     typedef std::map<std::size_t, recombination::recombination_ids>                               SegmentRecombinationsType;
     typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
-  
+
   public:
     // [JW] note that the first type in a boost::variant must be a default constructible object
     typedef boost::variant<null, segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
     typedef boost::variant<null, problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
-    
-    typedef std::vector<std::size_t>                                                       IndicesType;  
+
+    typedef std::vector<std::size_t>                                                       IndicesType;
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
     typedef std::map<std::size_t, std::string>                                             IndexKeysType;
     typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
@@ -90,15 +90,15 @@ namespace viennamini
     problem_description_line_1d&        get_problem_description_line_1d        (std::size_t id = 0);
     problem_description_triangular_2d&  get_problem_description_triangular_2d  (std::size_t id = 0);
     problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d (std::size_t id = 0);
-    
+
     problem_description_line_1d_set&        get_problem_description_line_1d_set        ();
     problem_description_triangular_2d_set&  get_problem_description_triangular_2d_set  ();
     problem_description_tetrahedral_3d_set& get_problem_description_tetrahedral_3d_set ();
-    
+
     void make_contact       (int segment_index);
     void make_oxide         (int segment_index);
     void make_semiconductor (int segment_index);
-    
+
     bool is_contact                 (int segment_index);
     bool is_contact_at_oxide        (int segment_index);
     bool is_contact_at_semiconductor(int segment_index);
@@ -118,13 +118,13 @@ namespace viennamini
     void read(std::string const& filename, viennamini::line_1d const&);
     void read(std::string const& filename, viennamini::triangular_2d const&);
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
-    
+
     void read_material_library(std::string const& filename);
-    
+
     void write(std::string const& filename);
-  
+
     void scale(viennamini::numeric factor);
-    
+
     void set_name                 (int segment_index, std::string const& new_name);
     void set_material             (int segment_index, std::string const& new_material);
     std::string get_name          (int segment_index);
@@ -169,7 +169,7 @@ namespace viennamini
     IndexMapType               contact_semiconductor_interfaces_;
     IndexMapType               contact_oxide_interfaces_;
     std::string                description_;
-    
+
     IndexKeysType              segment_names_;
     IndexKeysType              segment_materials_;
     SegmentRolesType           segment_roles_;
@@ -177,14 +177,14 @@ namespace viennamini
     SegmentMobilityType        segment_mobility_;
     IndexValuesType            segment_donator_doping_;
     IndexValuesType            segment_acceptor_doping_;
-    
+
     viennamini::material_library_handle  matlib_;
 
     viennamaterials::accessor_handle matlib_material_;
     viennamaterials::accessor_handle matlib_model_;
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
-    
+
     std::ostream& stream_;
   };
 

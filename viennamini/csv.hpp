@@ -43,7 +43,7 @@ public:
     header_.resize(header_line.size());
     std::copy(header_line.begin(), header_line.end(), header_.begin());
   }
-  
+
   void add_line(data_line_type& data_line)
   {
     matrix_.push_back(data_line);
@@ -64,7 +64,7 @@ public:
 
   void write(std::ostream& stream)
   {
-    for(HeaderLineType::iterator iter = header_.begin(); 
+    for(HeaderLineType::iterator iter = header_.begin();
         iter != header_.end(); iter++)
     {
       stream << *iter << "  ";
@@ -82,7 +82,7 @@ public:
       stream << "\n";
     }
   }
-  
+
 private:
   HeaderLineType  header_;
   MatrixType      matrix_;

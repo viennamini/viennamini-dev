@@ -45,20 +45,20 @@ namespace viennamini
   {
     typedef viennamini::numeric numeric_type;
     typedef numeric_type        result_type;
-    
+
     thermal_potential(QuantityT& T) :
      T_(T) {}
-    
+
     template<typename CellT>
-    result_type operator()(CellT const& cell) 
+    result_type operator()(CellT const& cell)
     {
       return thermal_potential_impl(T_.get_value(cell));
     }
-    
+
   private:
     QuantityT& T_;
   };
-  
+
 
   // ---------------------------------------------------------------------------
   //
@@ -78,29 +78,29 @@ namespace viennamini
 
     return bpot;
   }
-  
+
   template<typename QuantityT>
   struct built_in_potential
   {
     typedef viennamini::numeric numeric_type;
     typedef numeric_type        result_type;
-    
+
     built_in_potential(QuantityT& ND, QuantityT& NA, QuantityT& ni, QuantityT& T) :
      ND_(ND), NA_(NA), ni_(ni), T_(T) {}
-    
+
     template<typename CellT>
-    result_type operator()(CellT const& cell) 
+    result_type operator()(CellT const& cell)
     {
       return built_in_potential_impl(ND_.get_value(cell), NA_.get_value(cell), T_.get_value(cell), ni_.get_value(cell));
     }
-    
+
   private:
     QuantityT& ND_;
     QuantityT& NA_;
     QuantityT& ni_;
     QuantityT& T_;
   };
-  
+
   // ---------------------------------------------------------------------------
   //
   // Carrier Lifetimes
@@ -118,18 +118,18 @@ namespace viennamini
     typedef viennamini::numeric numeric_type;
     typedef numeric_type        result_type;
 
-    carrier_lifetimes(QuantityT& ND, QuantityT& NA, numeric_type const& N_ref, numeric_type const& tau_0) : 
+    carrier_lifetimes(QuantityT& ND, QuantityT& NA, numeric_type const& N_ref, numeric_type const& tau_0) :
       ND_(ND), NA_(NA), N_ref_(N_ref), tau_0_(tau_0)  {}
 
     template<typename CellT>
-    result_type operator()(CellT const& cell) 
+    result_type operator()(CellT const& cell)
     {
       return carrier_lifetimes_impl(ND_.get_value(cell), NA_.get_value(cell), N_ref_, tau_0_);
     }
 
     QuantityT   & ND_;
-    QuantityT   & NA_; 
-    numeric_type  N_ref_; 
+    QuantityT   & NA_;
+    numeric_type  N_ref_;
     numeric_type  tau_0_;
   };
 
@@ -157,15 +157,15 @@ namespace viennamini
     {
       typedef viennamini::numeric numeric_type;
       typedef numeric_type        result_type;
-      
+
       lattice_scattering(numeric_type const& mu_0, numeric_type const& alpha, QuantityT& T) : mu_0_(mu_0), alpha_(alpha), T_(T) {}
-      
+
       template<typename CellT>
-      result_type operator()(CellT const& cell) 
+      result_type operator()(CellT const& cell)
       {
         return lattice_scattering_impl(mu_0_, alpha_, T_.get_value(cell));
       }
-      
+
     private:
       numeric_type    mu_0_;
       numeric_type    alpha_;
@@ -188,16 +188,16 @@ namespace viennamini
     {
       typedef viennamini::numeric numeric_type;
       typedef numeric_type        result_type;
-      
-      ionized_impurity_scattering(FunctorT mu_lattice, QuantityT& ND, QuantityT& NA, numeric_type const& alpha, numeric_type const& mu_min, numeric_type const& N_ref) 
+
+      ionized_impurity_scattering(FunctorT mu_lattice, QuantityT& ND, QuantityT& NA, numeric_type const& alpha, numeric_type const& mu_min, numeric_type const& N_ref)
         : mu_lattice_(mu_lattice), ND_(ND), NA_(NA), alpha_(alpha), mu_min_(mu_min), N_ref_(N_ref) {}
-      
+
       template<typename CellT>
-      result_type operator()(CellT const& cell) 
+      result_type operator()(CellT const& cell)
       {
         return ionized_impurity_scattering_impl(mu_lattice_(cell), mu_min_, alpha_, ND_.get_value(cell)+NA_.get_value(cell), N_ref_);
       }
-      
+
     private:
       FunctorT       mu_lattice_;
       QuantityT &    ND_;

@@ -51,7 +51,7 @@ int find_adjacent_segment(SegmentedMeshT& segmesh, SegmentT & current_contact_se
 }
 
 template<typename SegmentedMeshT, typename IndexContT, typename IndexMapT>
-void detect_interfaces_impl(SegmentedMeshT& segmesh, IndexContT& contacts, IndexContT& oxides, IndexContT& semiconductors, 
+void detect_interfaces_impl(SegmentedMeshT& segmesh, IndexContT& contacts, IndexContT& oxides, IndexContT& semiconductors,
                             IndexMapT& contactSemiconductorInterfaces, IndexMapT& contactOxideInterfaces)
 {
   // traverse only contact segments
@@ -90,10 +90,10 @@ void detect_interfaces(viennamini::device& device, IndexMapT& contactSemiconduct
 
   if(device.is_line1d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_line_1d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
-  else 
+  else
   if(device.is_triangular2d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_triangular_2d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
-  else 
+  else
   if(device.is_tetrahedral3d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_tetrahedral_3d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
   else

@@ -21,9 +21,9 @@
 namespace viennamini
 {
 
-simulator::simulator(std::ostream& stream) : 
+simulator::simulator(std::ostream& stream) :
   device_handle_   (new viennamini::device(stream)),
-  config_handle_   (new viennamini::config(stream)), 
+  config_handle_   (new viennamini::config(stream)),
   stepper_         (current_contact_potentials_),
   problem_         (NULL),
   stream_          (stream),
@@ -46,7 +46,7 @@ viennamini::device const& simulator::device() const
 
 viennamini::device      & simulator::device()
 {
-  device_changed_ = true; 
+  device_changed_ = true;
   return *device_handle_;
 }
 
@@ -68,7 +68,7 @@ viennamini::config const& simulator::config() const
 
 viennamini::config      & simulator::config()
 {
-  config_changed_ = true; 
+  config_changed_ = true;
   return *config_handle_;
 }
 
@@ -135,7 +135,7 @@ void simulator::run()
         }
         else throw undefined_problem_exception("Problem \""+config().problem()+"\" not recognized");
       }
-      
+
       if(config().write_result_files())
         problem_->write(output_file_prefix_, 0);
     }
@@ -144,7 +144,7 @@ void simulator::run()
       // make sure, that the problem description is ready to hold
       // the simulation data for all upcoming simulations
       this->resize_problem_description_set();
-    
+
       if(manual_problem_)
       {
       #ifdef VIENNAMINI_VERBOSE
@@ -240,30 +240,30 @@ std::string simulator::encode_current_boundary_setup()
 
 void simulator::resize_problem_description_set()
 {
-  if(device().is_line1d()) 
+  if(device().is_line1d())
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
       device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
     }
   }
-  else 
-  if(device().is_triangular2d()) 
+  else
+  if(device().is_triangular2d())
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
       device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
     }
   }
-  else 
-  if(device().is_tetrahedral3d()) 
+  else
+  if(device().is_tetrahedral3d())
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
       device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
     }
   }
-  else throw device_not_supported_exception("at: simulator::resize_problem_description_set()"); 
+  else throw device_not_supported_exception("at: simulator::resize_problem_description_set()");
 }
 
 } // viennamini

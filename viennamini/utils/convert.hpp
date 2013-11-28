@@ -27,7 +27,7 @@ namespace viennamini {
 template<typename Target>
 struct convert
 {
-  typedef Target result_type; 
+  typedef Target result_type;
 
   template<typename Source>
   result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
@@ -45,8 +45,8 @@ struct convert
 template<>
 struct convert<float>
 {
-  typedef float result_type; 
-   
+  typedef float result_type;
+
   template<typename Source>
   result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
   {
@@ -68,8 +68,8 @@ private:
 template<>
 struct convert<double>
 {
-  typedef double result_type; 
-   
+  typedef double result_type;
+
   template<typename Source>
   result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
   {
@@ -93,7 +93,7 @@ template<>
 struct convert<std::string>
 {
   typedef std::string result_type;
-   
+
   template<typename Source>
   result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
   {

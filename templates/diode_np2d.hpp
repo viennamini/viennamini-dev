@@ -34,14 +34,14 @@ private:
 public:
   typedef SegmentIndexMapType segment_index_map_type;
 
-  diode_np2d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+  diode_np2d(std::string const& material_library_file, std::ostream& stream = std::cout)
     : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0);
     geometry_properties()["P2"]   = point_type(4.0, 0.0);
     geometry_properties()["P3"]   = point_type(4.0, 2.0);
     geometry_properties()["P4"]   = point_type(0.0, 2.0);
-    geometry_properties()["PI1"]  = point_type(2.0, 0.0); 
+    geometry_properties()["PI1"]  = point_type(2.0, 0.0);
     geometry_properties()["PI2"]  = point_type(2.0, 2.0);
 
     geometry_properties()["PC1"]  = point_type(0.0, 1.0);
@@ -51,19 +51,19 @@ public:
     geometry_properties()["PC2"]  = point_type(4.0, 1.0);
     geometry_properties()["PC21"] = point_type(4.5, 1.0);
     geometry_properties()["P31"]  = point_type(4.5, 2.0);
-    
+
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::triangle::algorithm() );
-    mesher_->set_input( "cell_size", 0.01 );      
+    mesher_->set_input( "cell_size", 0.01 );
     mesher_->set_input( "min_angle", 0.35 );     // in radiant
-    mesher_->set_input( "delaunay", true  );    
-//    mesher_->set_input( "algorithm_type", "incremental_delaunay" ); 
-    
+    mesher_->set_input( "delaunay", true  );
+//    mesher_->set_input( "algorithm_type", "incremental_delaunay" );
+
     anode            = "Anode";
     semiconductor_p  = "P";
     semiconductor_n  = "N";
     cathode          = "Cathode";
-    
+
     segment_indices_[anode]            = 1;
     segment_indices_[semiconductor_p]  = 2;
     segment_indices_[semiconductor_n]  = 3;
@@ -74,7 +74,7 @@ public:
   {
   }
 
-  /* virtual */ 
+  /* virtual */
   void generate()
   {
     device_.reset();
@@ -98,7 +98,7 @@ public:
     device_->update_problem_description();
     this->assign_segments();
   }
-  
+
 private:
   void generate_mesh()
   {
@@ -169,13 +169,13 @@ private:
     mesher_->set_input( "default", mesh );
 
     viennamesh::seed_point_2d_container seed_points;
-    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) );
     seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
     seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
     seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
 
     // creating a parameter set object
-    mesher_->set_input("seed_points", seed_points);  
+    mesher_->set_input("seed_points", seed_points);
 
     mesher_->reference_output( "default", device_->get_segmesh_triangular_2d() );
     if(!mesher_->run())
@@ -185,7 +185,7 @@ private:
       exit(-1);
     }
   }
-  
+
   template< typename LineIterT>
   MeshPointType compute_seed_point(MeshType const& mesh, LineIterT begin, LineIterT end)
   {
@@ -195,17 +195,17 @@ private:
     viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
     seed_point_locator->set_input( "default", temp_mesh);
     seed_point_locator->run();
-    
+
     typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
     viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-    
+
     if(point_container().size() != 1)
     {
       // TODO
       stream() << "Error: More than one seed point computed" << std::endl;
       exit(-1);
     }
-    
+
     return point_container().front();
   }
 

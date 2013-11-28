@@ -128,7 +128,7 @@ namespace viennamini
     inline std::string poisson_drift_diffusion_n()  { return "poisson_drift_diffusion_n"; }
     inline std::string poisson_drift_diffusion_p()  { return "poisson_drift_diffusion_p"; }
     inline std::string poisson_drift_diffusion_np() { return "poisson_drift_diffusion_np"; }
-    
+
     inline std::string permittivity()               { return "Permittivity"; }
     inline std::string donator_doping()             { return "N_D"; }
     inline std::string acceptor_doping()            { return "N_A"; }
@@ -146,7 +146,7 @@ namespace viennamini
     inline std::string srh_n1()                     { return "SRH n1"; }
     inline std::string srh_p1()                     { return "SRH p1";  }
   } // id
-  
+
   // the XML Tags used in the materials file
   namespace material {
     inline std::string relative_permittivity()              { return "relative_permittivity"; }
@@ -182,7 +182,7 @@ namespace viennamini
     enum segment_role_ids
     {
       none,
-      contact, 
+      contact,
       oxide,
       semiconductor
     };
@@ -191,7 +191,7 @@ namespace viennamini
   namespace recombination {
     enum recombination_ids
     {
-      none, 
+      none,
       srh
     };
   } // recombination
@@ -199,17 +199,17 @@ namespace viennamini
   namespace mobility {
     enum mobility_ids
     {
-      base, 
-      lattice, 
+      base,
+      lattice,
       ionized_impurity,
-      interface, 
+      interface,
       carrier_heating
     };
   } // mobility
 
   // public typedefs
   //
-  
+
   typedef double                                                                                                  numeric;
   typedef std::map<std::size_t, numeric>                                                                          segment_values;
 

@@ -52,7 +52,7 @@ public:
 private:
   StepValuesType              step_values_;
   StepValuesType::iterator    current_step_;
-  segment_values            & current_contact_potentials_; 
+  segment_values            & current_contact_potentials_;
 };
 
 } // viennamini

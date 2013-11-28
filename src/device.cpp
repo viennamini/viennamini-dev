@@ -63,7 +63,7 @@ device::device(std::ostream& stream) :   matlib_(), stream_(stream)
 void device::make_line1d()
 {
   generic_mesh_                     = segmesh_line_1d_ptr(new segmesh_line_1d_ptr::element_type);
-  
+
   generic_problem_description_set_  = problem_description_line_1d_set();
   this->get_problem_description_line_1d_set().push_back( problem_description_line_1d(get_segmesh_line_1d().mesh) );
 //  generic_problem_description_ = problem_description_line_1d(get_segmesh_line_1d().mesh);
@@ -217,11 +217,11 @@ void device::update()
     if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
   }
 
-  // identify contact-semiconductor/oxide interfaces 
+  // identify contact-semiconductor/oxide interfaces
   //
   viennamini::detect_interfaces(*this, contact_semiconductor_interfaces_, contact_oxide_interfaces_);
-  
-  // transfer permittivity from the semiconductor/oxide segments to 
+
+  // transfer permittivity from the semiconductor/oxide segments to
   // adjacent contact segments
   //
   for(IndicesType::iterator contact_iter = contact_segments_indices_.begin();
@@ -231,10 +231,10 @@ void device::update()
     {
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
-      
+
 
       numeric epsr_value    = this->material_library()->query_value(
-        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material), 
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
@@ -248,7 +248,7 @@ void device::update()
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
       numeric epsr_value    = this->material_library()->query_value(
-        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material), 
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
@@ -259,8 +259,8 @@ void device::update()
 }
 
 device::GenericMeshType& device::generic_mesh()
-{ 
-  return generic_mesh_; 
+{
+  return generic_mesh_;
 }
 
 device::GenericProblemDescriptionType & device::generic_problem_description_set()
@@ -269,7 +269,7 @@ device::GenericProblemDescriptionType & device::generic_problem_description_set(
 }
 
 material_library_handle & device::material_library()
-{ 
+{
   return matlib_;
 }
 
@@ -293,7 +293,7 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
 ////  segmesh_triangular_2d_ptr temp (new segmesh_triangular_2d_ptr::element_type);
 ////  reader->get_output( "default" )->convert_to( temp );
 
-//  //boost::get<segmesh_triangular_2d_ptr>(generic_mesh_) = 
+//  //boost::get<segmesh_triangular_2d_ptr>(generic_mesh_) =
 //  segmesh_triangular_2d_ptr temp = reader->get_output( "default" )->get_converted<segmesh_triangular_2d_ptr::element_type>();
 
 //  reader->run();
@@ -340,14 +340,14 @@ void device::write(std::string const& filename)
     viennagrid::io::vtk_writer<mesh_line_1d> vtk_writer;
     vtk_writer(segmesh->mesh, segmesh->segmentation, filename);
   }
-  else 
+  else
   if(this->is_triangular2d())
   {
     segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
     viennagrid::io::vtk_writer<mesh_triangular_2d> vtk_writer;
     vtk_writer(segmesh->mesh, segmesh->segmentation, filename);
   }
-  else 
+  else
   if(this->is_tetrahedral3d())
   {
     segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
@@ -363,19 +363,19 @@ void device::scale(viennamini::numeric factor)
   if(this->is_line1d())
   {
     segmesh_line_1d_ptr segmesh = boost::get<segmesh_line_1d_ptr>(generic_mesh_);
-    viennagrid::scale(segmesh->mesh, factor);  
+    viennagrid::scale(segmesh->mesh, factor);
   }
   else
   if(this->is_triangular2d())
   {
     segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
-    viennagrid::scale(segmesh->mesh, factor);  
+    viennagrid::scale(segmesh->mesh, factor);
   }
-  else 
+  else
   if(this->is_tetrahedral3d())
   {
     segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
-    viennagrid::scale(segmesh->mesh, factor);  
+    viennagrid::scale(segmesh->mesh, factor);
   }
   else throw device_not_supported_exception("at: device::scale()");
 }
@@ -388,7 +388,7 @@ void device::set_name(int segment_index, std::string const& new_name)
 void device::set_material(int segment_index, std::string const& new_material)
 {
   segment_materials_[segment_index] = new_material;
-  
+
   // set the relative permittivity of this segment, as we know the material now
   // extract the data from the material database
   //
@@ -397,7 +397,7 @@ void device::set_material(int segment_index, std::string const& new_material)
     namespace vmat = viennamaterials;
 
     numeric epsr_value    = this->material_library()->query_value(
-      vmat::make_query(vmat::make_entry(this->matlib_material() , new_material), 
+      vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
                        vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                        vmat::make_entry(this->matlib_data()     , material::value()))
     );

@@ -30,7 +30,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-namespace viennamini 
+namespace viennamini
 {
 
 class device_template
@@ -47,7 +47,7 @@ public:
   typedef PointType                     point_type;
   typedef SegmentIndexMapType           segment_index_map_type;
 
-  device_template(std::string const& material_library_file, std::ostream& stream = std::cout) 
+  device_template(std::string const& material_library_file, std::ostream& stream = std::cout)
     : material_library_file_(material_library_file), stream_(stream)
   {
     // deactivate ViennaMesh debug output
@@ -56,7 +56,7 @@ public:
   }
 
   virtual ~device_template() {}
-  
+
   geometry_properties_type&        geometry_properties()   { return geometry_properties_;  }
   viennamini::device_handle &      device()                { return device_;      }
   viennamini::config_handle &      config()                { return config_;      }

@@ -32,14 +32,14 @@ private:
   typedef viennagrid::result_of::line_handle<MeshType>::type        MeshLineHandleType;
 
 public:
-  capacitor2d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+  capacitor2d(std::string const& material_library_file, std::ostream& stream = std::cout)
     : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["P1"]   = point_type(0.0, 0.0);
     geometry_properties()["P2"]   = point_type(3.0, 0.0);
     geometry_properties()["P3"]   = point_type(3.0, 3.0);
     geometry_properties()["P4"]   = point_type(0.0, 3.0);
-    geometry_properties()["PI1"]  = point_type(1.0, 0.0); 
+    geometry_properties()["PI1"]  = point_type(1.0, 0.0);
     geometry_properties()["PI2"]  = point_type(2.0, 0.0);
     geometry_properties()["PI3"]  = point_type(2.0, 3.0);
     geometry_properties()["PI4"]  = point_type(1.0, 3.0);
@@ -49,14 +49,14 @@ public:
     geometry_properties()["PC2"]  = point_type(3.0, 2.0);
     geometry_properties()["PC21"] = point_type(3.5, 2.0);
     geometry_properties()["PC22"] = point_type(3.5, 3.0);
-    
+
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::triangle::algorithm() );
-    mesher_->set_input( "cell_size", 0.1 );      
+    mesher_->set_input( "cell_size", 0.1 );
     mesher_->set_input( "min_angle", 0.35 );     // in radiant
-    mesher_->set_input( "delaunay", true  );    
-//    mesher_->set_input( "algorithm_type", "incremental_delaunay" ); 
-    
+    mesher_->set_input( "delaunay", true  );
+//    mesher_->set_input( "algorithm_type", "incremental_delaunay" );
+
     contact_a_ = "ContactA";
     plate_a_   = "PlateA";
     insulator_ = "Insulator";
@@ -68,7 +68,7 @@ public:
   {
   }
 
-  /* virtual */ 
+  /* virtual */
   void generate()
   {
     device_.reset();
@@ -85,7 +85,7 @@ public:
     device_->update_problem_description();
     this->assign_segments();
   }
-  
+
 private:
   void generate_mesh()
   {
@@ -138,7 +138,7 @@ private:
     lines[1] = viennagrid::make_line(mesh(), pi2, pi3);
     lines[2] = viennagrid::make_line(mesh(), pi3, pi4);
     lines[3] = viennagrid::make_line(mesh(), pi4, pi1);
-    
+
     MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
 //    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
@@ -170,14 +170,14 @@ private:
     mesher_->set_input( "default", mesh );
 
     viennamesh::seed_point_2d_container seed_points;
-    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) );
     seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
     seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
     seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
     seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
 
     // creating a parameter set object
-    mesher_->set_input("seed_points", seed_points);  
+    mesher_->set_input("seed_points", seed_points);
 
     mesher_->reference_output( "default", device_->get_segmesh_triangular_2d() );
     if(!mesher_->run())
@@ -187,7 +187,7 @@ private:
       exit(-1);
     }
   }
-  
+
   template< typename LineIterT>
   MeshPointType compute_seed_point(MeshType const& mesh, LineIterT begin, LineIterT end)
   {
@@ -197,17 +197,17 @@ private:
     viennamesh::algorithm_handle seed_point_locator( new viennamesh::seed_point_locator::algorithm() );
     seed_point_locator->set_input( "default", temp_mesh);
     seed_point_locator->run();
-    
+
     typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
     viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-    
+
     if(point_container().size() != 1)
     {
       // TODO
       stream() << "Error: More than one seed point computed" << std::endl;
       exit(-1);
     }
-    
+
     return point_container().front();
   }
 
@@ -216,7 +216,7 @@ private:
     device_->make_contact         (1);
     device_->set_name             (1, contact_a_);
     device_->set_material         (1, "Cu");
-    
+
     device_->make_semiconductor   (2);
     device_->set_name             (2, plate_a_);
     device_->set_material         (2, "SiO2");
@@ -224,7 +224,7 @@ private:
     device_->make_semiconductor   (3);
     device_->set_name             (3, insulator_);
     device_->set_material         (3, "Si");
-    
+
     device_->make_semiconductor   (4);
     device_->set_name             (4, plate_b_);
     device_->set_material         (4, "SiO2");
@@ -233,7 +233,7 @@ private:
     device_->set_name             (5, contact_b_);
     device_->set_material         (5, "Cu");
   }
-  
+
 
 
 private:

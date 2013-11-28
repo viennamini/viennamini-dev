@@ -30,7 +30,7 @@ private:
   typedef viennagrid::result_of::vertex_handle<MeshType>::type      MeshVertexHandleType;
 
 public:
-  capacitor1d(std::string const& material_library_file, std::ostream& stream = std::cout) 
+  capacitor1d(std::string const& material_library_file, std::ostream& stream = std::cout)
     : viennamini::device_template(material_library_file, stream)
   {
     geometry_properties()["C11"]  = point_type(-0.5);
@@ -39,15 +39,15 @@ public:
     geometry_properties()["I2"]   = point_type(2.0);
     geometry_properties()["C2"]   = point_type(3.0);
     geometry_properties()["C21"]  = point_type(3.5);
-    
+
     // general mesh generation settings
     mesher_ = viennamesh::algorithm_handle( new viennamesh::mesher1d::algorithm() );
     mesher_->set_input( "cell_size", 0.05 );
 
     mesher_->set_input( "absolute_min_geometry_point_distance", 1e-10 );
     mesher_->set_input( "relative_min_geometry_point_distance", 1e-10 );
-    mesher_->set_input( "delaunay", true  );    
-    
+    mesher_->set_input( "delaunay", true  );
+
     contact_a_ = "ContactA";
     plate_a_   = "PlateA";
     insulator_ = "Insulator";
@@ -59,7 +59,7 @@ public:
   {
   }
 
-  /* virtual */ 
+  /* virtual */
   void generate()
   {
     device_.reset();
@@ -76,7 +76,7 @@ public:
     device_->update_problem_description();
     this->assign_segments();
   }
-  
+
 private:
   void generate_mesh()
   {
@@ -94,7 +94,7 @@ private:
 
     MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh(), c1, i1);
 //    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
-    
+
     MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh(), i1, i2);
 //    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
@@ -109,14 +109,14 @@ private:
     mesher_->set_input( "default", mesh );
 
     viennamesh::seed_point_1d_container seed_points;
-    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) ); 
+    seed_points.push_back( std::make_pair(seed_point_segment_1, 1) );
     seed_points.push_back( std::make_pair(seed_point_segment_2, 2) );
     seed_points.push_back( std::make_pair(seed_point_segment_3, 3) );
     seed_points.push_back( std::make_pair(seed_point_segment_4, 4) );
     seed_points.push_back( std::make_pair(seed_point_segment_5, 5) );
 
     // creating a parameter set object
-    mesher_->set_input("seed_points", seed_points);  
+    mesher_->set_input("seed_points", seed_points);
 
     mesher_->reference_output( "default", device_->get_segmesh_line_1d() );
     if(!mesher_->run())
@@ -126,7 +126,7 @@ private:
       exit(-1);
     }
   }
-  
+
   MeshPointType compute_seed_point(MeshType const& mesh, MeshVertexHandleType & v1, MeshVertexHandleType v2)
   {
     MeshType temp_mesh;
@@ -141,17 +141,17 @@ private:
       stream() << "Error: Seed point locator failed" << std::endl;
       exit(-1);
     }
-    
+
     typedef viennamesh::result_of::point_container<MeshPointType>::type PointContainerType;
     viennamesh::result_of::parameter_handle<PointContainerType>::type point_container = seed_point_locator->get_output<PointContainerType>( "default" );
-    
+
     if(point_container().size() != 1)
     {
       // TODO provide exception
       stream() << "Error: More than one seed point computed" << std::endl;
       exit(-1);
     }
-    
+
     return point_container().front();
   }
 
@@ -160,7 +160,7 @@ private:
     device_->make_contact         (1);
     device_->set_name             (1, contact_a_);
     device_->set_material         (1, "Cu");
-    
+
     device_->make_semiconductor   (2);
     device_->set_name             (2, plate_a_);
     device_->set_material         (2, "SiO2");
@@ -168,7 +168,7 @@ private:
     device_->make_semiconductor   (3);
     device_->set_name             (3, insulator_);
     device_->set_material         (3, "Si");
-    
+
     device_->make_semiconductor   (4);
     device_->set_name             (4, plate_b_);
     device_->set_material         (4, "SiO2");
@@ -177,7 +177,7 @@ private:
     device_->set_name             (5, contact_b_);
     device_->set_material         (5, "Cu");
   }
-  
+
 
 
 private:
