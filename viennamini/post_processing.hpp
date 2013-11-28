@@ -68,20 +68,24 @@ double get_terminal_current(SegmentT       & terminal,
     SegmentT, FacetType, CellType>::type                                       CoboundaryRangeType;
 
   double current = 0;
-
+//  std::size_t cnt = 0;
   FacetRange facets = viennagrid::elements<FacetType>(terminal);
   for (FacetIterator fit = facets.begin(); fit != facets.end(); ++fit)
   {
     FacetType & facet = *fit;
     if (viennagrid::is_interface(terminal, semiconductor, facet))
     {
+//      cnt++;
       CoboundaryRangeType coboundary_range(semiconductor, fit.handle());
-//      std::cout << " facet area:           " << viennagrid::volume(facet) << std::endl;
-//      std::cout << " cell current density: " << current_density.get_value(coboundary_range.front()) << std::endl;
+      std::cout << " A:  " << viennagrid::volume(facet) << std::endl;
+      std::cout << " Jn: " << electron_density.get_value(coboundary_range.front()) << std::endl;
+      std::cout << " Jp: " << hole_density.get_value(coboundary_range.front()) << std::endl;
+      std::cout << " I:  " << (electron_density.get_value(coboundary_range.front()) + hole_density.get_value(coboundary_range.front())) * viennagrid::volume(facet) << std::endl;
       // I = (Jn + Jp) * A
       current += (electron_density.get_value(coboundary_range.front()) + hole_density.get_value(coboundary_range.front())) * viennagrid::volume(facet);
     }
   }
+//  std::cout << "contact edges: " << cnt << std::endl;
   return current;
 }
 

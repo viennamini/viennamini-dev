@@ -34,6 +34,11 @@ int main()
 
   myconfig->write_initial_guess_files()          = false;
   myconfig->write_result_files()                 = true;
+  myconfig->damping()                            = 0.5;
+  myconfig->linear_breaktol()                    = 1.0E-14;
+  myconfig->linear_iterations()                  = 1000;
+  myconfig->nonlinear_iterations()               = 100;
+  myconfig->nonlinear_breaktol()                 = 1.0E-2;
 
   // setup a simulator object and link to a material file
   //
@@ -46,7 +51,8 @@ int main()
 
   // set contact potentials
   //
-  mysim.current_contact_potential   (device_generator->segment_indices()["Anode"])   = 0.5;
+  mysim.stepper().add(device_generator->segment_indices()["Anode"], 0.9, 0.9, 0.0);
+  mysim.stepper().write(std::cout);
 
   // write the simulation results to output files
   //
@@ -55,6 +61,9 @@ int main()
   // perform the simulation
   //
   mysim.run();
+
+  viennamini::csv mycsv = mysim.csv();
+  mycsv.write("diode_np2d_characteristics.csv");
 
   return 0;
 }

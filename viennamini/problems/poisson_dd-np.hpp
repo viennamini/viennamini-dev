@@ -16,7 +16,9 @@
 ======================================================================= */
 
 #include "viennamini/problem.hpp"
-#include "viennamini/post_processing.hpp"
+#include "viennamini/post_processing.hpp" // refactor
+
+#include "viennamini/postprocessing/electric_field.hpp"
 
 namespace viennamini {
 
@@ -502,6 +504,22 @@ struct problem_poisson_dd_np : public problem
     //
     // -------------------------------------------------------------------------
 
+    QuantityType & electric_field = problem_description.add_quantity(viennamini::id::electric_field());
+
+    // Compute the electric field
+    //
+    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+        sit != segmesh.segmentation.end(); ++sit)
+    {
+      std::size_t current_segment_index = sit->id();
+      // compute the electric field on all segments except the contacts
+      //
+      if(!device().is_contact(current_segment_index))
+      {
+        viennafvm::set_initial_value(electric_field, segmesh.segmentation(current_segment_index), postproc::electric_field<QuantityType>(potential));
+      }
+    }
+
     if(step_id == 0)
     {
       std::vector<std::string>  header;
@@ -538,8 +556,9 @@ struct problem_poisson_dd_np : public problem
           std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
 
           data_line.push_back( current_contact_potentials[current_segment_index] );
-          data_line.push_back( get_terminal_current(segmesh.segmentation[current_segment_index],
-                                 segmesh.segmentation[adjacent_semiconductor_segment_index],
+          data_line.push_back( get_terminal_current(
+                                 segmesh.segmentation[current_segment_index],                // the contact segment
+                                 segmesh.segmentation[adjacent_semiconductor_segment_index], // the semiconductor segment
                                  electron_density,
                                  hole_density) );
         }

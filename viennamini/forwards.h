@@ -137,6 +137,8 @@ namespace viennamini
     inline std::string hole_density()               { return "Hole Density"; }
     inline std::string electron_mobility()          { return "Electron Mobility"; }
     inline std::string hole_mobility()              { return "Hole Mobility"; }
+    inline std::string curren_density()             { return "Current Density"; }
+    inline std::string electric_field()             { return "Electric Field"; }
     inline std::string recombination()              { return "Recombination"; }
     inline std::string intrinsic_carrier()          { return "Intrinsic Carrier"; }
     inline std::string temperature()                { return "Temperature";  }

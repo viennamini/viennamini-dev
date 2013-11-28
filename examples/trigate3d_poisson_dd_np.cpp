@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
   mysim.device().set_material           (drain_contact, "Cu");
 
   mysim.config().temperature()                        = 300;
-  mysim.config().damping()                            = 1.0;
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;

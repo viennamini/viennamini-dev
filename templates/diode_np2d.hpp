@@ -93,7 +93,7 @@ public:
     config_->nonlinear_breaktol()                 = 1.0E-2;
 
     this->generate_mesh();
-    device_->scale(1.0E-6);
+    device_->scale(1.0E-9);
     device_->update_problem_description();
     this->assign_segments();
   }

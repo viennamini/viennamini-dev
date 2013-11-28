@@ -29,3 +29,6 @@ TARGET_LINK_LIBRARIES(template_capacitor3d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
 
 ADD_EXECUTABLE(template_diode_np2d     template_diode_np2d.cpp)
 TARGET_LINK_LIBRARIES(template_diode_np2d ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+
+ADD_EXECUTABLE(diode_np2d_characteristics     diode_np2d_characteristics.cpp)
+TARGET_LINK_LIBRARIES(diode_np2d_characteristics ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
