@@ -124,6 +124,10 @@ public:
   {
   }
 
+  virtual ~problem()
+  {
+  }
+
   void set(viennamini::device_handle& device_handle,
            viennamini::config_handle& config_handle)
   {

@@ -31,7 +31,6 @@ struct problem_laplace : public problem
                 segment_values        & current_contact_workfunctions,
                 std::size_t             step_id)
   {
-    typedef typename SegmentedMeshT::mesh_type                MeshType;
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
     typedef typename ProblemDescriptionSetT::value_type       ProblemDescriptionType;
     typedef typename ProblemDescriptionType::quantity_type    QuantityType;

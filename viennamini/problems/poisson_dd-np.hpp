@@ -33,7 +33,6 @@ struct problem_poisson_dd_np : public problem
   {
     namespace vmat = viennamaterials;
 
-    typedef typename SegmentedMeshT::mesh_type                MeshType;
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
     typedef typename ProblemDescriptionSetT::value_type       ProblemDescriptionType;
     typedef typename ProblemDescriptionType::quantity_type    QuantityType;
