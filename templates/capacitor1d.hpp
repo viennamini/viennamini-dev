@@ -159,7 +159,7 @@ private:
     device_handle_->set_name             (1, contact_a_);
     device_handle_->set_material         (1, "Cu");
 
-    device_handle_->make_semiconductor   (2);
+    device_handle_->make_oxide           (2);
     device_handle_->set_name             (2, plate_a_);
     device_handle_->set_material         (2, "SiO2");
 
@@ -167,7 +167,7 @@ private:
     device_handle_->set_name             (3, insulator_);
     device_handle_->set_material         (3, "Si");
 
-    device_handle_->make_semiconductor   (4);
+    device_handle_->make_oxide           (4);
     device_handle_->set_name             (4, plate_b_);
     device_handle_->set_material         (4, "SiO2");
 

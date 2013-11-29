@@ -54,6 +54,14 @@ struct xpath_data_accessor : public viennamaterials::base_accessor
   }
 };
 
+struct xpath_material_category_accessor : public viennamaterials::base_accessor
+{
+  result_type operator()()
+  {
+    return "/materials/material[category=\"%\"]";
+  }
+};
+
 }
 
 #endif

@@ -169,6 +169,11 @@ namespace viennamini
     inline std::string lattice_scattering()                 { return "lattice_scattering"; }
     inline std::string ionized_impurity_scattering()        { return "ionized_impurity_scattering"; }
     inline std::string shockley_read_hall_recombination()   { return "shockley_read_hall_recombination"; }
+    inline std::string oxide()                              { return "oxide"; }
+    inline std::string name()                               { return "name"; }
+    inline std::string id()                                 { return "id"; }
+    inline std::string semiconductor()                      { return "semiconductor"; }
+    inline std::string metal()                              { return "metal"; }
   } // material
 
   class line_1d         {};
