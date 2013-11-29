@@ -149,6 +149,11 @@ problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_
   return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_)[id];
 }
 
+void device::make_neutral(int segment_index)
+{
+  segment_roles_[segment_index] = role::none;
+}
+
 void device::make_contact(int segment_index)
 {
   segment_roles_[segment_index] = role::contact;
@@ -222,6 +227,15 @@ void device::update()
     if(siter->second == role::contact)       contact_segments_indices_.push_back(siter->first);
     else
     if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
+    else
+    if(siter->second == role::none) 
+      throw unassigned_segment_role_exception(
+        "Segment "+viennamini::convert<std::string>()(siter->first)+
+        " lacks a segment role, such as 'oxide'.");
+    else
+      throw unassigned_segment_role_exception(
+        "Segment "+viennamini::convert<std::string>()(siter->first)+
+        " lacks a segment role, such as 'oxide'.");
   }
 
   // record the segment indices

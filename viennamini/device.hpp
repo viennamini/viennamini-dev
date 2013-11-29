@@ -53,6 +53,12 @@ namespace viennamini
     segment_material_information_missing(std::string const & str) : std::runtime_error(str) {}
   };
 
+  class unassigned_segment_role_exception : public std::runtime_error {
+  public:
+    unassigned_segment_role_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
+
   class device
   {
   private:
@@ -98,6 +104,7 @@ namespace viennamini
     problem_description_triangular_2d_set&  get_problem_description_triangular_2d_set  ();
     problem_description_tetrahedral_3d_set& get_problem_description_tetrahedral_3d_set ();
 
+    void make_neutral       (int segment_index);
     void make_contact       (int segment_index);
     void make_oxide         (int segment_index);
     void make_semiconductor (int segment_index);
