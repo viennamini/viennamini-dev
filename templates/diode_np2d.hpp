@@ -124,7 +124,7 @@ private:
     lines[3] = viennagrid::make_line(mesh(), p11,  p1);
 
     MeshPointType seed_point_segment_1 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
+//    std::cout << "seed pnt 1: " << seed_point_segment_1 << std::endl;
 
     // Segment 2
     lines.clear();
@@ -136,7 +136,7 @@ private:
     lines[4] = viennagrid::make_line(mesh(), pc1, p1);
 
     MeshPointType seed_point_segment_2 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
+//    std::cout << "seed pnt 2: " << seed_point_segment_2 << std::endl;
 
     // Segment 3
     lines.clear();
@@ -148,7 +148,7 @@ private:
     lines[4] = viennagrid::make_line(mesh(), pi2, pi1);
 
     MeshPointType seed_point_segment_3 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
+//    std::cout << "seed pnt 3: " << seed_point_segment_3 << std::endl;
 
     // Segment 4
     lines.clear();
@@ -159,7 +159,7 @@ private:
     lines[3] = viennagrid::make_line(mesh(), p3,  pc2);
 
     MeshPointType seed_point_segment_4 = this->compute_seed_point(mesh(), lines.begin(), lines.end());
-    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
+//    std::cout << "seed pnt 4: " << seed_point_segment_4 << std::endl;
 
     // setting the created line geometry as input for the mesher
     mesher_->set_input( "default", mesh );

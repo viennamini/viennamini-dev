@@ -48,6 +48,10 @@ namespace viennamini
     eps_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  class segment_material_information_missing : public std::runtime_error {
+  public:
+    segment_material_information_missing(std::string const & str) : std::runtime_error(str) {}
+  };
 
   class device
   {
@@ -135,14 +139,19 @@ namespace viennamini
     void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
     void set_donator_doping       (int segment_index, viennamini::numeric ND);
 
+    viennamini::numeric get_permittivity(int segment_index);
+    viennamini::numeric get_acceptor_doping(int segment_index);
+    viennamini::numeric get_donator_doping(int segment_index);
+    
+    bool has_permittivity(int segment_index);
+    bool has_acceptor_doping(int segment_index);
+    bool has_donator_doping(int segment_index);
+
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
 
     void set_mobility        (int segment_index, mobility::mobility_ids id);
     mobility::mobility_ids get_mobility(int segment_index);
-
-    viennamini::numeric get_acceptor_doping(int segment_index);
-    viennamini::numeric get_donator_doping(int segment_index);
 
     void update_problem_description();
 
@@ -161,6 +170,11 @@ namespace viennamini
     std::ostream & stream();
 
   private:
+    void distribute_permittivity   (std::size_t segment_index);
+    void distribute_acceptor_doping(std::size_t segment_index);
+    void distribute_donator_doping (std::size_t segment_index);
+  
+  
     GenericMeshType               generic_mesh_;
     GenericProblemDescriptionType generic_problem_description_set_;
 
@@ -178,6 +192,7 @@ namespace viennamini
     SegmentRolesType           segment_roles_;
     SegmentRecombinationsType  segment_recombinations_;
     SegmentMobilityType        segment_mobility_;
+    IndexValuesType            segment_permittivity_;
     IndexValuesType            segment_donator_doping_;
     IndexValuesType            segment_acceptor_doping_;
 

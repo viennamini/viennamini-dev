@@ -46,7 +46,7 @@ struct problem_laplace : public problem
     ProblemDescriptionType& problem_description = problem_description_set[step_id];
 
     QuantityType & permittivity             = problem_description.add_quantity(permittivity_initial);
-    if(viennamini::is_zero(permittivity.get_sum()))  throw required_quantity_is_zero_exception("Permittivity is not available");
+    if(viennamini::is_zero(permittivity.get_sum()))  throw required_quantity_is_zero_exception("Permittivity is zero!");
 
     QuantityType & potential                = problem_description.add_quantity(viennamini::id::potential());
 
@@ -67,6 +67,9 @@ struct problem_laplace : public problem
       stream() << "  Name:     \"" << device().get_name(current_segment_index) << "\"" << std::endl;
       stream() << "  Material: \"" << device().get_material(current_segment_index) << "\"" << std::endl;
     #endif
+
+      // each segment, even contacts, require a permittivity
+      if(!device().has_permittivity(current_segment_index)) throw required_quantity_missing("Permittivity is not available on segment \""+device().get_name(current_segment_index)+"\"");
 
       if(device().is_contact(current_segment_index))
       {

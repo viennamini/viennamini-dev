@@ -109,6 +109,12 @@ public:
   required_quantity_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
 };
 
+class required_quantity_missing : public std::runtime_error {
+public:
+  required_quantity_missing(std::string const & str) : std::runtime_error(str) {}
+};
+
+
 struct problem
 {
 public:

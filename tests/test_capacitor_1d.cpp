@@ -87,35 +87,29 @@ struct test_driver
 
   void test(xlv& myxlv, a1a2& mya1a2, epsr& myepsr, bool write_vtk_files, int cnt)
   {
-    std::string material_library_file = "../../examples/materials.xml";
-    viennamini::device_template_handle device_generator(new viennamini::capacitor1d(material_library_file));
+    viennamini::simulator  mysim(new viennamini::capacitor1d());
+    mysim.device().read_material_library("../../examples/materials.xml");
 
     typedef viennamini::device_template::point_type PointType;
-    device_generator->geometry_properties()["C11"]  = PointType(myxlv.x_-myxlv.c_);
-    device_generator->geometry_properties()["C1"]   = PointType(myxlv.x_);
-    device_generator->geometry_properties()["I1"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a1_);
-    device_generator->geometry_properties()["I2"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a2_);
-    device_generator->geometry_properties()["C2"]   = PointType(myxlv.x_+myxlv.l_);
-    device_generator->geometry_properties()["C21"]  = PointType(myxlv.x_+myxlv.l_+myxlv.c_);
+    mysim.device_generator().geometry_properties()["C11"]  = PointType(myxlv.x_-myxlv.c_);
+    mysim.device_generator().geometry_properties()["C1"]   = PointType(myxlv.x_);
+    mysim.device_generator().geometry_properties()["I1"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a1_);
+    mysim.device_generator().geometry_properties()["I2"]   = PointType(myxlv.x_+myxlv.l_*mya1a2.a2_);
+    mysim.device_generator().geometry_properties()["C2"]   = PointType(myxlv.x_+myxlv.l_);
+    mysim.device_generator().geometry_properties()["C21"]  = PointType(myxlv.x_+myxlv.l_+myxlv.c_);
 
-    device_generator->generate();
+    mysim.device().set_permittivity(2, myepsr.epsr1_);
+    mysim.device().set_permittivity(3, myepsr.epsr2_);
+    mysim.device().set_permittivity(4, myepsr.epsr3_);
 
-    viennamini::config_handle & myconfig = device_generator->config();
-    viennamini::device_handle & mydevice = device_generator->device();
-
-    mydevice->set_permittivity(2, myepsr.epsr1_);
-    mydevice->set_permittivity(3, myepsr.epsr2_);
-    mydevice->set_permittivity(4, myepsr.epsr3_);
-
-    viennamini::simulator   mysim;
-
+    // generate the device, i.e., mesh the geometry and assign segment roles
+    //
+    mysim.device_generator().generate();
+    
+    // set contact potentials
+    //
     mysim.current_contact_potential(1) = myxlv.v1_;
     mysim.current_contact_potential(5) = myxlv.v2_;
-
-    mysim.set_device(mydevice);
-    mysim.set_config(myconfig);
-
-    mysim.run();
 
     if(write_vtk_files)
     {
@@ -123,6 +117,10 @@ struct test_driver
       sstr << cnt;
       mysim.set_output_filename_prefix("capacitor1d_test_"+sstr.str());
     }
+    
+    // perform the simulation
+    //
+    mysim.run();
   }
   
   int size()

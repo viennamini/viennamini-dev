@@ -60,9 +60,9 @@ struct problem_poisson_dd_np : public problem
     QuantityType & donator_doping           = problem_description.add_quantity(donator_doping_initial);
     QuantityType & acceptor_doping          = problem_description.add_quantity(acceptor_doping_initial);
 
-    if(viennamini::is_zero(permittivity.get_sum()))    throw required_quantity_is_zero_exception("Permittivity is not available");
-    if(viennamini::is_zero(donator_doping.get_sum()))  throw required_quantity_is_zero_exception("Donator doping is not available");
-    if(viennamini::is_zero(acceptor_doping.get_sum())) throw required_quantity_is_zero_exception("Acceptor doping is not available");
+    if(viennamini::is_zero(permittivity.get_sum()))    throw required_quantity_is_zero_exception("Permittivity is zero!");
+    if(viennamini::is_zero(donator_doping.get_sum()))  throw required_quantity_is_zero_exception("Donator doping is zero!");
+    if(viennamini::is_zero(acceptor_doping.get_sum())) throw required_quantity_is_zero_exception("Acceptor doping is zero!");
 
     QuantityType & potential                = problem_description.add_quantity(viennamini::id::potential());
     QuantityType & electron_density         = problem_description.add_quantity(viennamini::id::electron_density());
@@ -99,6 +99,9 @@ struct problem_poisson_dd_np : public problem
       stream() << "  Name:     \"" << name << "\"" << std::endl;
       stream() << "  Material: \"" << material << "\"" << std::endl;
     #endif
+
+      // each segment, even contacts, require a permittivity
+      if(!device().has_permittivity(current_segment_index)) throw required_quantity_missing("Permittivity is not available on segment \""+device().get_name(current_segment_index)+"\"");
 
       //
       // Set quantities on all segments
@@ -195,6 +198,11 @@ struct problem_poisson_dd_np : public problem
       #ifdef VIENNAMINI_VERBOSE
         stream() << "  identified as a semiconductor .." << std::endl;
       #endif
+
+        // Each semiconductor segment requires a donator/acceptor doping assigned to it
+        // 
+        if(!device().has_donator_doping(current_segment_index)) throw required_quantity_missing("Donator doping is not available on segment \""+device().get_name(current_segment_index)+"\"");
+        if(!device().has_acceptor_doping(current_segment_index)) throw required_quantity_missing("Acceptor doping is not available on segment \""+device().get_name(current_segment_index)+"\"");
 
         NumericType ni_value    = device().material_library()->query_value(
           vmat::make_query(vmat::make_entry(device().matlib_material() , material),
@@ -519,57 +527,57 @@ struct problem_poisson_dd_np : public problem
 //      }
 //    }
 
-    if(step_id == 0)
-    {
-      std::vector<std::string>  header;
-      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
-          sit != segmesh.segmentation.end(); ++sit)
-      {
-        std::size_t current_segment_index = sit->id();
-        if(device().is_contact(current_segment_index))
-        {
-          if(device().is_contact_at_semiconductor(current_segment_index))
-          {
-            header.push_back( "U_"+device().get_name(current_segment_index) );
-            header.push_back( "I_"+device().get_name(current_segment_index) );
-          }
-          else
-          if(device().is_contact_at_oxide(current_segment_index))
-          {
-            header.push_back( "U_"+device().get_name(current_segment_index) );
-          }
-        }
-      }
-      csv().set_header(header);
-    }
+//    if(step_id == 0)
+//    {
+//      std::vector<std::string>  header;
+//      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+//          sit != segmesh.segmentation.end(); ++sit)
+//      {
+//        std::size_t current_segment_index = sit->id();
+//        if(device().is_contact(current_segment_index))
+//        {
+//          if(device().is_contact_at_semiconductor(current_segment_index))
+//          {
+//            header.push_back( "U_"+device().get_name(current_segment_index) );
+//            header.push_back( "I_"+device().get_name(current_segment_index) );
+//          }
+//          else
+//          if(device().is_contact_at_oxide(current_segment_index))
+//          {
+//            header.push_back( "U_"+device().get_name(current_segment_index) );
+//          }
+//        }
+//      }
+//      csv().set_header(header);
+//    }
 
-    viennamini::csv::data_line_type data_line;
-    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
-        sit != segmesh.segmentation.end(); ++sit)
-    {
-      std::size_t current_segment_index = sit->id();
-      if(device().is_contact(current_segment_index))
-      {
-        if(device().is_contact_at_semiconductor(current_segment_index))
-        {
-          std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
+//    viennamini::csv::data_line_type data_line;
+//    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+//        sit != segmesh.segmentation.end(); ++sit)
+//    {
+//      std::size_t current_segment_index = sit->id();
+//      if(device().is_contact(current_segment_index))
+//      {
+//        if(device().is_contact_at_semiconductor(current_segment_index))
+//        {
+//          std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
 
-          data_line.push_back( current_contact_potentials[current_segment_index] );
-          data_line.push_back( get_terminal_current(
-                                 segmesh.segmentation[current_segment_index],                // the contact segment
-                                 segmesh.segmentation[adjacent_semiconductor_segment_index], // the semiconductor segment
-                                 electron_density,
-                                 hole_density) );
-        }
-        else
-        if(device().is_contact_at_oxide(current_segment_index))
-        {
-          data_line.push_back(  current_contact_potentials[current_segment_index] );
-        }
-        else throw segment_undefined_contact_exception(current_segment_index);
-      }
-    }
-    csv().add_line(data_line);
+//          data_line.push_back( current_contact_potentials[current_segment_index] );
+//          data_line.push_back( get_terminal_current(
+//                                 segmesh.segmentation[current_segment_index],                // the contact segment
+//                                 segmesh.segmentation[adjacent_semiconductor_segment_index], // the semiconductor segment
+//                                 electron_density,
+//                                 hole_density) );
+//        }
+//        else
+//        if(device().is_contact_at_oxide(current_segment_index))
+//        {
+//          data_line.push_back(  current_contact_potentials[current_segment_index] );
+//        }
+//        else throw segment_undefined_contact_exception(current_segment_index);
+//      }
+//    }
+//    csv().add_line(data_line);
   }
 };
 
