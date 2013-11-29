@@ -74,6 +74,12 @@ viennamini::device_handle& simulator::device_handle()
   return device_handle_;
 }
 
+void simulator::set_device_handle(viennamini::device_handle other_device_handle)
+{
+  device_changed_ = true;
+  device_handle_ = other_device_handle;
+}
+
 viennamini::config const& simulator::config() const
 {
   return *config_handle_;

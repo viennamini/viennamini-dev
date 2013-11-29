@@ -184,6 +184,7 @@ namespace viennamini
   class device;
   class config;
   class device_template;
+  class simulator;
 
   namespace role {
     enum segment_role_ids
@@ -245,6 +246,7 @@ namespace viennamini
   typedef ::boost::shared_ptr<viennamini::config>                                                                 config_handle;
   typedef ::boost::shared_ptr<viennamaterials::library>                                                           material_library_handle;
   typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
+  typedef ::boost::shared_ptr<viennamini::simulator>                                                              simulator_handle;
 
   typedef ::viennafvm::problem_description<mesh_line_1d>                                                          problem_description_line_1d;
   typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;

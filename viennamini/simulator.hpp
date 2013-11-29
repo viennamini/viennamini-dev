@@ -54,6 +54,7 @@ namespace viennamini
     viennamini::device            const& device() const;
     viennamini::device                 & device();
     viennamini::device_handle          & device_handle();
+    void                                 set_device_handle(viennamini::device_handle device_handle);
 
     viennamini::config            const& config() const;
     viennamini::config                 & config();
