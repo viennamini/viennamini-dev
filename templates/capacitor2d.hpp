@@ -77,7 +77,6 @@ public:
   void generate()
   {
     device_handle_->make_triangular2d();
-
     this->generate_mesh();
     device_handle_->update_problem_description();
     this->assign_segments();

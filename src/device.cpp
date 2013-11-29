@@ -218,6 +218,7 @@ void device::update()
   semiconductor_segments_indices_.clear();
   contact_semiconductor_interfaces_.clear();
   contact_oxide_interfaces_.clear();
+  segment_indices_.clear();
 
   for(SegmentRolesType::iterator siter = segment_roles_.begin();
       siter != segment_roles_.end(); siter++)
@@ -348,6 +349,7 @@ device::GenericProblemDescriptionType & device::generic_problem_description_set(
 
 material_library_handle & device::material_library()
 {
+  if(!matlib_) throw device_lacks_material_library("");
   return matlib_;
 }
 
@@ -391,6 +393,16 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
   viennagrid::io::netgen_reader reader;
   reader(segmesh->mesh, segmesh->segmentation, filename);
   this->update_problem_description();
+}
+
+void device::set_material_library(material_library_handle& matlib)
+{
+  matlib_.reset();
+  matlib_ = matlib;
+  matlib_material_  = matlib_->register_accessor(new viennamini::xpath_material_accessor);
+  matlib_model_     = matlib_->register_accessor(new viennamini::xpath_model_accessor);
+  matlib_parameter_ = matlib_->register_accessor(new viennamini::xpath_parameter_accessor);
+  matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
 }
 
 void device::read_material_library(std::string const& filename)

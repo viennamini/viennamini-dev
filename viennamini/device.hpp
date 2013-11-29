@@ -58,6 +58,10 @@ namespace viennamini
     unassigned_segment_role_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  class device_lacks_material_library : public std::runtime_error {
+  public:
+    device_lacks_material_library(std::string const & str) : std::runtime_error(str) {}
+  };
 
   class device
   {
@@ -132,6 +136,7 @@ namespace viennamini
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
 
     void read_material_library(std::string const& filename);
+    void set_material_library(material_library_handle& matlib);
 
     void write(std::string const& filename);
 
