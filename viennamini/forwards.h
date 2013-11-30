@@ -123,11 +123,8 @@ namespace viennamini
   };
 
   namespace id {
-    inline std::string laplace()                    { return "laplace"; }
-    inline std::string poisson()                    { return "poisson"; }
-    inline std::string poisson_drift_diffusion_n()  { return "poisson_drift_diffusion_n"; }
-    inline std::string poisson_drift_diffusion_p()  { return "poisson_drift_diffusion_p"; }
-    inline std::string poisson_drift_diffusion_np() { return "poisson_drift_diffusion_np"; }
+    inline std::string laplace()                    { return "Laplace"; }
+    inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
 
     inline std::string permittivity()               { return "Permittivity"; }
     inline std::string donator_doping()             { return "N_D"; }

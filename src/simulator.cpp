@@ -151,7 +151,11 @@ void simulator::run()
           problem_->set(this->device_handle(), this->config_handle());
           problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
         }
-        else throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+        else
+        if(problem_id() == "")
+          throw undefined_problem_exception("Problem has not been defined");
+        else 
+          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
       }
 
       if(config().write_result_files())
@@ -193,7 +197,11 @@ void simulator::run()
           problem_->set(this->device_handle(), this->config_handle());
           this->execute_loop();
         }
-        else throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+        else
+        if(problem_id() == "")
+          throw undefined_problem_exception("Problem has not been defined");
+        else 
+          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
       }
     }
   }
