@@ -23,7 +23,7 @@ namespace viennamini
 {
 
 simulator::simulator(std::ostream& stream) :
-  stepper_         (current_contact_potentials_),
+  stepper_         (contact_potentials_),
   device_generator_(NULL),
   problem_id_      (""),
   device_handle_   (new viennamini::device(stream)),
@@ -38,7 +38,7 @@ simulator::simulator(std::ostream& stream) :
 }
 
 simulator::simulator(device_template* device_generator, std::ostream& stream) :
-  stepper_         (current_contact_potentials_),
+  stepper_         (contact_potentials_),
   device_generator_(device_generator),
   problem_id_      (device_generator->problem_id()),
   device_handle_   (device_generator->device_handle()),
@@ -128,7 +128,7 @@ void simulator::run()
         stream() << "[Simulator] processing manual problem .."  << std::endl;
       #endif
         problem_->set(this->device_handle(), this->config_handle());
-        problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+        problem_->run(contact_potentials_, contact_workfunctions_, 0);
       }
       else
       {
@@ -140,7 +140,7 @@ void simulator::run()
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_poisson_dd_np(this->stream());
           problem_->set(this->device_handle(), this->config_handle());
-          problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+          problem_->run(contact_potentials_, contact_workfunctions_, 0);
         }
         else
         if(problem_id() == viennamini::id::laplace())
@@ -149,7 +149,7 @@ void simulator::run()
           if(problem_) delete problem_;
           problem_ = new viennamini::problem_laplace(this->stream());
           problem_->set(this->device_handle(), this->config_handle());
-          problem_->run(current_contact_potentials_, current_contact_workfunctions_, 0);
+          problem_->run(contact_potentials_, contact_workfunctions_, 0);
         }
         else
         if(problem_id() == "")
@@ -213,7 +213,7 @@ void simulator::execute_loop()
   {
     // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
     stream() << "Executing simulation " << stepper().get_current_step_id()+1 << " of " << stepper().size();
-    problem_->run(current_contact_potentials_, current_contact_workfunctions_, stepper().get_current_step_id());
+    problem_->run(contact_potentials_, contact_workfunctions_, stepper().get_current_step_id());
     if(config().write_result_files())
     {
       stream() << "  --> " << output_file_prefix_+"_"+this->encode_current_boundary_setup() << std::endl;
@@ -237,14 +237,52 @@ void simulator::set_output_filename_prefix(std::string const prefix)
   output_file_prefix_ = prefix;
 }
 
-viennamini::numeric& simulator::current_contact_potential   (std::size_t segment_index)
+viennamini::numeric& simulator::contact_potential   (std::size_t segment_index)
 {
-  return current_contact_potentials_[segment_index];
+  this->is_contact_single(segment_index) = true;
+  this->is_contact_range(segment_index) = false;
+  return contact_potentials_[segment_index];
 }
 
-viennamini::numeric& simulator::current_contact_workfunction(std::size_t segment_index)
+viennamini::numeric& simulator::contact_potential_range_from   (std::size_t segment_index)
 {
-  return current_contact_workfunctions_[segment_index];
+  this->is_contact_single(segment_index) = false;
+  this->is_contact_range(segment_index) = true;
+  return contact_potential_range_from_[segment_index];
+}
+
+viennamini::numeric& simulator::contact_potential_range_to     (std::size_t segment_index)
+{
+  this->is_contact_single(segment_index) = false;
+  this->is_contact_range(segment_index) = true;
+  return contact_potential_range_to_[segment_index];
+}
+
+viennamini::numeric& simulator::contact_potential_range_delta  (std::size_t segment_index)
+{
+  this->is_contact_single(segment_index) = false;
+  this->is_contact_range(segment_index) = true;
+  return contact_potential_range_delta_[segment_index];
+}
+
+viennamini::numeric& simulator::contact_workfunction(std::size_t segment_index)
+{
+  return contact_workfunctions_[segment_index];
+}
+
+bool& simulator::is_contact_single(std::size_t segment_index)
+{
+  return contact_single_flags_[segment_index];
+}
+
+bool& simulator::is_contact_range(std::size_t segment_index)
+{
+  return contact_range_flags_[segment_index];
+}
+
+bool& simulator::record_iv(std::size_t segment_index)
+{
+  return record_iv_flags_[segment_index];
 }
 
 viennamini::device_template& simulator::device_generator()

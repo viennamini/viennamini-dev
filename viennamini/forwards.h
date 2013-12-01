@@ -125,7 +125,6 @@ namespace viennamini
   namespace id {
     inline std::string laplace()                    { return "Laplace"; }
     inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
-
     inline std::string permittivity()               { return "Permittivity"; }
     inline std::string donator_doping()             { return "N_D"; }
     inline std::string acceptor_doping()            { return "N_A"; }
@@ -204,11 +203,9 @@ namespace viennamini
   namespace mobility {
     enum mobility_ids
     {
-      base,
+      none,
       lattice,
-      ionized_impurity,
-      interface,
-      carrier_heating
+      ionized_impurity
     };
   } // mobility
 

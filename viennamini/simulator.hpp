@@ -63,9 +63,6 @@ namespace viennamini
     viennamini::stepper                & stepper();
     std::ostream                       & stream();
 
-    viennamini::numeric                & current_contact_potential   (std::size_t segment_index);
-    viennamini::numeric                & current_contact_workfunction(std::size_t segment_index);
-
     std::string                        & problem_id();
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
@@ -73,6 +70,16 @@ namespace viennamini
     viennamini::csv                    & csv();
 
     device_template                    & device_generator();
+
+    viennamini::numeric                & contact_potential              (std::size_t segment_index);
+    viennamini::numeric                & contact_potential_range_from   (std::size_t segment_index);
+    viennamini::numeric                & contact_potential_range_to     (std::size_t segment_index);
+    viennamini::numeric                & contact_potential_range_delta  (std::size_t segment_index);
+    viennamini::numeric                & contact_workfunction           (std::size_t segment_index);
+
+    bool                               & is_contact_single   (std::size_t segment_index);
+    bool                               & is_contact_range    (std::size_t segment_index);
+    bool                               & record_iv           (std::size_t segment_index);
 
   private:
 
@@ -90,8 +97,17 @@ namespace viennamini
     std::ostream                       & stream_;
     std::string                          output_file_prefix_;
 
-    segment_values                       current_contact_potentials_;
-    segment_values                       current_contact_workfunctions_;
+    segment_values                       contact_potentials_;
+    segment_values                       contact_workfunctions_;
+    segment_values                       contact_potential_range_from_;
+    segment_values                       contact_potential_range_to_;
+    segment_values                       contact_potential_range_delta_;
+
+    std::map<std::size_t, bool>          contact_single_flags_;
+    std::map<std::size_t, bool>          contact_range_flags_;
+    std::map<std::size_t, bool>          record_iv_flags_;
+
+    std::map<std::size_t, bool>          scattering_lattice;
 
     bool device_changed_;
     bool config_changed_;
