@@ -139,7 +139,7 @@ struct problem_poisson_dd_np : public problem
           stream() << "  builtin:      " << builtin_pot << std::endl;
         #endif
 
-          // potential dirichlet boundary -> ohmic contact
+          // potential dirichlet boundary -> ohmic contact: pot = Ut*arsinh(0.5*C/ni) + Vc = V_builtin + Vc
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
             current_contact_potentials[current_segment_index] +
             builtin_pot

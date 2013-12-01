@@ -66,17 +66,25 @@ namespace viennamini
   //
 
   template<typename NumericT>
+  inline NumericT arsinh(NumericT x)
+  {
+    return std::log(x + sqrt((x * x) + 1.0));
+  }
+
+  template<typename NumericT>
   inline NumericT built_in_potential_impl(NumericT const& ND, NumericT const& NA, NumericT const& T, NumericT const& ni)
   {
-    const NumericT net_doping = ND - NA; // aka C
-    const NumericT x = std::abs(net_doping) / (2.0 * ni);
+    return viennamini::thermal_potential_impl(T) * arsinh(0.5 * (ND-NA)/ni);
 
-    NumericT bpot = viennamini::thermal_potential_impl(T) * std::log(x + std::sqrt( 1.0 + x*x ) );
+//    const NumericT net_doping = ND - NA; // aka C
+//    const NumericT x = std::abs(net_doping) / (2.0 * ni);
 
-    if ( net_doping < 0) //above formula does not yet consider the doping polarity
-      bpot *= -1.0;
+//    NumericT bpot = viennamini::thermal_potential_impl(T) * std::log(x + std::sqrt( 1.0 + x*x ) );
 
-    return bpot;
+//    if ( net_doping < 0) //above formula does not yet consider the doping polarity
+//      bpot *= -1.0;
+
+//    return bpot;
   }
 
   template<typename QuantityT>
