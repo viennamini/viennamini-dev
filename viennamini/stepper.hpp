@@ -49,6 +49,7 @@ public:
   void              write                           (std::ostream& stream = std::cout);
   std::size_t       size                            ();
   bool              empty                           ();
+  void              clear                           ();
 
 private:
   void add_impl(std::size_t segment_index, ValuesType& values);

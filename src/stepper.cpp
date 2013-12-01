@@ -158,6 +158,11 @@ bool stepper::empty()
   return step_values_.empty();
 }
 
+void stepper::clear()
+{
+  step_values_.clear();
+}
+
 } // viennamini
 
 

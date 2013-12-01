@@ -120,12 +120,13 @@ void simulator::run()
   {
     // load the stepper with the contact setup
     //
+    stepper().clear();
     for(viennamini::device::IndicesType::iterator siter = device().segment_indices().begin();
         siter != device().segment_indices().end(); siter++)
     {
       if(device().is_contact(*siter))
       {
-        // if the contact is neither set to range or single, 
+        // if the contact is neither set to range or single,
         // make it a single value contact
         //
         if( (!is_contact_single(*siter)) && (!is_contact_range(*siter)) )
@@ -149,8 +150,8 @@ void simulator::run()
         }
         else if(is_contact_range(*siter))
         {
-          stepper().add(*siter, contact_potential_range_from(*siter), 
-                                contact_potential_range_to(*siter), 
+          stepper().add(*siter, contact_potential_range_from(*siter),
+                                contact_potential_range_to(*siter),
                                 contact_potential_range_delta(*siter));
         }
       }
@@ -193,7 +194,7 @@ void simulator::run()
       else
       if(problem_id() == "")
         throw undefined_problem_exception("Problem has not been defined");
-      else 
+      else
         throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
     }
   }
@@ -237,7 +238,7 @@ void simulator::run()
 //        else
 //        if(problem_id() == "")
 //          throw undefined_problem_exception("Problem has not been defined");
-//        else 
+//        else
 //          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
 //      }
 
@@ -285,7 +286,7 @@ void simulator::run()
 //        else
 //        if(problem_id() == "")
 //          throw undefined_problem_exception("Problem has not been defined");
-//        else 
+//        else
 //          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
 //      }
 //    }
