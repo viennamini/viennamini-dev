@@ -407,6 +407,7 @@ void simulator::resize_problem_description_set()
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
+      device().get_problem_description_line_1d_set().clear();
       device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
     }
   }
@@ -415,6 +416,7 @@ void simulator::resize_problem_description_set()
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
+      device().get_problem_description_triangular_2d_set().clear();
       device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
     }
   }
@@ -423,6 +425,7 @@ void simulator::resize_problem_description_set()
   {
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
+      device().get_problem_description_tetrahedral_3d_set().clear();
       device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
     }
   }

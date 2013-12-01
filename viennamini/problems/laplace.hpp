@@ -60,28 +60,29 @@ struct problem_laplace : public problem
     {
       std::size_t current_segment_index = sit->id();
 
-    #ifdef VIENNAMINI_VERBOSE
+//    #ifdef VIENNAMINI_VERBOSE
       stream() << std::endl;
       stream() << "[Problem][Laplace] Processing segment " << current_segment_index << std::endl;
       stream() << "  Name:     \"" << device().get_name(current_segment_index) << "\"" << std::endl;
       stream() << "  Material: \"" << device().get_material(current_segment_index) << "\"" << std::endl;
-    #endif
+//    #endif
 
       // each segment, even contacts, require a permittivity
       if(!device().has_permittivity(current_segment_index)) throw required_quantity_missing("Permittivity is not available on segment \""+device().get_name(current_segment_index)+"\"");
 
       if(device().is_contact(current_segment_index))
       {
+        stream() << "  identified as a contact .." << std::endl;
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
-        #ifdef VIENNAMINI_VERBOSE
+//        #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to a semiconductor .." << std::endl;
-        #endif
+//        #endif
 
-        #ifdef VIENNAMINI_VERBOSE
+//        #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
-        #endif
+//        #endif
 
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
@@ -92,14 +93,14 @@ struct problem_laplace : public problem
         else
         if(device().is_contact_at_oxide(current_segment_index))
         {
-        #ifdef VIENNAMINI_VERBOSE
+//        #ifdef VIENNAMINI_VERBOSE
           stream() << "  identified as a contact next to an oxide .." << std::endl;
-        #endif
+//        #endif
 
-        #ifdef VIENNAMINI_VERBOSE
+//        #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
           stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
-        #endif
+//        #endif
 
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
