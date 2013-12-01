@@ -27,8 +27,7 @@ struct problem_poisson : public problem
   template<typename SegmentedMeshT, typename ProblemDescriptionSetT>
   void run_impl(SegmentedMeshT& segmesh, 
                 ProblemDescriptionSetT& problem_description_set, 
-                segment_values        & current_contact_potentials, 
-                segment_values        & current_contact_workfunctions,
+                segment_values&         current_contact_potentials,
                 std::size_t             step_id)
   {
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
@@ -76,13 +75,13 @@ struct problem_poisson : public problem
         #endif
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
-          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
         #endif
-        
+
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
-            current_contact_workfunctions[current_segment_index]
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
+            simulator().contact_workfunction(current_segment_index)
           );
         }
         else
@@ -93,13 +92,13 @@ struct problem_poisson : public problem
         #endif
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
-          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
         #endif
-        
+
           // potential dirichlet boundary
-          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index), 
-            current_contact_potentials[current_segment_index] + 
-            current_contact_workfunctions[current_segment_index]
+          viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
+            current_contact_potentials[current_segment_index] +
+            simulator().contact_workfunction(current_segment_index)
           );
         }
         else throw segment_undefined_contact_exception(current_segment_index);
@@ -205,8 +204,8 @@ void setup_simulation(viennamini::simulator&  mysim)
   mysim.config().write_result_files()                 = true;
 
 
-  mysim.current_contact_potential   (left_contact)   = 0.0;
-  mysim.current_contact_potential   (right_contact) = 0.2;
+  mysim.contact_potential   (left_contact)   = 0.0;
+  mysim.contact_potential   (right_contact) = 0.2;
 }
 
 int main()

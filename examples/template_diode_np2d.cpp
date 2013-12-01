@@ -27,7 +27,7 @@ int main()
   
   // set contact potentials
   //
-  mysim.current_contact_potential   (mysim.device_generator().segment_indices()["Anode"])   = 0.5;
+  mysim.contact_potential   (mysim.device_generator().segment_indices()["Anode"])   = 0.5;
 
   // write the simulation results to output files
   //

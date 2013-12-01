@@ -92,22 +92,12 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.current_contact_workfunction(gate_contact)   = 0.4;
+  mysim.contact_workfunction(gate_contact)   = 0.4;
 
-  mysim.current_contact_potential   (gate_contact)   = 0.2;
-  mysim.current_contact_potential   (source_contact) = 0.0;
-  mysim.current_contact_potential   (drain_contact)  = 0.2;
-  mysim.current_contact_potential   (body_contact)   = 0.0;
-
-
-  // perform several simulations each with its own boundary setup, 
-  // define such a parameter sweep via the 'stepper', in this case
-  // the gate and drain contacts are driven from 0.0V to 0.2V (0.3V for the drain) 
-  // in 0.1V steps
-  //
-//  mysim.stepper().add(gate_contact,  0.0, 0.2, 0.1);
-//  mysim.stepper().add(drain_contact, 0.0, 0.2, 0.1);
-//  mysim.stepper().write(std::cout);
+  mysim.contact_potential   (gate_contact)   = 0.2;
+  mysim.contact_potential   (source_contact) = 0.0;
+  mysim.contact_potential   (drain_contact)  = 0.2;
+  mysim.contact_potential   (body_contact)   = 0.0;
 
   mysim.set_output_filename_prefix("mosfet2d_dd_np_result");
 

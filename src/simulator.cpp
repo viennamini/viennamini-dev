@@ -23,7 +23,6 @@ namespace viennamini
 {
 
 simulator::simulator(std::ostream& stream) :
-  stepper_         (contact_potentials_),
   device_generator_(NULL),
   problem_id_      (""),
   device_handle_   (new viennamini::device(stream)),
@@ -38,7 +37,6 @@ simulator::simulator(std::ostream& stream) :
 }
 
 simulator::simulator(device_template* device_generator, std::ostream& stream) :
-  stepper_         (contact_potentials_),
   device_generator_(device_generator),
   problem_id_      (device_generator->problem_id()),
   device_handle_   (device_generator->device_handle()),
@@ -120,100 +118,188 @@ void simulator::run()
 
   if(config_changed_ || device_changed_)
   {
-    if(stepper().empty())
+    // load the stepper with the contact setup
+    //
+    for(viennamini::device::IndicesType::iterator siter = device().segment_indices().begin();
+        siter != device().segment_indices().end(); siter++)
     {
-      if(manual_problem_)
+      if(device().is_contact(*siter))
       {
-      #ifdef VIENNAMINI_VERBOSE
-        stream() << "[Simulator] processing manual problem .."  << std::endl;
-      #endif
-        problem_->set(this->device_handle(), this->config_handle());
-        problem_->run(contact_potentials_, contact_workfunctions_, 0);
-      }
-      else
-      {
-      #ifdef VIENNAMINI_VERBOSE
-        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
-      #endif
-        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
-        {
-          if(problem_) delete problem_;
-          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-          problem_->set(this->device_handle(), this->config_handle());
-          problem_->run(contact_potentials_, contact_workfunctions_, 0);
-        }
-        else
-        if(problem_id() == viennamini::id::laplace())
-        {
+        // if the contact is neither set to range or single, 
+        // make it a single value contact
+        //
+        if( (!is_contact_single(*siter)) && (!is_contact_range(*siter)) )
+          is_contact_single(*siter) = true;
 
-          if(problem_) delete problem_;
-          problem_ = new viennamini::problem_laplace(this->stream());
-          problem_->set(this->device_handle(), this->config_handle());
-          problem_->run(contact_potentials_, contact_workfunctions_, 0);
+        // initialize unset contacts with default values
+        //
+        if(is_contact_single(*siter))
+        {
+          if(contact_potentials_.find(*siter) == contact_potentials_.end())
+            contact_potentials_[*siter] = 0.0;
         }
-        else
-        if(problem_id() == "")
-          throw undefined_problem_exception("Problem has not been defined");
-        else 
-          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
-      }
+        if(contact_workfunctions_.find(*siter) == contact_workfunctions_.end())
+          contact_workfunctions_[*siter] = 0.0;
 
-      if(config().write_result_files())
-        problem_->write(output_file_prefix_, 0);
+        // now, setup the contact stepper by adding the contact values
+        //
+        if(is_contact_single(*siter))
+        {
+          stepper().add(*siter, contact_potential(*siter));
+        }
+        else if(is_contact_range(*siter))
+        {
+          stepper().add(*siter, contact_potential_range_from(*siter), 
+                                contact_potential_range_to(*siter), 
+                                contact_potential_range_delta(*siter));
+        }
+      }
     }
-    else // perform a sequence of simulations ..
+
+    // make sure, that the problem description is ready to hold
+    // the simulation data for all upcoming simulations
+    this->resize_problem_description_set();
+
+    if(manual_problem_)
     {
-      // make sure, that the problem description is ready to hold
-      // the simulation data for all upcoming simulations
-      this->resize_problem_description_set();
-
-      if(manual_problem_)
+    #ifdef VIENNAMINI_VERBOSE
+      stream() << "[Simulator] processing manual problem .."  << std::endl;
+    #endif
+      //problem_->set(this->device_handle(), this->config_handle());
+      problem_->set(this);
+      this->execute_loop();
+    }
+    else
+    {
+    #ifdef VIENNAMINI_VERBOSE
+      stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
+    #endif
+      if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
       {
-      #ifdef VIENNAMINI_VERBOSE
-        stream() << "[Simulator] processing manual problem .."  << std::endl;
-      #endif
-        problem_->set(this->device_handle(), this->config_handle());
-
+        if(problem_) delete problem_;
+        problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+        problem_->set(this);
         this->execute_loop();
       }
       else
+      if(problem_id() == viennamini::id::laplace())
       {
-      #ifdef VIENNAMINI_VERBOSE
-        stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
-      #endif
-        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
-        {
-          if(problem_) delete problem_;
-          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-          problem_->set(this->device_handle(), this->config_handle());
-          this->execute_loop();
-        }
-        else
-        if(problem_id() == viennamini::id::laplace())
-        {
 
-          if(problem_) delete problem_;
-          problem_ = new viennamini::problem_laplace(this->stream());
-          problem_->set(this->device_handle(), this->config_handle());
-          this->execute_loop();
-        }
-        else
-        if(problem_id() == "")
-          throw undefined_problem_exception("Problem has not been defined");
-        else 
-          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+        if(problem_) delete problem_;
+        problem_ = new viennamini::problem_laplace(this->stream());
+        problem_->set(this);
+        this->execute_loop();
       }
+      else
+      if(problem_id() == "")
+        throw undefined_problem_exception("Problem has not been defined");
+      else 
+        throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
     }
   }
+
+//  if(config_changed_ || device_changed_)
+//  {
+//    if(stepper().empty())
+//    {
+//      if(manual_problem_)
+//      {
+//      #ifdef VIENNAMINI_VERBOSE
+//        stream() << "[Simulator] processing manual problem .."  << std::endl;
+//      #endif
+////        problem_->set(this->device_handle(), this->config_handle());
+//        problem_->set(this);
+//        problem_->run(contact_potentials_, contact_workfunctions_, 0);
+//      }
+//      else
+//      {
+//      #ifdef VIENNAMINI_VERBOSE
+//        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
+//      #endif
+//        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
+//        {
+//          if(problem_) delete problem_;
+//          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+////          problem_->set(this->device_handle(), this->config_handle());
+//          problem_->set(this);
+//          problem_->run(contact_potentials_, contact_workfunctions_, 0);
+//        }
+//        else
+//        if(problem_id() == viennamini::id::laplace())
+//        {
+
+//          if(problem_) delete problem_;
+//          problem_ = new viennamini::problem_laplace(this->stream());
+////          problem_->set(this->device_handle(), this->config_handle());
+//          problem_->set(this);
+//          problem_->run(contact_potentials_, contact_workfunctions_, 0);
+//        }
+//        else
+//        if(problem_id() == "")
+//          throw undefined_problem_exception("Problem has not been defined");
+//        else 
+//          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+//      }
+
+//      if(config().write_result_files())
+//        problem_->write(output_file_prefix_, 0);
+//    }
+//    else // perform a sequence of simulations ..
+//    {
+//      // make sure, that the problem description is ready to hold
+//      // the simulation data for all upcoming simulations
+//      this->resize_problem_description_set();
+
+//      if(manual_problem_)
+//      {
+//      #ifdef VIENNAMINI_VERBOSE
+//        stream() << "[Simulator] processing manual problem .."  << std::endl;
+//      #endif
+//        //problem_->set(this->device_handle(), this->config_handle());
+//        problem_->set(this);
+//        this->execute_loop();
+//      }
+//      else
+//      {
+//      #ifdef VIENNAMINI_VERBOSE
+//        stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
+//      #endif
+//        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
+//        {
+//          if(problem_) delete problem_;
+//          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+//          problem_->set(this);
+////          problem_->set(this->device_handle(), this->config_handle());
+//          this->execute_loop();
+//        }
+//        else
+//        if(problem_id() == viennamini::id::laplace())
+//        {
+
+//          if(problem_) delete problem_;
+//          problem_ = new viennamini::problem_laplace(this->stream());
+////          problem_->set(this->device_handle(), this->config_handle());
+//          problem_->set(this);
+//          this->execute_loop();
+//        }
+//        else
+//        if(problem_id() == "")
+//          throw undefined_problem_exception("Problem has not been defined");
+//        else 
+//          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+//      }
+//    }
+//  }
 }
 
 void simulator::execute_loop()
 {
-  while(stepper().apply_next())
+  segment_values current_contact_potentials;
+  while(stepper().apply_next(current_contact_potentials))
   {
     // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
     stream() << "Executing simulation " << stepper().get_current_step_id()+1 << " of " << stepper().size();
-    problem_->run(contact_potentials_, contact_workfunctions_, stepper().get_current_step_id());
+    problem_->run(current_contact_potentials, stepper().get_current_step_id());
     if(config().write_result_files())
     {
       stream() << "  --> " << output_file_prefix_+"_"+this->encode_current_boundary_setup() << std::endl;
@@ -263,6 +349,13 @@ viennamini::numeric& simulator::contact_potential_range_delta  (std::size_t segm
   this->is_contact_single(segment_index) = false;
   this->is_contact_range(segment_index) = true;
   return contact_potential_range_delta_[segment_index];
+}
+
+void simulator::set_contact_potential_range(std::size_t segment_index, viennamini::numeric from, viennamini::numeric to, viennamini::numeric delta)
+{
+  this->contact_potential_range_from(segment_index) = from;
+  this->contact_potential_range_to(segment_index) = to;
+  this->contact_potential_range_delta(segment_index) = delta;
 }
 
 viennamini::numeric& simulator::contact_workfunction(std::size_t segment_index)

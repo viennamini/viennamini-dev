@@ -181,6 +181,8 @@ namespace viennamini
   class config;
   class device_template;
   class simulator;
+  class problem;
+  class csv;
 
   namespace role {
     enum segment_role_ids

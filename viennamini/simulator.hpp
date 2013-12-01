@@ -71,11 +71,13 @@ namespace viennamini
 
     device_template                    & device_generator();
 
+    viennamini::numeric                & contact_workfunction           (std::size_t segment_index);
     viennamini::numeric                & contact_potential              (std::size_t segment_index);
     viennamini::numeric                & contact_potential_range_from   (std::size_t segment_index);
     viennamini::numeric                & contact_potential_range_to     (std::size_t segment_index);
     viennamini::numeric                & contact_potential_range_delta  (std::size_t segment_index);
-    viennamini::numeric                & contact_workfunction           (std::size_t segment_index);
+
+    void set_contact_potential_range  (std::size_t segment_index, viennamini::numeric from, viennamini::numeric to, viennamini::numeric delta);
 
     bool                               & is_contact_single   (std::size_t segment_index);
     bool                               & is_contact_range    (std::size_t segment_index);
@@ -106,8 +108,6 @@ namespace viennamini
     std::map<std::size_t, bool>          contact_single_flags_;
     std::map<std::size_t, bool>          contact_range_flags_;
     std::map<std::size_t, bool>          record_iv_flags_;
-
-    std::map<std::size_t, bool>          scattering_lattice;
 
     bool device_changed_;
     bool config_changed_;

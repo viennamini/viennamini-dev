@@ -25,8 +25,7 @@ public:
 };
 
 
-stepper::stepper(segment_values& current_contact_potentials)
-  : current_contact_potentials_(current_contact_potentials)
+stepper::stepper()
 {
 }
 
@@ -37,6 +36,18 @@ void stepper::add(std::size_t segment_index, numeric const& start, numeric const
     throw range_invalid_exception("Invalid range: "+viennamini::convert<std::string>()(start)+" -> "+
                                                     viennamini::convert<std::string>()(end)  +", delta: "+
                                                     viennamini::convert<std::string>()(delta));
+  this->add_impl(segment_index, values);
+}
+
+void stepper::add(std::size_t segment_index, numeric const& value)
+{
+  ValuesType values;
+  values.push_back(value);
+  this->add_impl(segment_index, values);
+}
+
+void stepper::add_impl(std::size_t segment_index, ValuesType& values)
+{
   if(step_values_.empty())
   {
     for(ValuesType::iterator viter = values.begin(); viter != values.end(); viter++)
@@ -85,16 +96,17 @@ stepper::values_type  stepper::compute_value_range(numeric const& start, numeric
   return cont;
 }
 
-bool stepper::apply_next()
+bool stepper::apply_next(segment_values& current_contact_potentials)
 {
   if( (current_step_) == step_values_.end()) return false;
 
+  current_contact_potentials.clear();
   for(StepValuesType::value_type::iterator iter = current_step_->begin();
       iter != current_step_->end(); iter++)
   {
 //    std::cout << "applying at " << iter->first << " value " << iter->second << std::endl;
 //    device_->set_contact_potential(iter->first, iter->second);
-    current_contact_potentials_[iter->first] = iter->second;
+    current_contact_potentials[iter->first] = iter->second;
   }
 
   ++current_step_;

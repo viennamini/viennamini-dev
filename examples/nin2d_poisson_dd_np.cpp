@@ -75,8 +75,8 @@ int main()
 
   mysim.problem_id() = viennamini::id::poisson_drift_diffusion_np();
 
-  mysim.current_contact_potential   (left_contact)  = 0.0;
-  mysim.current_contact_potential   (right_contact) = 0.2;
+  mysim.contact_potential(left_contact)  = 0.0;
+  mysim.contact_potential(right_contact) = 0.2;
 
   mysim.set_output_filename_prefix("nin2d_dd_np_result");
 

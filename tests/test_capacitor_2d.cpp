@@ -138,8 +138,8 @@ struct test_driver
     
     // set contact potentials
     //
-    mysim.current_contact_potential(1) = myxlv.v1_;
-    mysim.current_contact_potential(5) = myxlv.v2_;
+    mysim.contact_potential(1) = myxlv.v1_;
+    mysim.contact_potential(5) = myxlv.v2_;
 
     if(write_vtk_files)
     {

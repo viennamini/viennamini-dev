@@ -27,8 +27,8 @@ int main()
   
   // set contact potentials
   //
-  mysim.current_contact_potential(1) = 1.0;
-  mysim.current_contact_potential(5) = 0.0;
+  mysim.contact_potential(1) = 1.0;
+  mysim.contact_potential(5) = 0.0;
 
   // write the simulation results to output files
   //

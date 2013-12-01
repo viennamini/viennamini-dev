@@ -33,6 +33,7 @@
 #include "viennafvm/io/vtk_writer.hpp"
 
 #include "viennamini/forwards.h"
+#include "viennamini/simulator.hpp"
 #include "viennamini/physics.hpp"
 #include "viennamini/csv.hpp"
 #include "viennamini/utils/is_zero.hpp"
@@ -45,21 +46,21 @@ public: \
 \
   classname(std::ostream& stream) : viennamini::problem(stream) {} \
 \
-  void run(segment_values& current_contact_potentials, segment_values& current_contact_workfunctions, std::size_t step_id) \
+  void run(segment_values& current_contact_potentials, std::size_t step_id) \
   {\
     if(device().is_line1d()) \
     {\
-      this->run_impl(device().get_segmesh_line_1d(), device().get_problem_description_line_1d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+      this->run_impl(simulator().device().get_segmesh_line_1d(), simulator().device().get_problem_description_line_1d_set(), current_contact_potentials, step_id); \
     }\
     else \
     if(device().is_triangular2d()) \
     {\
-      this->run_impl(device().get_segmesh_triangular_2d(), device().get_problem_description_triangular_2d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+      this->run_impl(simulator().device().get_segmesh_triangular_2d(), simulator().device().get_problem_description_triangular_2d_set(), current_contact_potentials, step_id); \
     }\
     else \
     if(device().is_tetrahedral3d()) \
     {\
-      this->run_impl(device().get_segmesh_tetrahedral_3d(), device().get_problem_description_tetrahedral_3d_set(), current_contact_potentials, current_contact_workfunctions, step_id); \
+      this->run_impl(simulator().device().get_segmesh_tetrahedral_3d(), simulator().device().get_problem_description_tetrahedral_3d_set(), current_contact_potentials, step_id); \
     }\
     else throw device_not_supported_exception("at: problem_laplace::run()"); \
   }
@@ -126,76 +127,28 @@ public:
   typedef EquationType                  equation_type;
   typedef NumericType                   numeric_type;
 
-  problem(std::ostream& stream = std::cout) : stream_(stream)
-  {
-  }
+  problem(std::ostream& stream = std::cout);
 
-  virtual ~problem()
-  {
-  }
+  virtual ~problem();
 
-  void set(viennamini::device_handle& device_handle,
-           viennamini::config_handle& config_handle)
-  {
-    device_handle_ = device_handle;
-    config_handle_ = config_handle;
-  }
+  void set(viennamini::simulator* simulator);
 
-  viennamini::device & device()
-  {
-    return *device_handle_;
-  }
+  viennamini::device & device();
 
-  viennamini::config & config()
-  {
-    return *config_handle_;
-  }
+  viennamini::config & config();
 
-  virtual void run(segment_values& current_contact_potentials,
-                   segment_values& current_contact_workfunctions,
-                   std::size_t step_id) = 0;
+  viennamini::simulator& simulator();
 
-  void write(std::string const& filename, std::size_t step_id)
-  {
-    if(device().is_line1d())
-    {
-      viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_line_1d(step_id).quantities(),
-        filename,
-        device().get_segmesh_line_1d().mesh,
-        device().get_segmesh_line_1d().segmentation);
-    }
-    else
-    if(device().is_triangular2d())
-    {
-      viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_triangular_2d(step_id).quantities(),
-        filename,
-        device().get_segmesh_triangular_2d().mesh,
-        device().get_segmesh_triangular_2d().segmentation);
-    }
-    else
-    if(device().is_tetrahedral3d())
-    {
-      viennafvm::io::write_solution_to_VTK_file(
-        device().get_problem_description_tetrahedral_3d(step_id).quantities(),
-        filename,
-        device().get_segmesh_tetrahedral_3d().mesh,
-        device().get_segmesh_tetrahedral_3d().segmentation);
-    }
-    else throw device_not_supported_exception("at: problem::write()");
-  }
+  virtual void run(segment_values& current_contact_potentials, std::size_t step_id) = 0;
 
-  viennamini::csv& csv() { return csv_; }
+  void write(std::string const& filename, std::size_t step_id);
 
-  std::ostream& stream()
-  {
-    return stream_;
-  }
+  viennamini::csv& csv();
+
+  std::ostream& stream();
 
 private:
-  viennamini::device_handle            device_handle_;
-  viennamini::config_handle            config_handle_;
+  viennamini::simulator              * simulator_;
   viennamini::csv                      csv_;
   std::ostream                       & stream_;
 };
@@ -203,7 +156,4 @@ private:
 } // viennamini
 
 #endif
-
-
-
 

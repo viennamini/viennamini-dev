@@ -27,8 +27,7 @@ struct problem_laplace : public problem
   template<typename SegmentedMeshT, typename ProblemDescriptionSetT>
   void run_impl(SegmentedMeshT& segmesh,
                 ProblemDescriptionSetT& problem_description_set,
-                segment_values        & current_contact_potentials,
-                segment_values        & current_contact_workfunctions,
+                segment_values&         current_contact_potentials,
                 std::size_t             step_id)
   {
     typedef typename SegmentedMeshT::segmentation_type        SegmentationType;
@@ -73,12 +72,6 @@ struct problem_laplace : public problem
 
       if(device().is_contact(current_segment_index))
       {
-        // Make sure, that all unspecified contact boundary values are properly initialized
-        if(current_contact_potentials.find(current_segment_index) == current_contact_potentials.end())
-          current_contact_potentials[current_segment_index] = 0.0;
-        if(current_contact_workfunctions.find(current_segment_index) == current_contact_workfunctions.end())
-          current_contact_workfunctions[current_segment_index] = 0.0;
-
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
         #ifdef VIENNAMINI_VERBOSE
@@ -87,13 +80,13 @@ struct problem_laplace : public problem
 
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
-          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
         #endif
 
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
             current_contact_potentials[current_segment_index] +
-            current_contact_workfunctions[current_segment_index]
+            simulator().contact_workfunction(current_segment_index)
           );
         }
         else
@@ -105,13 +98,13 @@ struct problem_laplace : public problem
 
         #ifdef VIENNAMINI_VERBOSE
           stream() << "  pot:          " << current_contact_potentials[current_segment_index] << std::endl;
-          stream() << "  workfunction: " << current_contact_workfunctions[current_segment_index] << std::endl;
+          stream() << "  workfunction: " << simulator().contact_workfunction(current_segment_index) << std::endl;
         #endif
 
           // potential dirichlet boundary
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
             current_contact_potentials[current_segment_index] +
-            current_contact_workfunctions[current_segment_index]
+            simulator().contact_workfunction(current_segment_index)
           );
         }
         else throw segment_undefined_contact_exception(current_segment_index);
