@@ -139,18 +139,26 @@ struct problem_poisson_dd_np : public problem
           stream() << "  builtin:      " << builtin_pot << std::endl;
         #endif
 
-          // potential dirichlet boundary
+          // potential dirichlet boundary -> ohmic contact
           viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(current_segment_index),
             current_contact_potentials[current_segment_index] +
-            simulator().contact_workfunction(current_segment_index) +
             builtin_pot
           );
 
-          // electrons dirichlet boundary
-          viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index), ND_value);
+          // electrons dirichlet boundary -> ohmic contact: n = 1/2((C^2+4ni^2)^(1/2)+C)
+          viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index),
+            0.5*(std::sqrt((ND_value-NA_value)*(ND_value-NA_value)+4.0*ni_value*ni_value)+(ND_value-NA_value)));
 
-          // holes dirichlet boundary
-          viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index), NA_value);
+          // holes dirichlet boundary -> ohmic contact: p = 1/2((C^2+4ni^2)^(1/2)-C)
+          viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index),
+            0.5*(std::sqrt((ND_value-NA_value)*(ND_value-NA_value)+4.0*ni_value*ni_value)-(ND_value-NA_value)));
+
+
+//          // electrons dirichlet boundary
+//          viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index), ND_value);
+
+//          // holes dirichlet boundary
+//          viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index), NA_value);
         }
         else
         if(device().is_contact_at_oxide(current_segment_index))

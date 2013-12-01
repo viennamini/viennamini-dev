@@ -68,7 +68,7 @@ namespace viennamini
   template<typename NumericT>
   inline NumericT built_in_potential_impl(NumericT const& ND, NumericT const& NA, NumericT const& T, NumericT const& ni)
   {
-    const NumericT net_doping = ND - NA;
+    const NumericT net_doping = ND - NA; // aka C
     const NumericT x = std::abs(net_doping) / (2.0 * ni);
 
     NumericT bpot = viennamini::thermal_potential_impl(T) * std::log(x + std::sqrt( 1.0 + x*x ) );
