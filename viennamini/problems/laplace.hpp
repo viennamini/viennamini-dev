@@ -41,7 +41,8 @@ struct problem_laplace : public problem
     //
     // -------------------------------------------------------------------------
     QuantityType & permittivity_initial      = problem_description_set[0].get_quantity(viennamini::id::permittivity());
-
+     stream()  << "running laplace step: " << step_id << std::endl;
+     stream() << " problem description set size: " << problem_description_set.size() << std::endl;
     ProblemDescriptionType& problem_description = problem_description_set[step_id];
 
     QuantityType & permittivity             = problem_description.add_quantity(permittivity_initial);

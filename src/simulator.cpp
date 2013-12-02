@@ -19,6 +19,8 @@
 #include "viennamini/problems/poisson_dd-np.hpp"
 #include "viennamini/problems/laplace.hpp"
 
+#define VIENNAMINI_VERBOSE
+
 namespace viennamini
 {
 
@@ -185,7 +187,6 @@ void simulator::run()
       else
       if(problem_id() == viennamini::id::laplace())
       {
-
         if(problem_) delete problem_;
         problem_ = new viennamini::problem_laplace(this->stream());
         problem_->set(this);
@@ -299,7 +300,7 @@ void simulator::execute_loop()
   while(stepper().apply_next(current_contact_potentials))
   {
     // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
-    stream() << "Executing simulation " << stepper().get_current_step_id()+1 << " of " << stepper().size();
+    stream() << "Executing simulation " << stepper().get_current_step_id() << " of " << stepper().size();
     problem_->run(current_contact_potentials, stepper().get_current_step_id());
     if(config().write_result_files())
     {
@@ -405,27 +406,40 @@ void simulator::resize_problem_description_set()
 {
   if(device().is_line1d())
   {
+    device().get_problem_description_line_1d_set().clear();
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
-      device().get_problem_description_line_1d_set().clear();
       device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
     }
   }
   else
   if(device().is_triangular2d())
   {
-    for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
+    // clean 1-n entries of the problem description set
+    // note that these entries hold previous simulation results
+    // the 0 entry holds the initial values, so we keep this one
+    //
+//    stream() << "Resizing pre size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
+    device().get_problem_description_triangular_2d_set().erase(
+      device().get_problem_description_triangular_2d_set().begin()+1,
+      device().get_problem_description_triangular_2d_set().end());
+//    stream() << "Resizing post size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
+
+    // now, create new problem descriptions for each simulation to be conducted
+    //
+//    stream() << "stepper size " << stepper_.size() << std::endl;
+    for(std::size_t i = 0; i < stepper_.size(); i++) 
     {
-      device().get_problem_description_triangular_2d_set().clear();
       device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
     }
+//    stream() << "Resizing final size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
   }
   else
   if(device().is_tetrahedral3d())
   {
+    device().get_problem_description_tetrahedral_3d_set().clear();
     for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
     {
-      device().get_problem_description_tetrahedral_3d_set().clear();
       device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
     }
   }

@@ -114,9 +114,13 @@ bool stepper::apply_next(segment_values& current_contact_potentials)
 
 }
 
+// step id is a 1-based index, thus we compute the distance from begin
+// to current, where the latter already points to the next step, yielding
+// a one-based index
+//
 std::size_t stepper::get_current_step_id()
 {
-  return std::distance(step_values_.begin(), current_step_-1);
+  return std::distance(step_values_.begin(), current_step_);
 }
 
 stepper::step_setup_type&   stepper::get_step_setup(std::size_t step_id)
@@ -126,7 +130,7 @@ stepper::step_setup_type&   stepper::get_step_setup(std::size_t step_id)
 
 stepper::step_setup_type&  stepper::get_current_step_setup()
 {
-  return this->get_step_setup(this->get_current_step_id());
+  return this->get_step_setup(this->get_current_step_id()-1);
 }
 
 void stepper::write(std::ostream& stream)
