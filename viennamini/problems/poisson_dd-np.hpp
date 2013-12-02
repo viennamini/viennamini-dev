@@ -45,11 +45,12 @@ struct problem_poisson_dd_np : public problem
     // -------------------------------------------------------------------------
 
     // access the already available quantities in the device's problem description
-    // of the 'initial' description, i.e., at index 0
+    // of the previous simulation, this way the previous simulation provides the intial
+    // guesses of the new simulation
     //
-    QuantityType & permittivity_initial      = problem_description_set[0].get_quantity(viennamini::id::permittivity());
-    QuantityType & donator_doping_initial    = problem_description_set[0].get_quantity(viennamini::id::donator_doping());
-    QuantityType & acceptor_doping_initial   = problem_description_set[0].get_quantity(viennamini::id::acceptor_doping());
+    QuantityType & permittivity_initial      = problem_description_set[step_id-1].get_quantity(viennamini::id::permittivity());
+    QuantityType & donator_doping_initial    = problem_description_set[step_id-1].get_quantity(viennamini::id::donator_doping());
+    QuantityType & acceptor_doping_initial   = problem_description_set[step_id-1].get_quantity(viennamini::id::acceptor_doping());
 
     // access the 'current' problem description, each simulation iteration has its own
     //

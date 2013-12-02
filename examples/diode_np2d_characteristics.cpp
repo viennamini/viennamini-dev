@@ -28,7 +28,7 @@ int main()
   // set contact potentials
   //
   int anode_id = mysim.device_generator().segment_indices()["Anode"];
-  mysim.set_contact_potential_range(anode_id, 0.9, 0.9, 0.1);
+  mysim.set_contact_potential_range(anode_id, 0.0, 0.9, 0.1);
 
   // write the simulation results to output files
   //
