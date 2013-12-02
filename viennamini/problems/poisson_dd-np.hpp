@@ -151,9 +151,13 @@ struct problem_poisson_dd_np : public problem
           // electrons dirichlet boundary -> ohmic contact: n = 1/2((C^2+4ni^2)^(1/2)+C)
           viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index),
             ohmic_electrons_initial_impl(ND_value, NA_value, ni_value));
+          viennafvm::set_initial_value(electron_density, segmesh.segmentation(current_segment_index),
+            ohmic_electrons_initial_impl(ND_value, NA_value, ni_value));
 
           // holes dirichlet boundary -> ohmic contact: p = 1/2((C^2+4ni^2)^(1/2)-C)
           viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index),
+            ohmic_holes_initial_impl(ND_value, NA_value, ni_value));
+          viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index),
             ohmic_holes_initial_impl(ND_value, NA_value, ni_value));
         }
         else
