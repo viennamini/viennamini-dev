@@ -141,6 +141,63 @@ namespace viennamini
     numeric_type  tau_0_;
   };
 
+  // ---------------------------------------------------------------------------
+  //
+  // Ohmic Electrons/Holes Initial Guess
+  //
+
+  template<typename NumericT>
+  inline NumericT ohmic_electrons_initial_impl(NumericT const& ND, NumericT const& NA, NumericT const& ni)
+  {
+    return 0.5*(std::sqrt((ND-NA)*(ND-NA)+4.0*ni*ni)+(ND-NA));
+  }
+
+  template<typename NumericT>
+  inline NumericT ohmic_holes_initial_impl(NumericT const& ND, NumericT const& NA, NumericT const& ni)
+  {
+    return 0.5*(std::sqrt((ND-NA)*(ND-NA)+4.0*ni*ni)-(ND-NA));
+  }
+
+  template<typename QuantityT>
+  struct ohmic_electrons_initial
+  {
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+
+    ohmic_electrons_initial(QuantityT& ND, QuantityT& NA, QuantityT& ni) :
+      ND_(ND), NA_(NA), ni_(ni)  {}
+
+    template<typename CellT>
+    result_type operator()(CellT const& cell)
+    {
+      return ohmic_electrons_initial_impl(ND_.get_value(cell), NA_.get_value(cell), ni_.get_value(cell));
+    }
+
+    QuantityT   & ND_;
+    QuantityT   & NA_;
+    QuantityT   & ni_;
+  };
+
+  template<typename QuantityT>
+  struct ohmic_holes_initial
+  {
+    typedef viennamini::numeric numeric_type;
+    typedef numeric_type        result_type;
+
+    ohmic_holes_initial(QuantityT& ND, QuantityT& NA, QuantityT& ni) :
+      ND_(ND), NA_(NA), ni_(ni)  {}
+
+    template<typename CellT>
+    result_type operator()(CellT const& cell)
+    {
+      return ohmic_holes_initial_impl(ND_.get_value(cell), NA_.get_value(cell), ni_.get_value(cell));
+    }
+
+    QuantityT   & ND_;
+    QuantityT   & NA_;
+    QuantityT   & ni_;
+  };
+
   // ===========================================================================
   //
   // Mobility Models

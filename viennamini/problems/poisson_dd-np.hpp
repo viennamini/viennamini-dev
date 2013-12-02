@@ -147,18 +147,11 @@ struct problem_poisson_dd_np : public problem
 
           // electrons dirichlet boundary -> ohmic contact: n = 1/2((C^2+4ni^2)^(1/2)+C)
           viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index),
-            0.5*(std::sqrt((ND_value-NA_value)*(ND_value-NA_value)+4.0*ni_value*ni_value)+(ND_value-NA_value)));
+            ohmic_electrons_initial_impl(ND_value, NA_value, ni_value));
 
           // holes dirichlet boundary -> ohmic contact: p = 1/2((C^2+4ni^2)^(1/2)-C)
           viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index),
-            0.5*(std::sqrt((ND_value-NA_value)*(ND_value-NA_value)+4.0*ni_value*ni_value)-(ND_value-NA_value)));
-
-
-//          // electrons dirichlet boundary
-//          viennafvm::set_dirichlet_boundary(electron_density, segmesh.segmentation(current_segment_index), ND_value);
-
-//          // holes dirichlet boundary
-//          viennafvm::set_dirichlet_boundary(hole_density, segmesh.segmentation(current_segment_index), NA_value);
+            ohmic_holes_initial_impl(ND_value, NA_value, ni_value));
         }
         else
         if(device().is_contact_at_oxide(current_segment_index))
@@ -210,15 +203,18 @@ struct problem_poisson_dd_np : public problem
         viennafvm::set_initial_value(intrinsic_concentration, segmesh.segmentation(current_segment_index), ni_value);
 
         // potential
-        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), built_in_potential<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration, temperature));
+        viennafvm::set_initial_value(potential, segmesh.segmentation(current_segment_index), 
+          built_in_potential<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration, temperature));
         viennafvm::set_unknown(potential, segmesh.segmentation(current_segment_index));
 
         // electrons
-        viennafvm::set_initial_value(electron_density, segmesh.segmentation(current_segment_index), donator_doping);
+        viennafvm::set_initial_value(electron_density, segmesh.segmentation(current_segment_index), 
+          ohmic_electrons_initial<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration));
         viennafvm::set_unknown(electron_density, segmesh.segmentation(current_segment_index));
 
         // holes
-        viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), acceptor_doping);
+        viennafvm::set_initial_value(hole_density, segmesh.segmentation(current_segment_index), 
+          ohmic_holes_initial<QuantityType>(donator_doping, acceptor_doping, intrinsic_concentration));
         viennafvm::set_unknown(hole_density, segmesh.segmentation(current_segment_index));
 
         // mobility

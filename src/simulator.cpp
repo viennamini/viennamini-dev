@@ -19,8 +19,6 @@
 #include "viennamini/problems/poisson_dd-np.hpp"
 #include "viennamini/problems/laplace.hpp"
 
-#define VIENNAMINI_VERBOSE
-
 namespace viennamini
 {
 
@@ -168,7 +166,6 @@ void simulator::run()
     #ifdef VIENNAMINI_VERBOSE
       stream() << "[Simulator] processing manual problem .."  << std::endl;
     #endif
-      //problem_->set(this->device_handle(), this->config_handle());
       problem_->set(this);
       this->execute_loop();
     }
@@ -200,98 +197,6 @@ void simulator::run()
     }
   }
 
-//  if(config_changed_ || device_changed_)
-//  {
-//    if(stepper().empty())
-//    {
-//      if(manual_problem_)
-//      {
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "[Simulator] processing manual problem .."  << std::endl;
-//      #endif
-////        problem_->set(this->device_handle(), this->config_handle());
-//        problem_->set(this);
-//        problem_->run(contact_potentials_, contact_workfunctions_, 0);
-//      }
-//      else
-//      {
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "[Simulator] processing problem \"" << config().problem() << "\""  << std::endl;
-//      #endif
-//        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
-//        {
-//          if(problem_) delete problem_;
-//          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-////          problem_->set(this->device_handle(), this->config_handle());
-//          problem_->set(this);
-//          problem_->run(contact_potentials_, contact_workfunctions_, 0);
-//        }
-//        else
-//        if(problem_id() == viennamini::id::laplace())
-//        {
-
-//          if(problem_) delete problem_;
-//          problem_ = new viennamini::problem_laplace(this->stream());
-////          problem_->set(this->device_handle(), this->config_handle());
-//          problem_->set(this);
-//          problem_->run(contact_potentials_, contact_workfunctions_, 0);
-//        }
-//        else
-//        if(problem_id() == "")
-//          throw undefined_problem_exception("Problem has not been defined");
-//        else
-//          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
-//      }
-
-//      if(config().write_result_files())
-//        problem_->write(output_file_prefix_, 0);
-//    }
-//    else // perform a sequence of simulations ..
-//    {
-//      // make sure, that the problem description is ready to hold
-//      // the simulation data for all upcoming simulations
-//      this->resize_problem_description_set();
-
-//      if(manual_problem_)
-//      {
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "[Simulator] processing manual problem .."  << std::endl;
-//      #endif
-//        //problem_->set(this->device_handle(), this->config_handle());
-//        problem_->set(this);
-//        this->execute_loop();
-//      }
-//      else
-//      {
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
-//      #endif
-//        if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
-//        {
-//          if(problem_) delete problem_;
-//          problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-//          problem_->set(this);
-////          problem_->set(this->device_handle(), this->config_handle());
-//          this->execute_loop();
-//        }
-//        else
-//        if(problem_id() == viennamini::id::laplace())
-//        {
-
-//          if(problem_) delete problem_;
-//          problem_ = new viennamini::problem_laplace(this->stream());
-////          problem_->set(this->device_handle(), this->config_handle());
-//          problem_->set(this);
-//          this->execute_loop();
-//        }
-//        else
-//        if(problem_id() == "")
-//          throw undefined_problem_exception("Problem has not been defined");
-//        else
-//          throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
-//      }
-//    }
-//  }
 }
 
 void simulator::execute_loop()
@@ -437,8 +342,11 @@ void simulator::resize_problem_description_set()
   else
   if(device().is_tetrahedral3d())
   {
-    device().get_problem_description_tetrahedral_3d_set().clear();
-    for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
+    device().get_problem_description_tetrahedral_3d_set().erase(
+      device().get_problem_description_tetrahedral_3d_set().begin()+1,
+      device().get_problem_description_tetrahedral_3d_set().end());
+
+    for(std::size_t i = 0; i < stepper_.size(); i++) // -1 because there is already one by default
     {
       device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
     }
