@@ -35,7 +35,7 @@
 #include "viennamini/forwards.h"
 #include "viennamini/simulator.hpp"
 #include "viennamini/physics.hpp"
-#include "viennamini/csv.hpp"
+#include "viennamini/data_table.hpp"
 #include "viennamini/utils/is_zero.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -143,13 +143,13 @@ public:
 
   void write(std::string const& filename, std::size_t step_id);
 
-  viennamini::csv& csv();
+  viennamini::data_table& data_table();
 
   std::ostream& stream();
 
 private:
   viennamini::simulator              * simulator_;
-  viennamini::csv                      csv_;
+  viennamini::data_table               data_table_;
   std::ostream                       & stream_;
 };
 

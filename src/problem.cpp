@@ -73,9 +73,9 @@ void problem::write(std::string const& filename, std::size_t step_id)
   else throw device_not_supported_exception("at: problem::write()");
 }
 
-viennamini::csv& problem::csv() 
+viennamini::data_table& problem::data_table() 
 { 
-  return csv_; 
+  return data_table_; 
 }
 
 std::ostream& problem::stream()

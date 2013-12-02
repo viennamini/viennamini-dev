@@ -18,8 +18,6 @@
 #include "viennamini/problem.hpp"
 
 
-#define VIENNAMINI_VERBOSE
-
 namespace viennamini {
 
 struct problem_poisson_dd_np : public problem
@@ -535,62 +533,52 @@ struct problem_poisson_dd_np : public problem
 
     if(step_id == 1) // the first simulation has the index 1
     {
-      std::vector<std::string>  header;
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
       {
         std::size_t current_segment_index = sit->id();
         if(device().is_contact(current_segment_index))
         {
+          data_table().new_column( "U_"+device().get_name(current_segment_index) );
+
           if(device().is_contact_at_semiconductor(current_segment_index))
           {
-            header.push_back( "U_"+device().get_name(current_segment_index) );
-            header.push_back( "I_"+device().get_name(current_segment_index) );
-          }
-          else
-          if(device().is_contact_at_oxide(current_segment_index))
-          {
-            header.push_back( "U_"+device().get_name(current_segment_index) );
+            data_table().new_column( "I_"+device().get_name(current_segment_index) );
           }
         }
       }
-      csv().set_header(header);
     }
 
     viennafvm::flux_accessor<ProblemDescriptionType> electron_current_density(problem_description, mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n, n);
     viennafvm::flux_accessor<ProblemDescriptionType>     hole_current_density(problem_description, mu_p * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p, p);
-    viennamini::csv::data_line_type data_line;
+
+    
     for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
         sit != segmesh.segmentation.end(); ++sit)
     {
       std::size_t current_segment_index = sit->id();
       if(device().is_contact(current_segment_index))
       {
+        data_table().add("U_"+device().get_name(current_segment_index), 
+                          current_contact_potentials[current_segment_index]);
+      
         if(device().is_contact_at_semiconductor(current_segment_index))
         {
           std::size_t adjacent_semiconductor_segment_index = device().get_adjacent_semiconductor_segment_for_contact(current_segment_index);
 
-          data_line.push_back( current_contact_potentials[current_segment_index] );
-                                 
-          double J  = viennamini::q::val() * viennafvm::flux_between_segments(
-                        segmesh.segmentation[current_segment_index], 
+          data_table().add("I_"+device().get_name(current_segment_index), 
+                      viennamini::q::val() * viennafvm::flux_between_segments(
                         segmesh.segmentation[adjacent_semiconductor_segment_index], 
+                        segmesh.segmentation[current_segment_index], 
                         electron_current_density) +  
                       viennamini::q::val() * viennafvm::flux_between_segments(
-                        segmesh.segmentation[current_segment_index], 
                         segmesh.segmentation[adjacent_semiconductor_segment_index], 
-                        hole_current_density);       
-          data_line.push_back(J);
+                        segmesh.segmentation[current_segment_index], 
+                        hole_current_density)
+                   );
         }
-        else
-        if(device().is_contact_at_oxide(current_segment_index))
-        {
-          data_line.push_back(  current_contact_potentials[current_segment_index] );
-        }
-        else throw segment_undefined_contact_exception(current_segment_index);
       }
     }
-    csv().add_line(data_line);
   }
 };
 

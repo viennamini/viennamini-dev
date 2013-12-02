@@ -25,6 +25,7 @@
 #include "viennamini/device.hpp"
 #include "viennamini/problem.hpp"
 #include "viennamini/stepper.hpp"
+#include "viennamini/data_table.hpp"
 #include "viennamini/utils/convert.hpp"
 
 namespace viennamini
@@ -67,7 +68,7 @@ namespace viennamini
     void                                 set_problem(viennamini::problem* active_problem);
     void                                 set_output_filename_prefix(std::string const prefix);
 
-    viennamini::csv                    & csv();
+    viennamini::data_table             & data_table();
 
     device_template                    & device_generator();
 

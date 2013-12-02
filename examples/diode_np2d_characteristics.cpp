@@ -28,7 +28,7 @@ int main()
   // set contact potentials
   //
   int anode_id = mysim.device_generator().segment_indices()["Anode"];
-  mysim.set_contact_potential_range(anode_id, 0.0, 1.0, 0.1);
+  mysim.set_contact_potential_range(anode_id, 0.0, 0.3, 0.1);
 
   // write the simulation results to output files
   //
@@ -38,8 +38,8 @@ int main()
   //
   mysim.run();
 
-  viennamini::csv mycsv = mysim.csv();
-  mycsv.write("diode_np2d_characteristics.csv");
+  viennamini::data_table table = mysim.data_table();
+//  mycsv.write("diode_np2d_characteristics.csv");
 
   return 0;
 }

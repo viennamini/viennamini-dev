@@ -290,9 +290,9 @@ viennamini::device_template& simulator::device_generator()
   return *device_generator_;
 }
 
-viennamini::csv& simulator::csv()
+viennamini::data_table& simulator::data_table()
 {
-  return problem_->csv();
+  return problem_->data_table();
 }
 
 std::string simulator::encode_current_boundary_setup()
