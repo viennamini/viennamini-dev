@@ -103,9 +103,6 @@ int main()
 
   mysim.run();
 
-  viennamini::csv mycsv = mysim.csv();
-  mycsv.write("mosfet2d_characteristics.csv");
-
   std::cout << "**********************************************************" << std::endl;
   std::cout << "* MOSFET 2D DD Bipolar simulation finished successfully! *" << std::endl;
   std::cout << "**********************************************************" << std::endl;

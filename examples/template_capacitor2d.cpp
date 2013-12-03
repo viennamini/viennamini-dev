@@ -33,10 +33,12 @@ int main()
   //
   mysim.device_generator().generate();
   
+  mysim.device().write("device");
+
   // set contact potentials
   //
-  mysim.contact_potential(1) = 1.0;
-  mysim.contact_potential(5) = 0.0;
+  mysim.contact_potential(0) = 1.0;
+  mysim.contact_potential(4) = 0.0;
 
   // write the simulation results to output files
   //

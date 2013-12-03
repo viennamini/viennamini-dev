@@ -63,7 +63,7 @@ void problem::write(std::string const& filename, std::size_t step_id)
   }
   else
   if(device().is_tetrahedral3d())
-  {
+  {  
     viennafvm::io::write_solution_to_VTK_file(
       device().get_problem_description_tetrahedral_3d(step_id).quantities(),
       filename,

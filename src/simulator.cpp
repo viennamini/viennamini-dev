@@ -125,7 +125,7 @@ void simulator::run()
         siter != device().segment_indices().end(); siter++)
     {
       if(device().is_contact(*siter))
-      {
+      {  
         // if the contact is neither set to range or single,
         // make it a single value contact
         //

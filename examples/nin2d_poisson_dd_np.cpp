@@ -28,11 +28,11 @@ int main()
   mysim.device().temperature() = 300;
 
   // identify segments
-  const int left_contact     = 1;
-  const int left             = 2;
-  const int intrinsic        = 3;
-  const int right            = 4;
-  const int right_contact    = 5;
+  const int left_contact     = 0;
+  const int left             = 1;
+  const int intrinsic        = 2;
+  const int right            = 3;
+  const int right_contact    = 4;
   
   mysim.device().make_contact         (left_contact);
   mysim.device().set_name             (left_contact, "left_contact");
