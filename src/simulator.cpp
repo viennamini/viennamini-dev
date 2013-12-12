@@ -196,7 +196,6 @@ void simulator::run()
         throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
     }
   }
-
 }
 
 void simulator::execute_loop()
@@ -311,8 +310,17 @@ void simulator::resize_problem_description_set()
 {
   if(device().is_line1d())
   {
-    device().get_problem_description_line_1d_set().clear();
-    for(std::size_t i = 0; i < stepper_.size()-1; i++) // -1 because there is already one by default
+    // clean 1-n entries of the problem description set
+    // note that these entries hold previous simulation results
+    // the 0 entry holds the initial values, so we keep this one
+    //
+    device().get_problem_description_line_1d_set().erase(
+      device().get_problem_description_line_1d_set().begin()+1,
+      device().get_problem_description_line_1d_set().end());
+
+    // now, create new problem descriptions for each simulation to be conducted
+    //
+    for(std::size_t i = 0; i < stepper_.size(); i++)
     {
       device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
     }
@@ -324,28 +332,30 @@ void simulator::resize_problem_description_set()
     // note that these entries hold previous simulation results
     // the 0 entry holds the initial values, so we keep this one
     //
-//    stream() << "Resizing pre size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
     device().get_problem_description_triangular_2d_set().erase(
       device().get_problem_description_triangular_2d_set().begin()+1,
       device().get_problem_description_triangular_2d_set().end());
-//    stream() << "Resizing post size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
 
     // now, create new problem descriptions for each simulation to be conducted
     //
-//    stream() << "stepper size " << stepper_.size() << std::endl;
     for(std::size_t i = 0; i < stepper_.size(); i++) 
     {
       device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
     }
-//    stream() << "Resizing final size: " << device().get_problem_description_triangular_2d_set().size() << std::endl;
   }
   else
   if(device().is_tetrahedral3d())
   {
+    // clean 1-n entries of the problem description set
+    // note that these entries hold previous simulation results
+    // the 0 entry holds the initial values, so we keep this one
+    //
     device().get_problem_description_tetrahedral_3d_set().erase(
       device().get_problem_description_tetrahedral_3d_set().begin()+1,
       device().get_problem_description_tetrahedral_3d_set().end());
 
+    // now, create new problem descriptions for each simulation to be conducted
+    //
     for(std::size_t i = 0; i < stepper_.size(); i++) // -1 because there is already one by default
     {
       device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
