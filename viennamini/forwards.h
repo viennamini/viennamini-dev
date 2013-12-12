@@ -175,7 +175,6 @@ namespace viennamini
   class line_1d         {};
   class triangular_2d   {};
   class tetrahedral_3d  {};
-  class null {};
 
   class device;
   class config;

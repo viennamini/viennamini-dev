@@ -71,9 +71,8 @@ namespace viennamini
     typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
 
   public:
-    // [JW] note that the first type in a boost::variant must be a default constructible object
-    typedef boost::variant<null, segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
-    typedef boost::variant<null, problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
+    typedef boost::variant<segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
+    typedef boost::variant<problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
 
     typedef std::vector<std::size_t>                                                       IndicesType;
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
