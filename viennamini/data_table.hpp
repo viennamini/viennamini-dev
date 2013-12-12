@@ -78,33 +78,36 @@ public:
     return matrix_.size();
   }
 
-//  void write(std::string const& filename)
-//  {
-//    std::ofstream stream(filename.c_str());
-//    this->write(stream);
-//    stream.close();
-//  }
+  void write(std::string const& filename)
+  {
+    std::ofstream stream(filename.c_str());
+    this->write(stream);
+    stream.close();
+  }
 
-//  void write(std::ostream& stream)
-//  {
-//    for(HeaderLineType::iterator iter = header_.begin();
-//        iter != header_.end(); iter++)
-//    {
-//      stream << *iter << "  ";
-//    }
-////    stream << "\n";
+  void write(std::ostream& stream)
+  {
+    // write the header, i.e., the column names
+    //
+    stream << "# ";
+    for(std::size_t col_i = 0; col_i < matrix_.size(); col_i++)
+    {
+      stream << index_key_map_[col_i] << "  ";
+    }
+    stream << "\n";
 
-////    for(MatrixType::iterator line_iter = matrix_.begin();
-////        line_iter != matrix_.end(); line_iter++)
-////    {
-////      for(DataLineType::iterator col_iter = line_iter->begin();
-////          col_iter != line_iter->end(); col_iter++)
-////      {
-////        stream << *col_iter << "  ";
-////      }
-////      stream << "\n";
-////    }
-//  }
+    // write the data. expects currently that all columns have the same size
+    //
+    for(std::size_t i = 0; i < matrix_.front().size(); i++)
+    {
+      for(MatrixType::iterator col_iter = matrix_.begin(); 
+          col_iter != matrix_.end(); col_iter++)
+      {
+        stream << (*col_iter)[i] << "  ";
+      }
+      stream << "\n";
+    }
+  }
 
 private:
   IndexStringMapType  index_key_map_;
