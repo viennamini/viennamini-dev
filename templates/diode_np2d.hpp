@@ -88,7 +88,7 @@ public:
     config_handle_->linear_breaktol()                    = 1.0E-14;
     config_handle_->linear_iterations()                  = 1000;
     config_handle_->nonlinear_iterations()               = 100;
-    config_handle_->nonlinear_breaktol()                 = 1.0E-2;
+    config_handle_->nonlinear_breaktol()                 = 1.0E-10;
 
     this->generate_mesh();
     device_handle_->scale(1.0E-9);

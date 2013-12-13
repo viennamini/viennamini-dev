@@ -82,8 +82,9 @@ int main(int argc, char* argv[])
   mysim.config().linear_breaktol()                    = 1.0E-14;
   mysim.config().linear_iterations()                  = 1000;
   mysim.config().nonlinear_iterations()               = 100;
-  mysim.config().nonlinear_breaktol()                 = 1.0E-3;
-  mysim.config().write_initial_guess_files()          = true;
+  mysim.config().nonlinear_breaktol()                 = 1.0E-2;
+  mysim.config().damping()                            = 0.5;
+  mysim.config().write_initial_guess_files()          = false;
   mysim.config().write_result_files()                 = true;
 
   mysim.problem_id() = viennamini::id::poisson_drift_diffusion_np();
@@ -91,10 +92,12 @@ int main(int argc, char* argv[])
   // manually set the contact potentials
   //
   mysim.contact_workfunction(gate_contact)   = 0.4;
-  mysim.contact_potential   (gate_contact)   = 0.2;
+//  mysim.contact_potential   (gate_contact)   = 0.2;
   mysim.contact_potential   (source_contact) = 0.0;
-  mysim.contact_potential   (drain_contact)  = 0.2;
+  mysim.contact_potential   (drain_contact)  = 0.5;
   mysim.contact_potential   (body_contact)   = 0.0;
+
+  mysim.set_contact_potential_range(gate_contact, 0.25, 0.5, 0.25);
 
   mysim.set_output_filename_prefix("trigate3d_dd_np_result");  
 
