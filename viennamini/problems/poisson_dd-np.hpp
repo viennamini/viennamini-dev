@@ -58,14 +58,6 @@ struct problem_poisson_dd_np : public problem
     QuantityType & donator_doping           = problem_description.add_quantity(donator_doping_initial);
     QuantityType & acceptor_doping          = problem_description.add_quantity(acceptor_doping_initial);
 
-    QuantityType & donator_doping_cm        = problem_description.add_quantity(donator_doping_initial);
-    donator_doping_cm.set_name(viennamini::id::donator_doping()+"_cm");
-    donator_doping_cm.scale_values(1.0E-6);
-
-    QuantityType & acceptor_doping_cm        = problem_description.add_quantity(donator_doping_initial);
-    acceptor_doping_cm.set_name(viennamini::id::acceptor_doping()+"_cm");
-    acceptor_doping_cm.scale_values(1.0E-6);
-
     if(viennamini::is_zero(permittivity.get_sum()))    throw required_quantity_is_zero_exception("Permittivity is zero!");
     if(viennamini::is_zero(donator_doping.get_sum()))  throw required_quantity_is_zero_exception("Donator doping is zero!");
     if(viennamini::is_zero(acceptor_doping.get_sum())) throw required_quantity_is_zero_exception("Acceptor doping is zero!");
@@ -538,6 +530,14 @@ struct problem_poisson_dd_np : public problem
     // Post Processing
     //
     // -------------------------------------------------------------------------
+
+    QuantityType & donator_doping_cm        = problem_description.add_quantity(donator_doping_initial);
+    donator_doping_cm.set_name(viennamini::id::donator_doping()+"_cm");
+    donator_doping_cm.scale_values(1.0E-6);
+
+    QuantityType & acceptor_doping_cm        = problem_description.add_quantity(acceptor_doping_initial);
+    acceptor_doping_cm.set_name(viennamini::id::acceptor_doping()+"_cm");
+    acceptor_doping_cm.scale_values(1.0E-6);
 
     QuantityType & electron_density_cm        = problem_description.add_quantity(electron_density);
     electron_density_cm.set_name(viennamini::id::electron_density()+"_cm");
