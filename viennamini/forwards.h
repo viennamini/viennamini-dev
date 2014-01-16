@@ -129,8 +129,8 @@ namespace viennamini
     inline std::string donator_doping()             { return "N_D"; }
     inline std::string acceptor_doping()            { return "N_A"; }
     inline std::string potential()                  { return "Potential"; }
-    inline std::string electron_density()           { return "Electron Density"; }
-    inline std::string hole_density()               { return "Hole Density"; }
+    inline std::string electron_density()           { return "Electron Concentration"; }
+    inline std::string hole_density()               { return "Hole Concentration"; }
     inline std::string electron_mobility()          { return "Electron Mobility"; }
     inline std::string hole_mobility()              { return "Hole Mobility"; }
     inline std::string curren_density()             { return "Current Density"; }
