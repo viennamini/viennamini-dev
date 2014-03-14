@@ -17,6 +17,7 @@
 
 //#include "viennamesh/algorithm/file_reader.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
+#include "viennagrid/io/vtk_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
@@ -357,32 +358,43 @@ void device::read(std::string const& filename, viennamini::line_1d const&)
 {
   this->make_line1d();
   segmesh_line_1d_ptr segmesh = boost::get<segmesh_line_1d_ptr>(generic_mesh_);
-  viennagrid::io::netgen_reader   reader;
-  reader(segmesh->mesh, segmesh->segmentation, filename);
+
+  std::string extension = viennamini::file_extension(filename);
+  if(extension == "mesh")
+  {
+    viennagrid::io::netgen_reader reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else if( (extension == "pvd") || (extension == "vtu") )
+  {
+    viennagrid::io::vtk_reader<mesh_line_1d, segmentation_line_1d> reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else 
+    throw unknown_mesh_file_exception(filename);
+
   this->update_problem_description();
 }
 
 void device::read(std::string const& filename, viennamini::triangular_2d const&)
 {
-//  viennamesh::AlgorithmHandle reader = viennamesh::AlgorithmHandle( new viennamesh::FileReader() );
-//  reader->set_input( "filename", filename );
-////  reader->set_output();
-////  if(this->is_triangular2d())
-////    reader->get_output( "default" )->convert_to( boost::get<segmesh_triangular_2d_ptr>(generic_mesh_));
-
-////  segmesh_triangular_2d_ptr temp (new segmesh_triangular_2d_ptr::element_type);
-////  reader->get_output( "default" )->convert_to( temp );
-
-//  //boost::get<segmesh_triangular_2d_ptr>(generic_mesh_) =
-//  segmesh_triangular_2d_ptr temp = reader->get_output( "default" )->get_converted<segmesh_triangular_2d_ptr::element_type>();
-
-//  reader->run();
-//  viennamini::io::read_vtk(mydevice, "../external/ViennaDeviceCollection/nin2d/nin2d.mesh", viennagrid::config::triangular_2d());
-
   this->make_triangular2d();
   segmesh_triangular_2d_ptr segmesh = boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
-  viennagrid::io::netgen_reader   reader;
-  reader(segmesh->mesh, segmesh->segmentation, filename);
+
+  std::string extension = viennamini::file_extension(filename);
+  if(extension == "mesh")
+  {
+    viennagrid::io::netgen_reader reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else if( (extension == "pvd") || (extension == "vtu") )
+  {
+    viennagrid::io::vtk_reader<mesh_triangular_2d, segmentation_triangular_2d> reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else 
+    throw unknown_mesh_file_exception(filename);
+
   this->update_problem_description();
 }
 
@@ -390,8 +402,21 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
 {
   this->make_tetrahedral3d();
   segmesh_tetrahedral_3d_ptr segmesh = boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
-  viennagrid::io::netgen_reader reader;
-  reader(segmesh->mesh, segmesh->segmentation, filename);
+
+  std::string extension = viennamini::file_extension(filename);
+  if(extension == "mesh")
+  {
+    viennagrid::io::netgen_reader reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else if( (extension == "pvd") || (extension == "vtu") )
+  {
+    viennagrid::io::vtk_reader<mesh_tetrahedral_3d, segmentation_tetrahedral_3d> reader;
+    reader(segmesh->mesh, segmesh->segmentation, filename);
+  }
+  else 
+    throw unknown_mesh_file_exception(filename);
+
   this->update_problem_description();
 }
 

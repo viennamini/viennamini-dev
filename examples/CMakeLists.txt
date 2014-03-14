@@ -14,6 +14,9 @@ IF(VIENNADEVICECOLLECTION_FOUND)
 
   ADD_EXECUTABLE(nin2d_laplace     nin2d_laplace.cpp)
   TARGET_LINK_LIBRARIES(nin2d_laplace ${LIBRARIES})
+
+  ADD_EXECUTABLE(mosfet_planar_3d     mosfet_planar_3d.cpp)
+  TARGET_LINK_LIBRARIES(mosfet_planar_3d ${LIBRARIES})
 ENDIF(VIENNADEVICECOLLECTION_FOUND)
 
 # For the following examples, we do not need the ViennaDeviceCollection

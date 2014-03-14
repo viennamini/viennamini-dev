@@ -42,6 +42,12 @@ namespace viennamini
     unknown_material_library_file_exception(std::string const & str) : std::runtime_error(str) {}
   };
 
+  /** @brief Exception for the case that the input mesh file is not supported */
+  class unknown_mesh_file_exception : public std::runtime_error {
+  public:
+    unknown_mesh_file_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
   /** @brief Exception for the case that the eps value is zero, indicating a problem with accessing the material database */
   class eps_is_zero_exception : public std::runtime_error {
   public:
