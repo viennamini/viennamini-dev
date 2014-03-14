@@ -20,6 +20,9 @@ IF(VIENNADEVICECOLLECTION_FOUND)
 
   ADD_EXECUTABLE(mosfet_utb_soi_3d     mosfet_utb_soi_3d.cpp)
   TARGET_LINK_LIBRARIES(mosfet_utb_soi_3d ${LIBRARIES})
+
+  ADD_EXECUTABLE(mosfet_rectangular_trigate_3d     mosfet_rectangular_trigate_3d.cpp)
+  TARGET_LINK_LIBRARIES(mosfet_rectangular_trigate_3d ${LIBRARIES})
 ENDIF(VIENNADEVICECOLLECTION_FOUND)
 
 # For the following examples, we do not need the ViennaDeviceCollection
