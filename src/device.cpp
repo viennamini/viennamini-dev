@@ -34,120 +34,93 @@
 namespace viennamini
 {
 
-struct is_line_1d_visitor : public boost::static_visitor<bool>
-{
-  bool operator()(segmesh_line_1d_ptr & ptr) const { return true; }
-
-  template<typename T>
-  bool operator()(T & ptr) const { return false; }
-};
-
-struct is_triangle_2d_visitor : public boost::static_visitor<bool>
-{
-  bool operator()(segmesh_triangular_2d_ptr & ptr) const { return true; }
-
-  template<typename T>
-  bool operator()(T & ptr) const { return false; }
-};
-
-struct is_tetrahedral_3d_visitor : public boost::static_visitor<bool>
-{
-  bool operator()(segmesh_tetrahedral_3d_ptr & ptr) const { return true; }
-
-  template<typename T>
-  bool operator()(T & ptr) const { return false; }
-};
-
-
 device::device(std::ostream& stream) :     temperature_(300.0), matlib_(), stream_(stream)
 {
 }
 
 void device::make_line1d()
 {
-  generic_mesh_                     = segmesh_line_1d_ptr(new segmesh_line_1d_ptr::element_type);
+  generic_mesh_.generate(viennamini::mesh::line_1d);
 
-  generic_problem_description_set_  = problem_description_line_1d_set();
-  this->get_problem_description_line_1d_set().push_back( problem_description_line_1d(get_segmesh_line_1d().mesh) );
-//  generic_problem_description_ = problem_description_line_1d(get_segmesh_line_1d().mesh);
+//  generic_mesh_                     = segmesh_line_1d_ptr(new segmesh_line_1d_ptr::element_type);
+//  generic_problem_description_set_  = problem_description_line_1d_set();
+//  this->get_problem_description_line_1d_set().push_back( problem_description_line_1d(get_segmesh_line_1d().mesh) );
+
 }
 
 void device::make_triangular2d()
 {
-  generic_mesh_                = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
+//  generic_mesh_                = segmesh_triangular_2d_ptr(new segmesh_triangular_2d_ptr::element_type);
+//  generic_problem_description_set_  = problem_description_triangular_2d_set();
+//  this->get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(get_segmesh_triangular_2d().mesh) );
 
-  generic_problem_description_set_  = problem_description_triangular_2d_set();
-  this->get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(get_segmesh_triangular_2d().mesh) );
-//  generic_problem_description_ = problem_description_triangular_2d(get_segmesh_triangular_2d().mesh);
 }
 
 void device::make_tetrahedral3d()
 {
-  generic_mesh_                 = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
-
-  generic_problem_description_set_  = problem_description_tetrahedral_3d_set();
-  this->get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh) );
-//  generic_problem_description_  = problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh);
+//  generic_mesh_                 = segmesh_tetrahedral_3d_ptr(new segmesh_tetrahedral_3d_ptr::element_type);
+//  generic_problem_description_set_  = problem_description_tetrahedral_3d_set();
+//  this->get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(get_segmesh_tetrahedral_3d().mesh) );
 }
 
 bool device::is_line1d()
 {
-  return boost::apply_visitor(is_line_1d_visitor(), generic_mesh_);
+  return false; //boost::apply_visitor(is_line_1d_visitor(), generic_mesh_);
 }
 
 bool device::is_triangular2d()
 {
-  return boost::apply_visitor(is_triangle_2d_visitor(), generic_mesh_);
+  return false; //boost::apply_visitor(is_triangle_2d_visitor(), generic_mesh_);
 }
 
 bool device::is_tetrahedral3d()
 {
-  return boost::apply_visitor(is_tetrahedral_3d_visitor(), generic_mesh_);
+  return false; //boost::apply_visitor(is_tetrahedral_3d_visitor(), generic_mesh_);
 }
 
 segmesh_line_1d& device::get_segmesh_line_1d()
 {
-  return *boost::get<segmesh_line_1d_ptr>(generic_mesh_);
+  //return *boost::get<segmesh_line_1d_ptr>(generic_mesh_);
 }
 
 segmesh_triangular_2d& device::get_segmesh_triangular_2d()
 {
-  return *boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
+  //return *boost::get<segmesh_triangular_2d_ptr>(generic_mesh_);
 }
 
 segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
 {
-  return *boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
+  //return *boost::get<segmesh_tetrahedral_3d_ptr>(generic_mesh_);
 }
 
 problem_description_line_1d_set&  device::get_problem_description_line_1d_set()
 {
-  return boost::get<problem_description_line_1d_set>(generic_problem_description_set_);
+  //return boost::get<problem_description_line_1d_set>(generic_problem_description_set_);
 }
 
 problem_description_triangular_2d_set&  device::get_problem_description_triangular_2d_set()
 {
-  return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_);
+  //return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_);
 }
 
 problem_description_tetrahedral_3d_set& device::get_problem_description_tetrahedral_3d_set()
 {
-  return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_);
+  //return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_);
 }
 
 problem_description_line_1d&  device::get_problem_description_line_1d(std::size_t id)
 {
-  return boost::get<problem_description_line_1d_set>(generic_problem_description_set_)[id];
+  //return boost::get<problem_description_line_1d_set>(generic_problem_description_set_)[id];
 }
 
 problem_description_triangular_2d&  device::get_problem_description_triangular_2d(std::size_t id)
 {
-  return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_)[id];
+  //return boost::get<problem_description_triangular_2d_set>(generic_problem_description_set_)[id];
 }
 
 problem_description_tetrahedral_3d& device::get_problem_description_tetrahedral_3d(std::size_t id)
 {
-  return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_)[id];
+  //return boost::get<problem_description_tetrahedral_3d_set>(generic_problem_description_set_)[id];
 }
 
 void device::make_neutral(int segment_index)
@@ -350,7 +323,7 @@ device::GenericProblemDescriptionType & device::generic_problem_description_set(
 
 material_library_handle & device::material_library()
 {
-  if(!matlib_) throw device_lacks_material_library("");
+  if(matlib_.get()) throw device_lacks_material_library("");
   return matlib_;
 }
 

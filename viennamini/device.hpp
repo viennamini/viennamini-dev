@@ -22,9 +22,9 @@
 #include "viennamaterials/pugixml.hpp"
 
 #include "viennamini/forwards.h"
+#include "viennamini/generic_mesh.hpp"
 
-#include "boost/variant.hpp"
-
+//#include "boost/variant.hpp"
 
 namespace viennamini
 {
@@ -77,8 +77,9 @@ namespace viennamini
     typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
 
   public:
-    typedef boost::variant<segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
-    typedef boost::variant<problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
+    typedef generic_mesh    GenericMeshType;
+//    typedef boost::variant<segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
+//    typedef boost::variant<problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
 
     typedef std::vector<std::size_t>                                                       IndicesType;
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;

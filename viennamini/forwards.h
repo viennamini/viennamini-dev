@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 
 // ViennaGrid includes
 #include "viennagrid/forwards.hpp"
@@ -33,8 +34,6 @@
 #include "viennafvm/problem_description.hpp"
 
 #include "viennamaterials/library.hpp"
-
-#include "boost/shared_ptr.hpp"
 
 namespace viennamini
 {
@@ -210,6 +209,16 @@ namespace viennamini
     };
   } // mobility
 
+  namespace mesh {
+    enum mesh_ids
+    {
+      none,
+      line_1d, 
+      triangular_2d, 
+      tetrahedral_3d
+    };
+  }
+
   // public typedefs
   //
 
@@ -233,16 +242,6 @@ namespace viennamini
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>   segmesh_triangular_2d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>  segmesh_tetrahedral_3d;
 
-  typedef ::boost::shared_ptr<segmesh_line_1d>                                                                    segmesh_line_1d_ptr;
-  typedef ::boost::shared_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
-  typedef ::boost::shared_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
-
-  typedef ::boost::shared_ptr<viennamini::device>                                                                 device_handle;
-  typedef ::boost::shared_ptr<viennamini::config>                                                                 config_handle;
-  typedef ::boost::shared_ptr<viennamaterials::library>                                                           material_library_handle;
-  typedef ::boost::shared_ptr<viennamini::device_template>                                                        device_template_handle;
-  typedef ::boost::shared_ptr<viennamini::simulator>                                                              simulator_handle;
-
   typedef ::viennafvm::problem_description<mesh_line_1d>                                                          problem_description_line_1d;
   typedef ::viennafvm::problem_description<mesh_triangular_2d>                                                    problem_description_triangular_2d;
   typedef ::viennafvm::problem_description<mesh_tetrahedral_3d>                                                   problem_description_tetrahedral_3d;
@@ -251,7 +250,25 @@ namespace viennamini
   typedef std::vector<problem_description_triangular_2d>                                                          problem_description_triangular_2d_set;
   typedef std::vector<problem_description_tetrahedral_3d>                                                         problem_description_tetrahedral_3d_set;
 
-
+#ifdef VIENNAMINI_WITH_CXX11
+//  typedef std::unique_ptr<segmesh_line_1d>                                                                    segmesh_line_1d_ptr;
+//  typedef std::unique_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
+//  typedef std::unique_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
+  typedef std::unique_ptr<viennamini::device>                                                                 device_handle;
+  typedef std::unique_ptr<viennamini::config>                                                                 config_handle;
+  typedef std::unique_ptr<viennamaterials::library>                                                           material_library_handle;
+  typedef std::unique_ptr<viennamini::device_template>                                                        device_template_handle;
+  typedef std::unique_ptr<viennamini::simulator>                                                              simulator_handle;
+#else
+//  typedef std::auto_ptr<segmesh_line_1d>                                                                    segmesh_line_1d_ptr;
+//  typedef std::auto_ptr<segmesh_triangular_2d>                                                              segmesh_triangular_2d_ptr;
+//  typedef std::auto_ptr<segmesh_tetrahedral_3d>                                                             segmesh_tetrahedral_3d_ptr;
+  typedef std::auto_ptr<viennamini::device>                                                                 device_handle;
+  typedef std::auto_ptr<viennamini::config>                                                                 config_handle;
+  typedef std::auto_ptr<viennamaterials::library>                                                           material_library_handle;
+  typedef std::auto_ptr<viennamini::device_template>                                                        device_template_handle;
+  typedef std::auto_ptr<viennamini::simulator>                                                              simulator_handle;
+#endif
 
 } // viennamini
 

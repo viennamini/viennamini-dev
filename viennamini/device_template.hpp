@@ -28,8 +28,6 @@
 
 #include "viennamesh/utils/logger.hpp"
 
-#include "boost/shared_ptr.hpp"
-
 namespace viennamini
 {
 
