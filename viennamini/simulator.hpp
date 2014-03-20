@@ -12,7 +12,7 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
 #ifndef NDEBUG

@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 2.8.2)
 OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
 OPTION(BUILD_EXAMPLES "Build the examples" ON)
-OPTION(BUILD_TESTS "Build the tests" ON)
+OPTION(BUILD_TESTS "Build the tests" OFF)
 OPTION(VIENNAMINI_VERBOSE "Verbose messaging" OFF)
 OPTION(USE_CXX11 "Use C++11 features" OFF)
 
@@ -25,7 +25,7 @@ IF (NOT CMAKE_BUILD_TYPE)
 ENDIF()
 
 #set compiler flags
-SET(CMAKE_CXX_FLAGS "-Wall -pedantic")
+SET(CMAKE_CXX_FLAGS "-Wall -pedantic -Wno-unused-local-typedefs")
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g ")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ")
 SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")

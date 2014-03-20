@@ -12,7 +12,7 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the ViennaMini base directory
 ======================================================================= */
 
 #ifndef NDEBUG
@@ -22,21 +22,12 @@
 // ViennaMath includes:
 #include "viennamath/expression.hpp"
 
-// ViennaFVM includes:
-#ifdef VIENNAMINI_VERBOSE
-  #define VIENNAFVM_VERBOSE
-#endif
-#include "viennafvm/pde_solver.hpp"
-#include "viennafvm/problem_description.hpp"
-#include "viennafvm/forwards.h"
-#include "viennafvm/boundary.hpp"
-#include "viennafvm/io/vtk_writer.hpp"
-
 #include "viennamini/forwards.h"
 #include "viennamini/simulator.hpp"
 #include "viennamini/physics.hpp"
 #include "viennamini/data_table.hpp"
 #include "viennamini/utils/is_zero.hpp"
+#include "viennamini/stepper.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -46,21 +37,21 @@ public: \
 \
   classname(std::ostream& stream) : viennamini::problem(stream) {} \
 \
-  void run(segment_values& current_contact_potentials, std::size_t step_id) \
+  void run(viennamini::stepper& stepper) \
   {\
     if(device().is_line1d()) \
     {\
-      this->run_impl(simulator().device().get_segmesh_line_1d(), simulator().device().get_problem_description_line_1d_set(), current_contact_potentials, step_id); \
+      this->run_impl(simulator().device().get_segmesh_line_1d(), stepper); \
     }\
     else \
     if(device().is_triangular2d()) \
     {\
-      this->run_impl(simulator().device().get_segmesh_triangular_2d(), simulator().device().get_problem_description_triangular_2d_set(), current_contact_potentials, step_id); \
+      this->run_impl(simulator().device().get_segmesh_triangular_2d(), stepper); \
     }\
     else \
     if(device().is_tetrahedral3d()) \
     {\
-      this->run_impl(simulator().device().get_segmesh_tetrahedral_3d(), simulator().device().get_problem_description_tetrahedral_3d_set(), current_contact_potentials, step_id); \
+      this->run_impl(simulator().device().get_segmesh_tetrahedral_3d(), stepper); \
     }\
     else throw device_not_supported_exception("at: problem_laplace::run()"); \
   }
@@ -131,15 +122,13 @@ public:
 
   virtual ~problem();
 
-  void set(viennamini::simulator* simulator);
+  void set_device_handle(viennamini::device_handle new_device);
+  void set_config_handle(viennamini::config_handle new_config);
 
   viennamini::device & device();
-
   viennamini::config & config();
 
-  viennamini::simulator& simulator();
-
-  virtual void run(segment_values& current_contact_potentials, std::size_t step_id) = 0;
+  virtual void run(viennamini::stepper& stepper) = 0;
 
   void write(std::string const& filename, std::size_t step_id);
 
@@ -148,8 +137,9 @@ public:
   std::ostream& stream();
 
 private:
-  viennamini::simulator              * simulator_;
   viennamini::data_table               data_table_;
+  viennamini::device_handle            device_handle_;
+  viennamini::config_handle            config_handle_;
   std::ostream                       & stream_;
 };
 

@@ -9,7 +9,7 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
 
@@ -157,17 +157,17 @@ void simulator::run()
       }
     }
 
-    // make sure, that the problem description is ready to hold
-    // the simulation data for all upcoming simulations
-    this->resize_problem_description_set();
+
 
     if(manual_problem_)
     {
     #ifdef VIENNAMINI_VERBOSE
       stream() << "[Simulator] processing manual problem .."  << std::endl;
     #endif
-      problem_->set(this);
-      this->execute_loop();
+      problem_->set_device_handle(device_handle_);
+      problem_->set_config_handle(config_handle_);
+        problem_->run(stepper());
+      //this->execute_loop();
     }
     else
     {
@@ -178,16 +178,20 @@ void simulator::run()
       {
         if(problem_) delete problem_;
         problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-        problem_->set(this);
-        this->execute_loop();
+        problem_->set_device_handle(device_handle_);
+        problem_->set_config_handle(config_handle_);
+        problem_->run(stepper());
+        //this->execute_loop();
       }
       else
       if(problem_id() == viennamini::id::laplace())
       {
         if(problem_) delete problem_;
         problem_ = new viennamini::problem_laplace(this->stream());
-        problem_->set(this);
-        this->execute_loop();
+        problem_->set_device_handle(device_handle_);
+        problem_->set_config_handle(config_handle_);
+        problem_->run(stepper());
+        //this->execute_loop();
       }
       else
       if(problem_id() == "")
@@ -198,21 +202,21 @@ void simulator::run()
   }
 }
 
-void simulator::execute_loop()
-{
-  segment_values current_contact_potentials;
-  while(stepper().apply_next(current_contact_potentials))
-  {
-    // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
-    stream() << "Executing simulation " << stepper().get_current_step_id() << " of " << stepper().size();
-    problem_->run(current_contact_potentials, stepper().get_current_step_id());
-    if(config().write_result_files())
-    {
-      stream() << "  --> " << output_file_prefix_+"_"+this->encode_current_boundary_setup() << std::endl;
-      problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
-    }
-  }
-}
+//void simulator::execute_loop()
+//{
+//  segment_values current_contact_potentials;
+//  while(stepper().apply_next(current_contact_potentials))
+//  {
+//    // for the output, use 1-based indices, helping the user to keep track of the iteration numbers
+//    stream() << "Executing simulation " << stepper().get_current_step_id() << " of " << stepper().size();
+//    problem_->run(current_contact_potentials, stepper().get_current_step_id());
+//    if(config().write_result_files())
+//    {
+//      stream() << "  --> " << output_file_prefix_+"_"+this->encode_current_boundary_setup() << std::endl;
+//      problem_->write(output_file_prefix_+"_"+this->encode_current_boundary_setup(), stepper().get_current_step_id());
+//    }
+//  }
+//}
 
 viennamini::stepper& simulator::stepper()
 {
@@ -308,60 +312,60 @@ std::string simulator::encode_current_boundary_setup()
 
 void simulator::resize_problem_description_set()
 {
-  if(device().is_line1d())
-  {
-    // clean 1-n entries of the problem description set
-    // note that these entries hold previous simulation results
-    // the 0 entry holds the initial values, so we keep this one
-    //
-    device().get_problem_description_line_1d_set().erase(
-      device().get_problem_description_line_1d_set().begin()+1,
-      device().get_problem_description_line_1d_set().end());
+//  if(device().is_line1d())
+//  {
+//    // clean 1-n entries of the problem description set
+//    // note that these entries hold previous simulation results
+//    // the 0 entry holds the initial values, so we keep this one
+//    //
+//    device().get_problem_description_line_1d_set().erase(
+//      device().get_problem_description_line_1d_set().begin()+1,
+//      device().get_problem_description_line_1d_set().end());
 
-    // now, create new problem descriptions for each simulation to be conducted
-    //
-    for(std::size_t i = 0; i < stepper_.size(); i++)
-    {
-      device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
-    }
-  }
-  else
-  if(device().is_triangular2d())
-  {
-    // clean 1-n entries of the problem description set
-    // note that these entries hold previous simulation results
-    // the 0 entry holds the initial values, so we keep this one
-    //
-    device().get_problem_description_triangular_2d_set().erase(
-      device().get_problem_description_triangular_2d_set().begin()+1,
-      device().get_problem_description_triangular_2d_set().end());
+//    // now, create new problem descriptions for each simulation to be conducted
+//    //
+//    for(std::size_t i = 0; i < stepper_.size(); i++)
+//    {
+//      device().get_problem_description_line_1d_set().push_back( problem_description_line_1d(device().get_segmesh_line_1d().mesh) );
+//    }
+//  }
+//  else
+//  if(device().is_triangular2d())
+//  {
+//    // clean 1-n entries of the problem description set
+//    // note that these entries hold previous simulation results
+//    // the 0 entry holds the initial values, so we keep this one
+//    //
+//    device().get_problem_description_triangular_2d_set().erase(
+//      device().get_problem_description_triangular_2d_set().begin()+1,
+//      device().get_problem_description_triangular_2d_set().end());
 
-    // now, create new problem descriptions for each simulation to be conducted
-    //
-    for(std::size_t i = 0; i < stepper_.size(); i++) 
-    {
-      device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
-    }
-  }
-  else
-  if(device().is_tetrahedral3d())
-  {
-    // clean 1-n entries of the problem description set
-    // note that these entries hold previous simulation results
-    // the 0 entry holds the initial values, so we keep this one
-    //
-    device().get_problem_description_tetrahedral_3d_set().erase(
-      device().get_problem_description_tetrahedral_3d_set().begin()+1,
-      device().get_problem_description_tetrahedral_3d_set().end());
+//    // now, create new problem descriptions for each simulation to be conducted
+//    //
+//    for(std::size_t i = 0; i < stepper_.size(); i++) 
+//    {
+//      device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
+//    }
+//  }
+//  else
+//  if(device().is_tetrahedral3d())
+//  {
+//    // clean 1-n entries of the problem description set
+//    // note that these entries hold previous simulation results
+//    // the 0 entry holds the initial values, so we keep this one
+//    //
+//    device().get_problem_description_tetrahedral_3d_set().erase(
+//      device().get_problem_description_tetrahedral_3d_set().begin()+1,
+//      device().get_problem_description_tetrahedral_3d_set().end());
 
-    // now, create new problem descriptions for each simulation to be conducted
-    //
-    for(std::size_t i = 0; i < stepper_.size(); i++) // -1 because there is already one by default
-    {
-      device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
-    }
-  }
-  else throw device_not_supported_exception("at: simulator::resize_problem_description_set()");
+//    // now, create new problem descriptions for each simulation to be conducted
+//    //
+//    for(std::size_t i = 0; i < stepper_.size(); i++) // -1 because there is already one by default
+//    {
+//      device().get_problem_description_tetrahedral_3d_set().push_back( problem_description_tetrahedral_3d(device().get_segmesh_tetrahedral_3d().mesh) );
+//    }
+//  }
+//  else throw device_not_supported_exception("at: simulator::resize_problem_description_set()");
 }
 
 } // viennamini

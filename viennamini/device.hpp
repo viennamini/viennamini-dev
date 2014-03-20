@@ -13,7 +13,7 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
 #include <map>
@@ -78,8 +78,6 @@ namespace viennamini
 
   public:
     typedef generic_mesh    GenericMeshType;
-//    typedef boost::variant<segmesh_line_1d_ptr,             segmesh_triangular_2d_ptr,             segmesh_tetrahedral_3d_ptr>             GenericMeshType;
-//    typedef boost::variant<problem_description_line_1d_set, problem_description_triangular_2d_set, problem_description_tetrahedral_3d_set> GenericProblemDescriptionType;
 
     typedef std::vector<std::size_t>                                                       IndicesType;
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
@@ -87,7 +85,6 @@ namespace viennamini
     typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
 
     typedef GenericMeshType                                                                generic_mesh_type;
-    typedef GenericProblemDescriptionType                                                  generic_problem_description_type;
     typedef IndicesType                                                                    indices_type;
     typedef IndexMapType                                                                   index_map_type;
     typedef IndexKeysType                                                                  index_keys_type;
@@ -106,14 +103,6 @@ namespace viennamini
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
 
-    problem_description_line_1d&        get_problem_description_line_1d        (std::size_t id = 0);
-    problem_description_triangular_2d&  get_problem_description_triangular_2d  (std::size_t id = 0);
-    problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d (std::size_t id = 0);
-
-    problem_description_line_1d_set&        get_problem_description_line_1d_set        ();
-    problem_description_triangular_2d_set&  get_problem_description_triangular_2d_set  ();
-    problem_description_tetrahedral_3d_set& get_problem_description_tetrahedral_3d_set ();
-
     void make_neutral       (int segment_index);
     void make_contact       (int segment_index);
     void make_oxide         (int segment_index);
@@ -125,15 +114,14 @@ namespace viennamini
     bool is_oxide                   (int segment_index);
     bool is_semiconductor           (int segment_index);
 
-    viennamini::numeric&  temperature();
+    viennamini::numeric&  temperature(); // TODO make this also a cell quantity
 
     std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
     std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);
 
     void update();
 
-    GenericMeshType               & generic_mesh();
-    GenericProblemDescriptionType & generic_problem_description_set();
+    GenericMeshType               & mesh();
     material_library_handle       & material_library();
 
 
@@ -188,13 +176,9 @@ namespace viennamini
     std::ostream & stream();
 
   private:
-    void distribute_permittivity   (std::size_t segment_index);
-    void distribute_acceptor_doping(std::size_t segment_index);
-    void distribute_donator_doping (std::size_t segment_index);
+ 
   
-  
-    GenericMeshType               generic_mesh_;
-    GenericProblemDescriptionType generic_problem_description_set_;
+    GenericMeshType               mesh_;
 
     IndicesType                segment_indices_;
     IndicesType                contact_segments_indices_;

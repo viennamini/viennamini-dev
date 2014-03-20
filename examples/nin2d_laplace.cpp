@@ -9,7 +9,7 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
 
@@ -60,6 +60,9 @@ int main()
   mysim.config().write_result_files()                 = true;
 
   mysim.problem_id() = viennamini::id::laplace();
+
+  //mysim.physical_model().pde()            = viennamini::id::laplace();
+  //mysim.physical_model().discretization() = viennamini::id::fvm();
 
   mysim.contact_potential   (left_contact)  = 0.0;
   mysim.contact_potential   (right_contact) = 0.2;
