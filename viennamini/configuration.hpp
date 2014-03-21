@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_CONFIG_HPP
-#define VIENNAMINI_CONFIG_HPP
+#ifndef VIENNAMINI_CONFIGURATION_HPP
+#define VIENNAMINI_CONFIGURATION_HPP
 
 /* =======================================================================
    Copyright (c) 2011, Institute for Microelectronics, TU Wien
@@ -20,22 +20,28 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
+#include "viennamini/configs/model.hpp"
+
 
 namespace viennamini {
 
-struct config
+struct configuration
 {
+private:
   typedef viennamini::numeric                 NumericType;
   typedef int                                 IndexType;
   typedef std::vector<NumericType>            ValuesType;
   typedef std::map<std::size_t, NumericType>  SegmentValuesType;
+  typedef viennamini::config::model           ModelType;
 
+public:
   typedef NumericType       numeric_type;
   typedef IndexType         index_type;
   typedef ValuesType        values_type;
   typedef SegmentValuesType segmentvalues_type;
+  typedef ModelType         model_type;
 
-  config(std::ostream& stream = std::cout);
+  configuration(std::ostream& stream = std::cout);
 
   IndexType&    nonlinear_iterations();
   NumericType&  nonlinear_breaktol();
@@ -45,6 +51,7 @@ struct config
   bool&         write_initial_guess_files();
   bool&         write_result_files();
   std::ostream& stream();
+  ModelType&    model();
 
 private:
   IndexType         nonlinear_iterations_;
@@ -55,6 +62,7 @@ private:
   bool              write_initial_guesses_;
   bool              write_simulation_results_;
   std::ostream&     stream_;
+  ModelType         model_;
 };
 
 

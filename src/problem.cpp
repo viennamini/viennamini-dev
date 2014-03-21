@@ -27,7 +27,7 @@ void problem::set_device_handle(viennamini::device_handle new_device)
   device_handle_ = new_device;
 }
 
-void problem::set_config_handle(viennamini::config_handle new_config)
+void problem::set_config_handle(viennamini::configuration_handle new_config)
 {
   config_handle_ = new_config;
 }
@@ -37,7 +37,7 @@ viennamini::device & problem::device()
   return *device_handle_;
 }
 
-viennamini::config & problem::config()
+viennamini::configuration & problem::config()
 {
   return *config_handle_;
 }

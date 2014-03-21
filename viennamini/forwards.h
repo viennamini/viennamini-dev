@@ -122,8 +122,8 @@ namespace viennamini
   };
 
   namespace id {
-    inline std::string laplace()                    { return "Laplace"; }
-    inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
+//    inline std::string laplace()                    { return "Laplace"; }
+//    inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
     inline std::string permittivity()               { return "Permittivity"; }
     inline std::string donator_doping()             { return "N_D"; }
     inline std::string acceptor_doping()            { return "N_A"; }
@@ -175,12 +175,7 @@ namespace viennamini
   class triangular_2d   {};
   class tetrahedral_3d  {};
 
-  class device;
-  class config;
-  class device_template;
-  class simulator;
-  class problem;
-  class csv;
+
 
   namespace role {
     enum segment_role_ids
@@ -217,10 +212,38 @@ namespace viennamini
       triangular_2d, 
       tetrahedral_3d
     };
-  }
+  } // mesh
+
+  namespace pdeset {
+    enum pdeset_ids
+    {
+      none,
+      laplace, 
+      dd 
+    };
+  } // pdeset
+
+  namespace discret {
+    enum discret_ids
+    {
+      none,
+      fvm, 
+      fem
+    };
+  } // discret
 
   // public typedefs
   //
+
+  class device;
+  class configuration;
+  class device_template;
+  class simulator;
+  class problem;
+  class csv;
+  class discretization;
+  class stepper;
+  class pde_set;
 
   typedef double                                                                                                  numeric;
   typedef std::map<std::size_t, numeric>                                                                          segment_values;
@@ -244,16 +267,22 @@ namespace viennamini
 
 #ifdef VIENNAMINI_WITH_CXX11
   typedef std::unique_ptr<viennamini::device>                                                                 device_handle;
-  typedef std::unique_ptr<viennamini::config>                                                                 config_handle;
+  typedef std::unique_ptr<viennamini::configuration>                                                          configuration_handle;
   typedef std::unique_ptr<viennamaterials::library>                                                           material_library_handle;
   typedef std::unique_ptr<viennamini::device_template>                                                        device_template_handle;
   typedef std::unique_ptr<viennamini::simulator>                                                              simulator_handle;
+  typedef std::unique_ptr<viennamini::stepper>                                                                stepper_handle;
+  typedef std::unique_ptr<viennamini::discretization>                                                         discretization_handle;
+  typedef std::unique_ptr<viennamini::pde_set>                                                                pde_set_handle;
 #else
   typedef std::auto_ptr<viennamini::device>                                                                 device_handle;
-  typedef std::auto_ptr<viennamini::config>                                                                 config_handle;
+  typedef std::auto_ptr<viennamini::configuration>                                                          configuration_handle;
   typedef std::auto_ptr<viennamaterials::library>                                                           material_library_handle;
   typedef std::auto_ptr<viennamini::device_template>                                                        device_template_handle;
   typedef std::auto_ptr<viennamini::simulator>                                                              simulator_handle;
+  typedef std::auto_ptr<viennamini::stepper>                                                                stepper_handle;
+  typedef std::auto_ptr<viennamini::discretization>                                                         discretization_handle;
+  typedef std::auto_ptr<viennamini::pde_set>                                                                pde_set_handle;
 #endif
 
 } // viennamini

@@ -278,7 +278,7 @@ device::GenericMeshType& device::mesh()
 
 material_library_handle & device::material_library()
 {
-  if(matlib_.get()) throw device_lacks_material_library("");
+  if(!matlib_.get()) throw device_lacks_material_library("");
   return matlib_;
 }
 
@@ -358,7 +358,6 @@ void device::set_material_library(material_library_handle& matlib)
 void device::read_material_library(std::string const& filename)
 {
   matlib_.reset();
-
   std::string extension = viennamini::file_extension(filename);
   if(extension == "xml")
   {
@@ -369,7 +368,9 @@ void device::read_material_library(std::string const& filename)
     matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
   }
   else
+  {
     throw unknown_material_library_file_exception(filename);
+  }
 }
 
 void device::write(std::string const& filename)

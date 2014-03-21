@@ -13,12 +13,12 @@
 ======================================================================= */
 
 
-#include "viennamini/config.hpp"
+#include "viennamini/configuration.hpp"
 
 
 namespace viennamini {
 
-config::config(std::ostream& stream) : stream_(stream)
+configuration::configuration(std::ostream& stream) : stream_(stream)
 {
   nonlinear_iterations_                = 100;
   nonlinear_breaktol_                  = 1.E-3;
@@ -29,45 +29,49 @@ config::config(std::ostream& stream) : stream_(stream)
   write_simulation_results_            = true;
 }
 
-
-config::IndexType&    config::nonlinear_iterations()
+configuration::IndexType&    configuration::nonlinear_iterations()
 {
   return nonlinear_iterations_;
 }
 
-config::NumericType&  config::nonlinear_breaktol()
+configuration::NumericType&  configuration::nonlinear_breaktol()
 {
   return nonlinear_breaktol_;
 }
 
-config::IndexType&    config::linear_iterations()
+configuration::IndexType&    configuration::linear_iterations()
 {
   return linear_iterations_;
 }
 
-config::NumericType&  config::linear_breaktol()
+configuration::NumericType&  configuration::linear_breaktol()
 {
   return linear_breaktol_;
 }
 
-config::NumericType&  config::damping()
+configuration::NumericType&  configuration::damping()
 {
   return damping_;
 }
 
-bool& config::write_initial_guess_files()
+bool& configuration::write_initial_guess_files()
 {
   return write_initial_guesses_;
 }
 
-bool& config::write_result_files()
+bool& configuration::write_result_files()
 {
   return write_simulation_results_;
 }
 
-std::ostream& config::stream()
+std::ostream& configuration::stream()
 {
   return stream_;
+}
+
+configuration::ModelType&   configuration::model()
+{
+  return model_;
 }
 
 } // viennamini

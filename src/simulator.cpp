@@ -16,44 +16,24 @@
 #include "viennamini/simulator.hpp"
 #include "viennamini/device_template.hpp"
 #include "viennamini/utils/convert.hpp"
-#include "viennamini/problems/poisson_dd-np.hpp"
-#include "viennamini/problems/laplace.hpp"
+//#include "viennamini/problems/poisson_dd-np.hpp"
+//#include "viennamini/problems/laplace.hpp"
 
 namespace viennamini
 {
 
 simulator::simulator(std::ostream& stream) :
-  device_generator_(NULL),
-  problem_id_      (""),
   device_handle_   (new viennamini::device(stream)),
-  config_handle_   (new viennamini::config(stream)),
-  problem_         (NULL),
+  config_handle_   (new viennamini::configuration(stream)),
+  stepper_handle_  (new viennamini::stepper()),
   stream_          (stream),
-  output_file_prefix_("output"),
   device_changed_  (true),
-  config_changed_  (true),
-  manual_problem_  (false)
-{
-}
-
-simulator::simulator(device_template* device_generator, std::ostream& stream) :
-  device_generator_(device_generator),
-  problem_id_      (device_generator->problem_id()),
-  device_handle_   (device_generator->device_handle()),
-  config_handle_   (device_generator->config_handle()),
-  problem_         (NULL),
-  stream_          (device_generator->stream()),
-  output_file_prefix_("output"),
-  device_changed_  (true),
-  config_changed_  (true),
-  manual_problem_  (false)
-
+  config_changed_  (true)
 {
 }
 
 simulator::~simulator()
 {
-  if(problem_)                       delete problem_;
 }
 
 viennamini::device const& simulator::device() const
@@ -78,33 +58,22 @@ void simulator::set_device_handle(viennamini::device_handle other_device_handle)
   device_handle_ = other_device_handle;
 }
 
-viennamini::config const& simulator::config() const
+viennamini::configuration const& simulator::config() const
 {
   return *config_handle_;
 }
 
-viennamini::config      & simulator::config()
+viennamini::configuration      & simulator::config()
 {
   config_changed_ = true;
   return *config_handle_;
 }
 
-viennamini::config_handle& simulator::config_handle()
+viennamini::configuration_handle& simulator::config_handle()
 {
   return config_handle_;
 }
 
-std::string& simulator::problem_id()
-{
-  return problem_id_;
-}
-
-void simulator::set_problem(viennamini::problem* active_problem)
-{
-  if(!active_problem) throw problem_not_available_exception("");
-  problem_ = active_problem;
-  manual_problem_ = true;
-}
 
 void simulator::run()
 {
@@ -116,90 +85,118 @@ void simulator::run()
     device().update();
   }
 
-  if(config_changed_ || device_changed_)
+  if(config().model().get_discret_id() == viennamini::discret::fvm)
   {
-    // load the stepper with the contact setup
-    //
-    stepper().clear();
-    for(viennamini::device::IndicesType::iterator siter = device().segment_indices().begin();
-        siter != device().segment_indices().end(); siter++)
-    {
-      if(device().is_contact(*siter))
-      {  
-        // if the contact is neither set to range or single,
-        // make it a single value contact
-        //
-        if( (!is_contact_single(*siter)) && (!is_contact_range(*siter)) )
-          is_contact_single(*siter) = true;
-
-        // initialize unset contacts with default values
-        //
-        if(is_contact_single(*siter))
-        {
-          if(contact_potentials_.find(*siter) == contact_potentials_.end())
-            contact_potentials_[*siter] = 0.0;
-        }
-        if(contact_workfunctions_.find(*siter) == contact_workfunctions_.end())
-          contact_workfunctions_[*siter] = 0.0;
-
-        // now, setup the contact stepper by adding the contact values
-        //
-        if(is_contact_single(*siter))
-        {
-          stepper().add(*siter, contact_potential(*siter));
-        }
-        else if(is_contact_range(*siter))
-        {
-          stepper().add(*siter, contact_potential_range_from(*siter),
-                                contact_potential_range_to(*siter),
-                                contact_potential_range_delta(*siter));
-        }
-      }
-    }
-
-
-
-    if(manual_problem_)
-    {
-    #ifdef VIENNAMINI_VERBOSE
-      stream() << "[Simulator] processing manual problem .."  << std::endl;
-    #endif
-      problem_->set_device_handle(device_handle_);
-      problem_->set_config_handle(config_handle_);
-        problem_->run(stepper());
-      //this->execute_loop();
-    }
-    else
-    {
-    #ifdef VIENNAMINI_VERBOSE
-      stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
-    #endif
-      if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
-      {
-        if(problem_) delete problem_;
-        problem_ = new viennamini::problem_poisson_dd_np(this->stream());
-        problem_->set_device_handle(device_handle_);
-        problem_->set_config_handle(config_handle_);
-        problem_->run(stepper());
-        //this->execute_loop();
-      }
-      else
-      if(problem_id() == viennamini::id::laplace())
-      {
-        if(problem_) delete problem_;
-        problem_ = new viennamini::problem_laplace(this->stream());
-        problem_->set_device_handle(device_handle_);
-        problem_->set_config_handle(config_handle_);
-        problem_->run(stepper());
-        //this->execute_loop();
-      }
-      else
-      if(problem_id() == "")
-        throw undefined_problem_exception("Problem has not been defined");
-      else
-        throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
-    }
+    discretization_handle_ = discretization_handle(new viennamini::fvm(device_handle_, config_handle_, stepper_handle_, stream_));
+    discretization_handle_->run();
   }
+
+
+  /*
+
+
+  if(model().get_discret() == viennamini::discret::fvm)
+  {
+    //viennamini::myfvm(*device_handle_, *config_handle_, stepper_, stream_);
+  }
+  else throw discretization_not_supported();
+
+  */
+
+
+
+//  if(device_changed_)
+//  {
+//  #ifdef VIENNAMINI_VERBOSE
+//    stream() << "[Simulator] device has changed, updating .."  << std::endl;
+//  #endif
+//    device().update();
+//  }
+
+//  if(config_changed_ || device_changed_)
+//  {
+//    // load the stepper with the contact setup
+//    //
+//    stepper().clear();
+//    for(viennamini::device::IndicesType::iterator siter = device().segment_indices().begin();
+//        siter != device().segment_indices().end(); siter++)
+//    {
+//      if(device().is_contact(*siter))
+//      {  
+//        // if the contact is neither set to range or single,
+//        // make it a single value contact
+//        //
+//        if( (!is_contact_single(*siter)) && (!is_contact_range(*siter)) )
+//          is_contact_single(*siter) = true;
+
+//        // initialize unset contacts with default values
+//        //
+//        if(is_contact_single(*siter))
+//        {
+//          if(contact_potentials_.find(*siter) == contact_potentials_.end())
+//            contact_potentials_[*siter] = 0.0;
+//        }
+//        if(contact_workfunctions_.find(*siter) == contact_workfunctions_.end())
+//          contact_workfunctions_[*siter] = 0.0;
+
+//        // now, setup the contact stepper by adding the contact values
+//        //
+//        if(is_contact_single(*siter))
+//        {
+//          stepper().add(*siter, contact_potential(*siter));
+//        }
+//        else if(is_contact_range(*siter))
+//        {
+//          stepper().add(*siter, contact_potential_range_from(*siter),
+//                                contact_potential_range_to(*siter),
+//                                contact_potential_range_delta(*siter));
+//        }
+//      }
+//    }
+
+
+
+//    if(manual_problem_)
+//    {
+//    #ifdef VIENNAMINI_VERBOSE
+//      stream() << "[Simulator] processing manual problem .."  << std::endl;
+//    #endif
+//      problem_->set_device_handle(device_handle_);
+//      problem_->set_config_handle(config_handle_);
+//        problem_->run(stepper());
+//      //this->execute_loop();
+//    }
+//    else
+//    {
+//    #ifdef VIENNAMINI_VERBOSE
+//      stream() << "[Simulator] processing problem \"" << problem_id() << "\""  << std::endl;
+//    #endif
+//      if(problem_id() == viennamini::id::poisson_drift_diffusion_np())
+//      {
+//        if(problem_) delete problem_;
+//        problem_ = new viennamini::problem_poisson_dd_np(this->stream());
+//        problem_->set_device_handle(device_handle_);
+//        problem_->set_config_handle(config_handle_);
+//        problem_->run(stepper());
+//        //this->execute_loop();
+//      }
+//      else
+//      if(problem_id() == viennamini::id::laplace())
+//      {
+//        if(problem_) delete problem_;
+//        problem_ = new viennamini::problem_laplace(this->stream());
+//        problem_->set_device_handle(device_handle_);
+//        problem_->set_config_handle(config_handle_);
+//        problem_->run(stepper());
+//        //this->execute_loop();
+//      }
+//      else
+//      if(problem_id() == "")
+//        throw undefined_problem_exception("Problem has not been defined");
+//      else
+//        throw undefined_problem_exception("Problem \""+problem_id()+"\" not recognized");
+//    }
+//  }
 }
 
 //void simulator::execute_loop()
@@ -218,100 +215,100 @@ void simulator::run()
 //  }
 //}
 
-viennamini::stepper& simulator::stepper()
-{
-  return stepper_;
-}
+//viennamini::stepper& simulator::stepper()
+//{
+//  return stepper_;
+//}
 
 std::ostream& simulator::stream()
 {
   return stream_;
 }
 
-void simulator::set_output_filename_prefix(std::string const prefix)
-{
-  output_file_prefix_ = prefix;
-}
+//void simulator::set_output_filename_prefix(std::string const prefix)
+//{
+//  output_file_prefix_ = prefix;
+//}
 
-viennamini::numeric& simulator::contact_potential   (std::size_t segment_index)
-{
-  this->is_contact_single(segment_index) = true;
-  this->is_contact_range(segment_index) = false;
-  return contact_potentials_[segment_index];
-}
+//viennamini::numeric& simulator::contact_potential   (std::size_t segment_index)
+//{
+//  this->is_contact_single(segment_index) = true;
+//  this->is_contact_range(segment_index) = false;
+//  return contact_potentials_[segment_index];
+//}
 
-viennamini::numeric& simulator::contact_potential_range_from   (std::size_t segment_index)
-{
-  this->is_contact_single(segment_index) = false;
-  this->is_contact_range(segment_index) = true;
-  return contact_potential_range_from_[segment_index];
-}
+//viennamini::numeric& simulator::contact_potential_range_from   (std::size_t segment_index)
+//{
+//  this->is_contact_single(segment_index) = false;
+//  this->is_contact_range(segment_index) = true;
+//  return contact_potential_range_from_[segment_index];
+//}
 
-viennamini::numeric& simulator::contact_potential_range_to     (std::size_t segment_index)
-{
-  this->is_contact_single(segment_index) = false;
-  this->is_contact_range(segment_index) = true;
-  return contact_potential_range_to_[segment_index];
-}
+//viennamini::numeric& simulator::contact_potential_range_to     (std::size_t segment_index)
+//{
+//  this->is_contact_single(segment_index) = false;
+//  this->is_contact_range(segment_index) = true;
+//  return contact_potential_range_to_[segment_index];
+//}
 
-viennamini::numeric& simulator::contact_potential_range_delta  (std::size_t segment_index)
-{
-  this->is_contact_single(segment_index) = false;
-  this->is_contact_range(segment_index) = true;
-  return contact_potential_range_delta_[segment_index];
-}
+//viennamini::numeric& simulator::contact_potential_range_delta  (std::size_t segment_index)
+//{
+//  this->is_contact_single(segment_index) = false;
+//  this->is_contact_range(segment_index) = true;
+//  return contact_potential_range_delta_[segment_index];
+//}
 
-void simulator::set_contact_potential_range(std::size_t segment_index, viennamini::numeric from, viennamini::numeric to, viennamini::numeric delta)
-{
-  this->contact_potential_range_from(segment_index) = from;
-  this->contact_potential_range_to(segment_index) = to;
-  this->contact_potential_range_delta(segment_index) = delta;
-}
+//void simulator::set_contact_potential_range(std::size_t segment_index, viennamini::numeric from, viennamini::numeric to, viennamini::numeric delta)
+//{
+//  this->contact_potential_range_from(segment_index) = from;
+//  this->contact_potential_range_to(segment_index) = to;
+//  this->contact_potential_range_delta(segment_index) = delta;
+//}
 
-viennamini::numeric& simulator::contact_workfunction(std::size_t segment_index)
-{
-  return contact_workfunctions_[segment_index];
-}
+//viennamini::numeric& simulator::contact_workfunction(std::size_t segment_index)
+//{
+//  return contact_workfunctions_[segment_index];
+//}
 
-bool& simulator::is_contact_single(std::size_t segment_index)
-{
-  return contact_single_flags_[segment_index];
-}
+//bool& simulator::is_contact_single(std::size_t segment_index)
+//{
+//  return contact_single_flags_[segment_index];
+//}
 
-bool& simulator::is_contact_range(std::size_t segment_index)
-{
-  return contact_range_flags_[segment_index];
-}
+//bool& simulator::is_contact_range(std::size_t segment_index)
+//{
+//  return contact_range_flags_[segment_index];
+//}
 
-bool& simulator::record_iv(std::size_t segment_index)
-{
-  return record_iv_flags_[segment_index];
-}
+//bool& simulator::record_iv(std::size_t segment_index)
+//{
+//  return record_iv_flags_[segment_index];
+//}
 
-viennamini::device_template& simulator::device_generator()
-{
-  return *device_generator_;
-}
+//viennamini::device_template& simulator::device_generator()
+//{
+//  return *device_generator_;
+//}
 
-viennamini::data_table& simulator::data_table()
-{
-  return problem_->data_table();
-}
+//viennamini::data_table& simulator::data_table()
+//{
+//  return problem_->data_table();
+//}
 
-std::string simulator::encode_current_boundary_setup()
-{
-  std::string result;
-  for(stepper::step_setup_type::iterator iter = stepper().get_current_step_setup().begin();
-      iter != stepper().get_current_step_setup().end(); iter++)
-  {
-    result += device().get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
-    if((iter+1) != stepper().get_current_step_setup().end()) result += "_";
-  }
-  return result;
-}
+//std::string simulator::encode_current_boundary_setup()
+//{
+//  std::string result;
+//  for(stepper::step_setup_type::iterator iter = stepper().get_current_step_setup().begin();
+//      iter != stepper().get_current_step_setup().end(); iter++)
+//  {
+//    result += device().get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
+//    if((iter+1) != stepper().get_current_step_setup().end()) result += "_";
+//  }
+//  return result;
+//}
 
-void simulator::resize_problem_description_set()
-{
+//void simulator::resize_problem_description_set()
+//{
 //  if(device().is_line1d())
 //  {
 //    // clean 1-n entries of the problem description set
@@ -366,7 +363,7 @@ void simulator::resize_problem_description_set()
 //    }
 //  }
 //  else throw device_not_supported_exception("at: simulator::resize_problem_description_set()");
-}
+//}
 
 } // viennamini
 

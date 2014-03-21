@@ -20,7 +20,7 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/device.hpp"
-#include "viennamini/config.hpp"
+#include "viennamini/configuration.hpp"
 
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/point.hpp"
@@ -57,7 +57,7 @@ public:
 
   geometry_properties_type&        geometry_properties()   { return geometry_properties_;  }
   viennamini::device_handle &      device_handle()         { return device_handle_;      }
-  viennamini::config_handle &      config_handle()         { return config_handle_;      }
+  viennamini::configuration_handle &      config_handle()         { return config_handle_;      }
 
   void set_geometry_property(std::string const& key, numeric_type x, numeric_type y = 0, numeric_type z = 0)
   {
@@ -81,7 +81,7 @@ public:
 protected:
   geometry_properties_type        geometry_properties_;
   viennamini::device_handle       device_handle_;
-  viennamini::config_handle       config_handle_;
+  viennamini::configuration_handle       config_handle_;
   segment_index_map_type          segment_indices_;
   std::string                     problem_id_;
   std::ostream&                   stream_;

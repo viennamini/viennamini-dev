@@ -123,10 +123,10 @@ public:
   virtual ~problem();
 
   void set_device_handle(viennamini::device_handle new_device);
-  void set_config_handle(viennamini::config_handle new_config);
+  void set_config_handle(viennamini::configuration_handle new_config);
 
   viennamini::device & device();
-  viennamini::config & config();
+  viennamini::configuration & config();
 
   virtual void run(viennamini::stepper& stepper) = 0;
 
@@ -139,7 +139,7 @@ public:
 private:
   viennamini::data_table               data_table_;
   viennamini::device_handle            device_handle_;
-  viennamini::config_handle            config_handle_;
+  viennamini::configuration_handle     config_handle_;
   std::ostream                       & stream_;
 };
 
