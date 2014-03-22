@@ -74,20 +74,24 @@ namespace viennamini
   private:
     typedef std::map<std::size_t, role::segment_role_ids>                                         SegmentRolesType;
     typedef std::map<std::size_t, recombination::recombination_ids>                               SegmentRecombinationsType;
-    typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
+//    typedef std::map<std::size_t, mobility::mobility_ids>                                         SegmentMobilityType;
 
-  public:
+
     typedef generic_mesh    GenericMeshType;
 
+    // TODO check if these types are still required
     typedef std::vector<std::size_t>                                                       IndicesType;
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
     typedef std::map<std::size_t, std::string>                                             IndexKeysType;
     typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
+    typedef std::map<std::string, std::map<std::size_t, viennamini::numeric> >             QuantityDatabaseType;
 
+  public:
     typedef GenericMeshType                                                                generic_mesh_type;
     typedef IndicesType                                                                    indices_type;
     typedef IndexMapType                                                                   index_map_type;
     typedef IndexKeysType                                                                  index_keys_type;
+    typedef QuantityDatabaseType                                                           quantity_database_type;
 
     device(std::ostream& stream = std::cout);
 
@@ -113,6 +117,8 @@ namespace viennamini
     bool is_contact_at_semiconductor(int segment_index);
     bool is_oxide                   (int segment_index);
     bool is_semiconductor           (int segment_index);
+    
+    viennamini::role::segment_role_ids get_segment_role(int segment_index);
 
     viennamini::numeric&  temperature(); // TODO make this also a cell quantity
 
@@ -141,25 +147,12 @@ namespace viennamini
     std::string get_name          (int segment_index);
     std::string get_material      (int segment_index);
 
-    void set_permittivity         (int segment_index, viennamini::numeric epsr);
-    void set_acceptor_doping      (int segment_index, viennamini::numeric NA);
-    void set_donator_doping       (int segment_index, viennamini::numeric ND);
-
-    viennamini::numeric get_permittivity(int segment_index);
-    viennamini::numeric get_acceptor_doping(int segment_index);
-    viennamini::numeric get_donator_doping(int segment_index);
-    
-    bool has_permittivity(int segment_index);
-    bool has_acceptor_doping(int segment_index);
-    bool has_donator_doping(int segment_index);
+    void                set_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value);
+    viennamini::numeric get_quantity (std::string const& quantity_name, int segment_index);
+    bool                has_quantity (std::string const& quantity_name, int segment_index);
 
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
-
-    void set_mobility        (int segment_index, mobility::mobility_ids id);
-    mobility::mobility_ids get_mobility(int segment_index);
-
-    void update_problem_description();
 
     std::string& description();
 
@@ -193,10 +186,12 @@ namespace viennamini
     IndexKeysType              segment_materials_;
     SegmentRolesType           segment_roles_;
     SegmentRecombinationsType  segment_recombinations_;
-    SegmentMobilityType        segment_mobility_;
-    IndexValuesType            segment_permittivity_;
-    IndexValuesType            segment_donator_doping_;
-    IndexValuesType            segment_acceptor_doping_;
+//    SegmentMobilityType        segment_mobility_;
+//    IndexValuesType            segment_permittivity_;
+//    IndexValuesType            segment_donator_doping_;
+//    IndexValuesType            segment_acceptor_doping_;
+
+    QuantityDatabaseType      quantity_database_;
 
     viennamini::numeric        temperature_;
 

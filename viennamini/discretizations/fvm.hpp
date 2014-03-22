@@ -56,6 +56,7 @@ public:
   template<typename SegmentedMeshT>
   void run_impl(SegmentedMeshT & segmesh)
   {
+    typedef typename SegmentedMeshT::segmentation_type                           SegmentationType;
     typedef viennafvm::problem_description<typename SegmentedMeshT::mesh_type>   ProblemDescriptionType;
     typedef std::vector<ProblemDescriptionType>                                  ProblemDescriptionSetType;
     typedef typename ProblemDescriptionType::quantity_type                       QuantityType;
@@ -67,8 +68,43 @@ public:
 
     initialize(segmesh, current_pbdesc);
 
-//      QuantityType & permittivity = current_pbdesc.get_quantity(viennamini::id::permittivity());
-//      QuantityType & potential    = current_pbdesc.add_quantity(viennamini::id::potential());
+    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().pde_set().unknowns().begin();
+        unknown_iter != config().model().pde_set().unknowns().end(); unknown_iter++)
+    {
+    #ifdef VIENNAMINI_VERBOSE
+      stream() << "processing unknown: " << *unknown_iter << std::endl;
+    #endif
+      QuantityType & quan = current_pbdesc.add_quantity(*unknown_iter);
+      config().model().pde_set().register_quantity(quan.get_name(), quan.id());
+
+      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+          sit != segmesh.segmentation.end(); ++sit)
+      {
+        std::size_t current_segment_index = sit->id();
+
+        viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
+
+        if(role == viennamini::role::contact)
+        {
+          if(device().has_quantity(*unknown_iter, current_segment_index))
+            viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
+          else throw required_quantity_missing("Contact boundary condition for unknown \""+*unknown_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
+        }
+
+        if(config().model().pde_set().unknown_supports_role(*unknown_iter, role))
+        {
+          viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
+        }
+      }
+    }
+
+    viennafvm::linear_pde_system<> pde_system;
+    pde_system.is_linear(config().model().pde_set().is_linear());
+    typedef typename viennamini::pde_set::pdes_type PDEsType;
+    PDEsType pdes = config().model().pde_set().get_pdes();
+    for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
+      pde_system.add_pde(pde_iter->equation(), pde_iter->function_symbol());
+
 
 
 
@@ -85,34 +121,21 @@ private:
     for(viennamini::pde_set::ids_type::iterator dep_iter = config().model().pde_set().dependencies().begin();
         dep_iter != config().model().pde_set().dependencies().end(); dep_iter++)
     {
-      std::cout << *dep_iter << std::endl;
-      // QuantityType & quan = pdesc.add_quantity(*dep_iter);
+    #ifdef VIENNAMINI_VERBOSE
+      stream() << "processing dependency: " << *dep_iter << std::endl;
+    #endif
+      QuantityType & quan = pdesc.add_quantity(*dep_iter);
+      config().model().pde_set().register_quantity(quan.get_name(), quan.id());
 
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
       {
-//      std::size_t current_segment_index = sit->id();
-//      if(device().has_quantity(*dep_iter, current_segment_index))
-//      {
-//        
-//        viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
-//      }
+        std::size_t current_segment_index = sit->id();
+        if(device().has_quantity(*dep_iter, current_segment_index))
+          viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
+        else throw required_quantity_missing("Quantity\""+*dep_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
       }
     }
-    
-
-
-//    QuantityType & permittivity = pdesc.add_quantity(viennamini::id::permittivity());
-
-//    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
-//        sit != segmesh.segmentation.end(); ++sit)
-//    {
-//      std::size_t current_segment_index = sit->id();
-//      if(device().has_permittivity(current_segment_index))
-//      {
-//        viennafvm::set_initial_value(permittivity, segmesh.segmentation(current_segment_index), device().get_permittivity(current_segment_index));
-//      }
-//    }
   }
 
   template<typename SegmentedMeshT, typename ProblemDescriptionSetT>

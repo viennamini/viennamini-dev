@@ -61,6 +61,12 @@ int main()
 
 //  mysim.stepper().add_contact_potential(left_contact) = 0.0;
 //  mysim.stepper().add_contact_potential(right_contact) = 0.2;
+  mysim.device().set_quantity(viennamini::id::potential(), left_contact,  0.0);
+  mysim.device().set_quantity(viennamini::id::potential(), right_contact, 0.2);
+//  mysim.device().add_quantity(viennamini::id::potential, right_contact) = viennamini::quantity(0.2, "V");
+//  mysim.device().add_quantity(viennamini::id::potential, right_contact) = viennamini::quantity(0.2, viennamini::unit::volt);
+
+  viennamini::laplace myLaplace;
 
   mysim.config().model().use_pdeset(viennamini::pdeset::laplace);
   mysim.config().model().use_discretization(viennamini::discret::fvm);

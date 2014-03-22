@@ -128,6 +128,11 @@ bool device::is_contact_at_semiconductor(int segment_index)
   return !(contact_semiconductor_interfaces_.find(segment_index) == contact_semiconductor_interfaces_.end());
 }
 
+viennamini::role::segment_role_ids device::get_segment_role(int segment_index)
+{
+  return segment_roles_[segment_index];
+}
+
 viennamini::numeric&  device::temperature()
 {
   return temperature_;
@@ -202,24 +207,6 @@ void device::update()
     }
   }
 
-  // assign doping to the mesh, if available ..
-  //
-//  for( IndicesType::iterator sit = segment_indices_.begin(); 
-//       sit != segment_indices_.end(); sit++)
-//  {
-//    if(is_semiconductor(*sit))
-//    {
-//      if(has_donator_doping(*sit))
-//      {
-//        distribute_donator_doping(*sit);
-//      }
-//      if(has_acceptor_doping(*sit))
-//      {
-//        distribute_acceptor_doping(*sit);
-//      }
-//    }
-//  }
-
   // identify contact-semiconductor/oxide interfaces
   //
   viennamini::detect_interfaces(*this, contact_semiconductor_interfaces_, contact_oxide_interfaces_);
@@ -242,7 +229,7 @@ void device::update()
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
 
-      this->set_permittivity(*contact_iter, epsr_value * viennamini::eps0::val());
+      this->set_quantity(viennamini::id::permittivity(), *contact_iter, epsr_value * viennamini::eps0::val());
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -255,20 +242,9 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-
-     this->set_permittivity(*contact_iter, epsr_value * viennamini::eps0::val() );
+      this->set_quantity(viennamini::id::permittivity(), *contact_iter, epsr_value * viennamini::eps0::val());
     }
   }
-  // assign permittivity
-  //
-//  for( IndicesType::iterator sit = segment_indices_.begin(); 
-//       sit != segment_indices_.end(); sit++)
-//  {
-//    if(this->has_permittivity(*sit))
-//    {
-//      distribute_permittivity(*sit);
-//    }
-//  }
 }
 
 device::GenericMeshType& device::mesh()
@@ -299,8 +275,6 @@ void device::read(std::string const& filename, viennamini::line_1d const&)
   }
   else 
     throw unknown_mesh_file_exception(filename);
-
-  this->update_problem_description();
 }
 
 void device::read(std::string const& filename, viennamini::triangular_2d const&)
@@ -320,8 +294,6 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
   }
   else 
     throw unknown_mesh_file_exception(filename);
-
-  this->update_problem_description();
 }
 
 void device::read(std::string const& filename, viennamini::tetrahedral_3d const&)
@@ -341,8 +313,6 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
   }
   else 
     throw unknown_mesh_file_exception(filename);
-
-  this->update_problem_description();
 }
 
 void device::set_material_library(material_library_handle& matlib)
@@ -436,7 +406,7 @@ void device::set_material(int segment_index, std::string const& new_material)
                        vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                        vmat::make_entry(this->matlib_data()     , material::value()))
     );
-    this->set_permittivity(segment_index, epsr_value * viennamini::eps0::val());
+      this->set_quantity(viennamini::id::permittivity(), segment_index, epsr_value * viennamini::eps0::val());
   }
 }
 
@@ -450,29 +420,25 @@ std::string device::get_material(int segment_index)
   return segment_materials_[segment_index];
 }
 
-void device::set_permittivity(int segment_index, viennamini::numeric eps) // eps = eps0 * epsr
+void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::numeric value)
 {
-#ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] setting eps " << eps << std::endl;
-#endif
-  if( viennamini::is_zero(eps)) throw eps_is_zero_exception("at: device::set_permittivity()");
-  segment_permittivity_[segment_index] = eps;
+  quantity_database_[quantity_name][segment_index] = value;
 }
 
-void device::set_acceptor_doping(int segment_index, viennamini::numeric NA)
+viennamini::numeric device::get_quantity(std::string const& quantity_name, int segment_index)
 {
-#ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] setting NA " << NA << std::endl;
-#endif
-  segment_acceptor_doping_[segment_index] = NA;
+  return quantity_database_[quantity_name][segment_index];
 }
 
-void device::set_donator_doping(int segment_index, viennamini::numeric ND)
+bool device::has_quantity(std::string const& quantity_name, int segment_index)
 {
-#ifdef VIENNAMINI_VERBOSE
-  stream() << "[Device][Segment "<< segment_index << "] setting ND " << ND << std::endl;
-#endif
-  segment_donator_doping_[segment_index] = ND;
+  if(quantity_database_.find(quantity_name) != quantity_database_.end())
+  {
+    if(quantity_database_[quantity_name].find(segment_index) != quantity_database_[quantity_name].end())
+      return true;
+    else return false;
+  }
+  else return false; 
 }
 
 void device::set_recombination(int segment_index, recombination::recombination_ids id)
@@ -483,74 +449,6 @@ void device::set_recombination(int segment_index, recombination::recombination_i
 recombination::recombination_ids device::get_recombination(int segment_index)
 {
   return segment_recombinations_[segment_index];
-}
-
-void device::set_mobility(int segment_index, mobility::mobility_ids id)
-{
-  segment_mobility_[segment_index] = id;
-}
-
-mobility::mobility_ids device::get_mobility(int segment_index)
-{
-  return segment_mobility_[segment_index];
-}
-
-viennamini::numeric device::get_permittivity(int segment_index)
-{
-  return segment_permittivity_[segment_index];
-}
-
-viennamini::numeric device::get_acceptor_doping(int segment_index)
-{
-  return segment_acceptor_doping_[segment_index];
-}
-
-viennamini::numeric device::get_donator_doping(int segment_index)
-{
-  return segment_donator_doping_[segment_index];
-}
-
-bool device::has_permittivity(int segment_index)
-{      
-  return !(segment_permittivity_.find(segment_index) == segment_permittivity_.end());
-}
-
-bool device::has_acceptor_doping(int segment_index)
-{
-  return !(segment_acceptor_doping_.find(segment_index) == segment_acceptor_doping_.end());
-}
-
-bool device::has_donator_doping(int segment_index)
-{
-  return !(segment_donator_doping_.find(segment_index) == segment_donator_doping_.end());
-}
-
-void device::update_problem_description()
-{
-//  if(this->is_line1d())
-//  {
-//    get_problem_description_line_1d().clear_quantities();
-//    get_problem_description_line_1d().add_quantity(viennamini::id::permittivity());
-//    get_problem_description_line_1d().add_quantity(viennamini::id::donator_doping());
-//    get_problem_description_line_1d().add_quantity(viennamini::id::acceptor_doping());
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    get_problem_description_triangular_2d().clear_quantities();
-//    get_problem_description_triangular_2d().add_quantity(viennamini::id::permittivity());
-//    get_problem_description_triangular_2d().add_quantity(viennamini::id::donator_doping());
-//    get_problem_description_triangular_2d().add_quantity(viennamini::id::acceptor_doping());
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    get_problem_description_tetrahedral_3d().clear_quantities();
-//    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::permittivity());
-//    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::donator_doping());
-//    get_problem_description_tetrahedral_3d().add_quantity(viennamini::id::acceptor_doping());
-//  }
-//  else throw device_not_supported_exception("at: device::update_problem_description()");
 }
 
 std::string& device::description()

@@ -20,6 +20,17 @@
 
 namespace viennamini {
 
+class required_quantity_missing : public std::runtime_error {
+public:
+  required_quantity_missing(std::string const & str) : std::runtime_error(str) {}
+};
+
+///brief Exception for the case that a segment could not be identified as either a contact, an oxide, nor a semiconductor
+class segment_undefined_exception : public std::runtime_error {
+public:
+  segment_undefined_exception(int segment_index) : std::runtime_error(" at segment: "+boost::lexical_cast<std::string>(segment_index)) {}
+};
+
 class discretization
 {
 public:
