@@ -44,9 +44,10 @@ public:
 
   virtual void run() {}
 
-  viennamini::device&         device()  { return *device_; }
-  viennamini::configuration&  config()  { return *config_; }
+  viennamini::device&         device()  { return *device_;  }
+  viennamini::configuration&  config()  { return *config_;  }
   viennamini::stepper&        stepper() { return *stepper_; }
+  std::ostream&               stream()  { return stream_;   }
 
 private:
   viennamini::device_handle           device_;

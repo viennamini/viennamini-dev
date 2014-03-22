@@ -105,8 +105,23 @@ public:
     for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
       pde_system.add_pde(pde_iter->equation(), pde_iter->function_symbol());
 
+    // -------------------------------------------------------------------------
+    //
+    // Assemble and solve the problem
+    //
+    // -------------------------------------------------------------------------
+    viennafvm::linsolv::viennacl  linear_solver;
+    linear_solver.break_tolerance() = config().linear_breaktol();
+    linear_solver.max_iterations()  = config().linear_iterations();
 
+    viennafvm::pde_solver pde_solver;
+    pde_solver(current_pbdesc, pde_system, linear_solver);
 
+    viennafvm::io::write_solution_to_VTK_file(
+      current_pbdesc.quantities(),
+      "output",
+      segmesh.mesh,
+      segmesh.segmentation);
 
   }
 
