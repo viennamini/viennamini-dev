@@ -63,11 +63,11 @@ public:
   ids_type              & dependencies    () { return dependencies_; }
   ids_type              & unknowns        () { return unknowns_;     }
 
-  bool unknown_supports_role(std::string const& unknown, viennamini::role::segment_role_ids segment_role) 
+  bool is_role_supported(std::string const& key, viennamini::role::segment_role_ids segment_role) 
   { 
-    if(unknown_role_lookup_.find(unknown) == unknown_role_lookup_.end())
-      throw viennamini::pde_set_exception("Unknown \""+unknown+"\" is missing information regarding its support for specific segment-roles!");
-    return unknown_role_lookup_[unknown].find(segment_role) != unknown_role_lookup_[unknown].end();
+    if(role_lookup_.find(key) == role_lookup_.end())
+      throw viennamini::pde_set_exception("Quantity key \""+key+"\" is missing information regarding its support for specific segment-roles!");
+    return role_lookup_[key].find(segment_role) != role_lookup_[key].end();
   }
 
   void register_quantity(std::string const& quantity_name, std::size_t quantity_id)
@@ -75,13 +75,20 @@ public:
     quantity_name_id_[quantity_name] = quantity_id;
   }
 
+  /*
+  initial_guess* get_initial_guess(std::string const& quantity_name)
+  {
+    return initial_guesses[name];
+  }
+  */
+
 protected:
   void add_dependency  (std::string dependency) { dependencies_.push_back(dependency); }
   void add_unknown     (std::string unknown)    { unknowns_.push_back(unknown); }
 
-  void add_role_support(std::string unknown, viennamini::role::segment_role_ids segment_role)    
+  void add_role_support(std::string key, viennamini::role::segment_role_ids segment_role)    
   { 
-    unknown_role_lookup_[unknown].insert(segment_role);
+    role_lookup_[key].insert(segment_role);
   }
 
   std::size_t get_quantity_id(std::string const& quantity_name) 
@@ -96,7 +103,7 @@ private:
   IDsType               dependencies_;
   IDsType               unknowns_;
 
-  std::map<std::string, std::set<viennamini::role::segment_role_ids> >  unknown_role_lookup_;
+  std::map<std::string, std::set<viennamini::role::segment_role_ids> >  role_lookup_;
   std::map<std::string, std::size_t>    quantity_name_id_;
 };
 

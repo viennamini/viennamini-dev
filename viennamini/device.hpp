@@ -120,7 +120,7 @@ namespace viennamini
     
     viennamini::role::segment_role_ids get_segment_role(int segment_index);
 
-    viennamini::numeric&  temperature(); // TODO make this also a cell quantity
+    void set_temperature(viennamini::numeric const& temp_val); 
 
     std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
     std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);

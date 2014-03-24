@@ -25,7 +25,6 @@ int main()
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
-  mysim.device().temperature() = 300;
 
   // identify segments
   const int left_contact     = 1;

@@ -74,9 +74,15 @@ public:
           else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
         }
 
-        if(config().model().pde_set().unknown_supports_role(*unknown_iter, role))
+        if(config().model().pde_set().is_role_supported(*unknown_iter, role))
         {
           viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
+
+          if(!config().model().pde_set().is_linear())
+          {
+            // config().model().pde_set().initial_guess(*unknown_iter);
+            // viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), *(config().model().pde_set().get_initial_guess(*unknown_iter)));
+          }
         }
       }
     }
@@ -85,8 +91,14 @@ public:
     pde_system.is_linear(config().model().pde_set().is_linear());
     typedef typename viennamini::pde_set::pdes_type PDEsType;
     PDEsType pdes = config().model().pde_set().get_pdes();
+    int pde_index = 0;
     for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
+    {
       pde_system.add_pde(pde_iter->equation(), pde_iter->function_symbol());
+      pde_system.option(pde_index).damping_term( pde_iter->damping_term() );
+      pde_system.option(pde_index).geometric_update( pde_iter->geometric_update() );
+      pde_index++;
+    }
 
     // -------------------------------------------------------------------------
     //
@@ -98,7 +110,13 @@ public:
     linear_solver.max_iterations()  = config().linear_iterations();
 
     viennafvm::pde_solver pde_solver;
-    pde_solver(current_pbdesc, pde_system, linear_solver);
+    pde_solver.set_nonlinear_iterations(config().nonlinear_iterations());
+    pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
+    pde_solver.set_damping(config().damping());
+    bool converged = pde_solver(current_pbdesc, pde_system, linear_solver);
+
+    if(converged) stream() << "Simulation did converged" << std::endl;
+    else          stream() << "Simulation did NOT converge" << std::endl;
 
     viennafvm::io::write_solution_to_VTK_file(
       current_pbdesc.quantities(),
@@ -129,9 +147,14 @@ private:
           sit != segmesh.segmentation.end(); ++sit)
       {
         std::size_t current_segment_index = sit->id();
-        if(device().has_quantity(*dep_iter, current_segment_index))
-          viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
-        else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
+
+        viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
+        if(config().model().pde_set().is_role_supported(*dep_iter, role))
+        {
+          if(device().has_quantity(*dep_iter, current_segment_index))
+            viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
+          else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
+        }
       }
     }
   }

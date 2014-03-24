@@ -26,6 +26,7 @@
 #include "viennamini/device.hpp"
 #include "viennamini/detect_interfaces.hpp"
 #include "viennamini/constants.hpp"
+#include "viennamini/physics.hpp"
 #include "viennamini/utils/file_extension.hpp"
 #include "viennamini/utils/is_zero.hpp"
 #include "viennamini/utils/convert.hpp"
@@ -133,9 +134,37 @@ viennamini::role::segment_role_ids device::get_segment_role(int segment_index)
   return segment_roles_[segment_index];
 }
 
-viennamini::numeric&  device::temperature()
+void device::set_temperature(viennamini::numeric const& temp_val)
 {
-  return temperature_;
+  if(this->is_line1d())
+  {
+    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
+        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
+    {
+      this->set_quantity(viennamini::id::temperature(),       sit->id(), temp_val);
+      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
+    }
+  }
+  else
+  if(this->is_triangular2d())
+  {
+    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
+        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
+    {
+      this->set_quantity(viennamini::id::temperature(), sit->id(), temp_val);
+      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
+    }
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
+        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
+    {
+      this->set_quantity(viennamini::id::temperature(), sit->id(), temp_val);
+      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
+    }
+  }
 }
 
 std::size_t device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
@@ -392,22 +421,42 @@ void device::set_name(int segment_index, std::string const& new_name)
 
 void device::set_material(int segment_index, std::string const& new_material)
 {
+  // store the material key for this segment
+  //
   segment_materials_[segment_index] = new_material;
 
-  // set the relative permittivity of this segment, as we know the material now
-  // extract the data from the material database
+  // if the segment is a contact, setting material parameters does not make sense, at least for now
   //
-  if(!is_contact(segment_index)) // for contacts, setting the epsr doesn't make sense
-  {
-    namespace vmat = viennamaterials;
+  if(this->is_contact(segment_index)) return;
 
-    numeric epsr_value    = this->material_library()->query_value(
-      vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-                       vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-                       vmat::make_entry(this->matlib_data()     , material::value()))
-    );
-      this->set_quantity(viennamini::id::permittivity(), segment_index, epsr_value * viennamini::eps0::val());
-  }
+  namespace vmat = viennamaterials;
+
+  // set the permittivity for this segment
+  //
+  numeric epsr_value    = this->material_library()->query_value(
+    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                     vmat::make_entry(this->matlib_data()     , material::value()))
+  );
+  this->set_quantity(viennamini::id::permittivity(), segment_index, epsr_value * viennamini::eps0::val());
+
+  // set the electron mobility for this segment
+  //
+  numeric mu_n_0_value    = this->material_library()->query_value(
+    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                     vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
+                     vmat::make_entry(this->matlib_data()     , material::value()))
+  );
+  this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value);
+
+  // set the hole mobility for this segment
+  //
+  numeric mu_p_0_value    = this->material_library()->query_value(
+    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                     vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
+                     vmat::make_entry(this->matlib_data()     , material::value()))
+  );
+  this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value);
 }
 
 std::string device::get_name(int segment_index)

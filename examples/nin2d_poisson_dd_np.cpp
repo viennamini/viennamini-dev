@@ -25,7 +25,7 @@ int main()
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
-  mysim.device().temperature() = 300;
+  mysim.device().set_temperature(300.0);
 
   // identify segments
   const int left_contact     = 1;
@@ -47,14 +47,14 @@ int main()
   mysim.device().make_semiconductor   (intrinsic);
   mysim.device().set_name             (intrinsic, "left");
   mysim.device().set_material         (intrinsic, "Si");
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    left, 1.0E21);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), left, 1.0E11);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    intrinsic, 1.0E21);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), intrinsic, 1.0E11);
 
   mysim.device().make_semiconductor   (right);
   mysim.device().set_name             (right, "right");
   mysim.device().set_material         (right, "Si");
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    left, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), left, 1.0E8);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    right, 1.0E24);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), right, 1.0E8);
 
   mysim.device().make_contact         (right_contact);
   mysim.device().set_name             (right_contact, "right_contact");
@@ -72,6 +72,12 @@ int main()
 
   mysim.device().set_quantity(viennamini::id::potential(), left_contact,  0.0);
   mysim.device().set_quantity(viennamini::id::potential(), right_contact, 0.2);
+
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), left_contact,  1.0E24);
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), right_contact, 1.0E24);
+
+  mysim.device().set_quantity(viennamini::id::hole_concentration(), left_contact,  1.0E8);
+  mysim.device().set_quantity(viennamini::id::hole_concentration(), right_contact, 1.0E8);
 
   mysim.run();
 

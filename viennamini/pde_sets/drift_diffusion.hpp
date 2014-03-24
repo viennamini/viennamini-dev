@@ -30,11 +30,21 @@ public:
   drift_diffusion()  
   {
     add_dependency(viennamini::id::permittivity());
+    add_dependency(viennamini::id::temperature());
     add_dependency(viennamini::id::thermal_potential());
     add_dependency(viennamini::id::donor_doping());
     add_dependency(viennamini::id::acceptor_doping());
     add_dependency(viennamini::id::electron_mobility());
     add_dependency(viennamini::id::hole_mobility());
+
+    add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
+    add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
+    add_role_support(viennamini::id::temperature(),             viennamini::role::semiconductor);
+    add_role_support(viennamini::id::thermal_potential(),       viennamini::role::semiconductor);
+    add_role_support(viennamini::id::donor_doping(),            viennamini::role::semiconductor);
+    add_role_support(viennamini::id::acceptor_doping(),         viennamini::role::semiconductor);
+    add_role_support(viennamini::id::electron_mobility(),       viennamini::role::semiconductor);
+    add_role_support(viennamini::id::hole_mobility(),           viennamini::role::semiconductor);
 
     add_unknown(viennamini::id::potential());
     add_unknown(viennamini::id::electron_concentration());
@@ -67,20 +77,20 @@ public:
 
     pdes_type pdes;
 
-//    pdes.push_back( 
-//      viennamini::pde(
-//        viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)), /* = */ viennamini::q::val() * ((n - ND) - (p - NA))), 
-//        psi,
-//        viennamath::expr( (n + p) * (-q / VT) ),
-//        false
-//      ) 
-//    );
+    pdes.push_back( 
+      viennamini::pde(
+        viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)), /* = */ viennamini::q::val() * ((n - ND) - (p - NA))), 
+        psi,
+        viennamath::expr( (n + p) * (-viennamini::q::val() / VT) ),
+        false
+      ) 
+    );
 
     pdes.push_back( 
       viennamini::pde(
         viennamath::make_equation( viennamath::div(mu_n * VT * viennamath::grad(n) - mu_n * viennamath::grad(psi) * n) , /* = */ 0.0), 
         n, 
-        viennamath::expr(),
+        viennamath::expr(viennamath::rt_constant<double>(0)),
         true
       )
     );
@@ -88,8 +98,8 @@ public:
     pdes.push_back( 
       viennamini::pde(
         viennamath::make_equation( viennamath::div(mu_p * VT * viennamath::grad(p) + mu_p * viennamath::grad(psi) * p) , /* = */ 0.0), 
-        n,
-        viennamath::expr(),
+        p,
+        viennamath::expr(viennamath::rt_constant<double>(0)),
         true
       )
     );
