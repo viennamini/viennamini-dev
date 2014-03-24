@@ -20,16 +20,40 @@
 
 namespace viennamini {
 
-class required_quantity_missing : public std::runtime_error {
+class discretization_exception : public std::runtime_error {
 public:
-  required_quantity_missing(std::string const & str) : std::runtime_error(str) {}
+  discretization_exception(std::string const & str) : std::runtime_error(str) {}
 };
 
-///brief Exception for the case that a segment could not be identified as either a contact, an oxide, nor a semiconductor
-class segment_undefined_exception : public std::runtime_error {
-public:
-  segment_undefined_exception(int segment_index) : std::runtime_error(" at segment: "+boost::lexical_cast<std::string>(segment_index)) {}
-};
+#define VIENNAMINI_DISCRETIZATION(classname) \
+public: \
+\
+  classname(viennamini::device_handle        device,  \
+            viennamini::configuration_handle config,  \
+            viennamini::stepper_handle       stepper,  \
+            std::ostream                   & stream) : \
+            viennamini::discretization(device, config, stepper, stream) {} \
+ \
+  ~classname() {} \
+\
+  void run_auto() \
+  {\
+    if(device().is_line1d()) \
+    {\
+      this->run(device().get_segmesh_line_1d()); \
+    }\
+    else \
+    if(device().is_triangular2d()) \
+    {\
+      this->run(device().get_segmesh_triangular_2d()); \
+    }\
+    else \
+    if(device().is_tetrahedral3d()) \
+    {\
+      this->run(device().get_segmesh_tetrahedral_3d()); \
+    }\
+    else throw discretization_exception("Mesh type not supported!"); \
+  }
 
 class discretization
 {
@@ -42,7 +66,7 @@ public:
 
   virtual ~discretization() {}
 
-  virtual void run() {}
+  virtual void run_auto() {}
 
   viennamini::device&         device()  { return *device_;  }
   viennamini::configuration&  config()  { return *config_;  }

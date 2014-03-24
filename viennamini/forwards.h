@@ -66,10 +66,10 @@ namespace viennamini
   };
 
   // N_D
-  struct donator_doping_key
+  struct donor_doping_key
   {
     // Operator< is required for compatibility with std::map
-    bool operator<(donator_doping_key const & ) const { return false; }
+    bool operator<(donor_doping_key const & ) const { return false; }
   };
 
   // N_A
@@ -125,11 +125,11 @@ namespace viennamini
 //    inline std::string laplace()                    { return "Laplace"; }
 //    inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
     inline std::string permittivity()               { return "Permittivity"; }
-    inline std::string donator_doping()             { return "N_D"; }
-    inline std::string acceptor_doping()            { return "N_A"; }
+    inline std::string donor_doping()               { return "Donor Doping"; }
+    inline std::string acceptor_doping()            { return "Acceptor Doping"; }
     inline std::string potential()                  { return "Potential"; }
-    inline std::string electron_density()           { return "Electron Concentration"; }
-    inline std::string hole_density()               { return "Hole Concentration"; }
+    inline std::string electron_concentration()     { return "Electron Concentration"; }
+    inline std::string hole_concentration()         { return "Hole Concentration"; }
     inline std::string electron_mobility()          { return "Electron Mobility"; }
     inline std::string hole_mobility()              { return "Hole Mobility"; }
     inline std::string curren_density()             { return "Current Density"; }
@@ -219,7 +219,7 @@ namespace viennamini
     {
       none,
       laplace, 
-      dd 
+      drift_diffusion 
     };
   } // pdeset
 

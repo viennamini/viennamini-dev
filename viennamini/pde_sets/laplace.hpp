@@ -52,7 +52,9 @@ public:
     pdes.push_back( 
       viennamini::pde(
         viennamath::make_equation( viennamath::div(eps * viennamath::grad(psi)), /* = */ 0), 
-        psi
+        psi, 
+        viennamath::expr(),
+        false
       ) 
     );
 

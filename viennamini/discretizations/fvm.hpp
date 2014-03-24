@@ -33,28 +33,11 @@ namespace viennamini {
 class fvm : public viennamini::discretization
 {
 public:
-  fvm(viennamini::device_handle        device, 
-      viennamini::configuration_handle config, 
-      viennamini::stepper_handle       stepper, 
-      std::ostream                   & stream) :
-    viennamini::discretization(device, config, stepper, stream) {}
-  ~fvm() {}
 
-  virtual void run() 
-  {
-    if(device().is_line1d())
-      run_impl(device().get_segmesh_line_1d());
-    else
-    if(device().is_triangular2d())
-      run_impl(device().get_segmesh_triangular_2d());
-    else
-    if(device().is_tetrahedral3d())
-      run_impl(device().get_segmesh_tetrahedral_3d());
-    else throw device_not_supported_exception("at: problem_laplace::run()");
-  }
+  VIENNAMINI_DISCRETIZATION(fvm)
 
   template<typename SegmentedMeshT>
-  void run_impl(SegmentedMeshT & segmesh)
+  void run(SegmentedMeshT & segmesh)
   {
     typedef typename SegmentedMeshT::segmentation_type                           SegmentationType;
     typedef viennafvm::problem_description<typename SegmentedMeshT::mesh_type>   ProblemDescriptionType;
@@ -88,7 +71,7 @@ public:
         {
           if(device().has_quantity(*unknown_iter, current_segment_index))
             viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
-          else throw required_quantity_missing("Contact boundary condition for unknown \""+*unknown_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
+          else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
         }
 
         if(config().model().pde_set().unknown_supports_role(*unknown_iter, role))
@@ -148,7 +131,7 @@ private:
         std::size_t current_segment_index = sit->id();
         if(device().has_quantity(*dep_iter, current_segment_index))
           viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
-        else throw required_quantity_missing("Quantity\""+*dep_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
+        else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
       }
     }
   }

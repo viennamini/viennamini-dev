@@ -59,34 +59,14 @@ int main()
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
 
-//  mysim.stepper().add_contact_potential(left_contact) = 0.0;
-//  mysim.stepper().add_contact_potential(right_contact) = 0.2;
   mysim.device().set_quantity(viennamini::id::potential(), left_contact,  0.0);
   mysim.device().set_quantity(viennamini::id::potential(), right_contact, 0.2);
-//  mysim.device().add_quantity(viennamini::id::potential, right_contact) = viennamini::quantity(0.2, "V");
-//  mysim.device().add_quantity(viennamini::id::potential, right_contact) = viennamini::quantity(0.2, viennamini::unit::volt);
-
-  viennamini::laplace myLaplace;
 
   mysim.config().model().use_pdeset(viennamini::pdeset::laplace);
   mysim.config().model().use_discretization(viennamini::discret::fvm);
 
   mysim.run();
 
-
-//  mysim.problem_id() = viennamini::id::laplace();
-
-
-//  mysim.contact_potential   (left_contact)  = 0.0;
-//  mysim.contact_potential   (right_contact) = 0.2;
-
-//  mysim.set_output_filename_prefix("nin2d_laplace");
-
-//  mysim.run();
-
-//  std::cout << "****************************************************" << std::endl;
-//  std::cout << "* NIN 2D Laplace simulation finished successfully! *" << std::endl;
-//  std::cout << "****************************************************" << std::endl;
-//  return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 

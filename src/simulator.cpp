@@ -88,9 +88,9 @@ void simulator::run()
   if(config().model().get_discret_id() == viennamini::discret::fvm)
   {
     discretization_handle_ = discretization_handle(new viennamini::fvm(device_handle_, config_handle_, stepper_handle_, stream_));
-    discretization_handle_->run();
+    discretization_handle_->run_auto();
   }
-
+  else throw simulator_exception("Discretization type is not supported!");
 
   /*
 

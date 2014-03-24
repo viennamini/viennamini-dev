@@ -17,9 +17,15 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/pde_sets/laplace.hpp"
+#include "viennamini/pde_sets/drift_diffusion.hpp"
 
 namespace viennamini {
 namespace config {
+
+class model_exception : public std::runtime_error {
+public:
+  model_exception(std::string const & str) : std::runtime_error(str) {}
+};
 
 struct model
 {
@@ -33,6 +39,11 @@ public:
     {
       pde_set_handle_ = viennamini::pde_set_handle(new viennamini::laplace());
     }
+    else if(pdeset_id == viennamini::pdeset::drift_diffusion)
+    {
+      pde_set_handle_ = viennamini::pde_set_handle(new viennamini::drift_diffusion());
+    }
+    else throw model_exception("PDE Set type is not supported!");
   }
 
   void use_discretization(viennamini::discret::discret_ids discret_id) { discret_id_ = discret_id; }

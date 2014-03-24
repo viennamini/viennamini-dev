@@ -44,6 +44,11 @@ namespace viennamini
 //    problem_not_available_exception(std::string const & str) : std::runtime_error(str) {}
 //  };
 
+  class simulator_exception : public std::runtime_error {
+  public:
+    simulator_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
   class simulator
   {
   public:
