@@ -96,7 +96,7 @@ stepper::values_type  stepper::compute_value_range(numeric const& start, numeric
   return cont;
 }
 
-bool stepper::apply_next(segment_values& current_contact_potentials)
+bool stepper::apply_next(sparse_values& current_contact_potentials)
 {
   if( (current_step_) == step_values_.end()) return false;
 

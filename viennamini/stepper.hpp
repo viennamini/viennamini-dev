@@ -42,7 +42,7 @@ public:
   void              add                             (std::size_t segment_index, numeric const& value);
   values_type       compute_value_range             (numeric const& start, numeric const& end, numeric const& delta);
   void              update                          ();
-  bool              apply_next                      (segment_values& current_contact_potentials);
+  bool              apply_next                      (sparse_values& current_contact_potentials);
   std::size_t       get_current_step_id             ();
   step_setup_type&  get_step_setup                  (std::size_t step_id);
   step_setup_type&  get_current_step_setup          ();

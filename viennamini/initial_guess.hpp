@@ -30,12 +30,7 @@ public:
   initial_guess() {}
   virtual ~initial_guess() {}
 
-/*
-  
-  result_type operator()( const& cell)
-  {
-  }
-*/
+  virtual result_type operator()(std::size_t cell_index) = 0;
 
 private:
 };

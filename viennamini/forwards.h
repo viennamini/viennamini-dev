@@ -246,7 +246,7 @@ namespace viennamini
   class pde_set;
 
   typedef double                                                                                                  numeric;
-  typedef std::map<std::size_t, numeric>                                                                          segment_values;
+  typedef std::map<std::size_t, numeric>                                                                          sparse_values;
 
   typedef ::viennagrid::mesh< viennagrid::config::line_1d >                                                       mesh_line_1d;
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;

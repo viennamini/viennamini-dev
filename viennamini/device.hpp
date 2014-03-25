@@ -84,7 +84,7 @@ namespace viennamini
     typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
     typedef std::map<std::size_t, std::string>                                             IndexKeysType;
     typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
-    typedef std::map<std::string, std::map<std::size_t, viennamini::numeric> >             QuantityDatabaseType;
+    typedef std::map<std::string, std::map<std::size_t, viennamini::sparse_values> >       QuantityDatabaseType;
 
   public:
     typedef GenericMeshType                                                                generic_mesh_type;
@@ -147,9 +147,23 @@ namespace viennamini
     std::string get_name          (int segment_index);
     std::string get_material      (int segment_index);
 
-    void                set_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value);
-    viennamini::numeric get_quantity (std::string const& quantity_name, int segment_index);
-    bool                has_quantity (std::string const& quantity_name, int segment_index);
+    /// Store a scalar-valued quantity on all segments of the device
+    void                  set_quantity (std::string const& quantity_name,                    viennamini::numeric   const& value);
+
+    /// Store a scalar-valued quantity on a specific segment of the device
+    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value);
+
+    /// Store a set of quantities (indexed according to cell indices) on all segments of the device
+    void                  set_quantity (std::string const& quantity_name,                    viennamini::sparse_values const& values);
+
+    /// Store a set of quantities (indexed according to cell indices) on a specific segment of the device
+    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::sparse_values const& values);
+
+    /// Retrieve a quantity container holding scalar values (previously distributed via the 'set_quantity' method) for each cell indexed by the cell index
+    viennamini::sparse_values get_quantity (std::string const& quantity_name, int segment_index);
+
+    /// Test whether a quantity is stored for each cell of a specific segment
+    bool                  has_quantity (std::string const& quantity_name, int segment_index);
 
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
@@ -192,8 +206,6 @@ namespace viennamini
 //    IndexValuesType            segment_acceptor_doping_;
 
     QuantityDatabaseType      quantity_database_;
-
-    viennamini::numeric        temperature_;
 
     viennamini::material_library_handle  matlib_;
 

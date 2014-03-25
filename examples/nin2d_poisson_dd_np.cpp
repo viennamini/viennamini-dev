@@ -25,7 +25,7 @@ int main()
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
   mysim.device().read_material_library("../../examples/materials.xml");
   mysim.device().scale(1.0E-9);
-  mysim.device().set_temperature(300.0);
+  mysim.device().set_quantity(viennamini::id::temperature(), 300.0);
 
   // identify segments
   const int left_contact     = 1;
@@ -78,6 +78,25 @@ int main()
 
   mysim.device().set_quantity(viennamini::id::hole_concentration(), left_contact,  1.0E8);
   mysim.device().set_quantity(viennamini::id::hole_concentration(), right_contact, 1.0E8);
+
+/*
+  mysim.config().model().pde_set().assign_initial_guess(viennamini::id::potential(), viennamini::built_in_potential());
+
+
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), right, viennamini::initial::ohmic);
+
+  mysim.device().set_quantity(viennamini::id::potential(), left,      viennamini::built_in_potential());
+  mysim.device().set_quantity(viennamini::id::potential(), intrinsic, viennamini::built_in_potential());
+  mysim.device().set_quantity(viennamini::id::potential(), right,     viennamini::built_in_potential());
+
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), left,      viennamini::ohmic_electrons());
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), intrinsic, viennamini::ohmic_electrons());
+  mysim.device().set_quantity(viennamini::id::electron_concentration(), right,     viennamini::ohmic_electrons());
+
+  mysim.device().set_quantity(viennamini::id::hole_concentration(), left,      viennamini::ohmic_holes());
+  mysim.device().set_quantity(viennamini::id::hole_concentration(), intrinsic, viennamini::ohmic_holes());
+  mysim.device().set_quantity(viennamini::id::hole_concentration(), right,     viennamini::ohmic_holes());
+*/
 
   mysim.run();
 
