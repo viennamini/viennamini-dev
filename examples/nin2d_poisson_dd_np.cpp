@@ -45,7 +45,7 @@ int main()
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), left, 1.0E8);
 
   mysim.device().make_semiconductor   (intrinsic);
-  mysim.device().set_name             (intrinsic, "left");
+  mysim.device().set_name             (intrinsic, "intrinsic");
   mysim.device().set_material         (intrinsic, "Si");
   mysim.device().set_quantity(viennamini::id::donor_doping(),    intrinsic, 1.0E21);
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), intrinsic, 1.0E11);
@@ -80,7 +80,15 @@ int main()
   mysim.device().set_quantity(viennamini::id::hole_concentration(), right_contact, 1.0E8);
 
 /*
-  mysim.config().model().pde_set().assign_initial_guess(viennamini::id::potential(), viennamini::built_in_potential());
+  mysim.device().set_quantity(viennamini::id::potential(), left,      viennamini::built_in_potential());
+  mysim.device().set_quantity(viennamini::id::potential(), intrinsic, viennamini::built_in_potential());
+  mysim.device().set_quantity(viennamini::id::potential(), right,     viennamini::built_in_potential());
+
+
+
+  mysim.config().model().pde_set().set_initial_guess(viennamini::id::potential(), viennamini::built_in_potential(mysim.device()));
+
+
 
 
   mysim.device().set_quantity(viennamini::id::electron_concentration(), right, viennamini::initial::ohmic);

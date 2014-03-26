@@ -17,6 +17,7 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/pde.hpp"
+#include "viennamini/initial_guess.hpp"
 
 #include "viennamath/expression.hpp"
 
@@ -41,6 +42,7 @@ class pde_set
 private:
   typedef std::vector<std::string>                  IDsType;
   typedef std::vector<pde>                          PDEsType;
+  typedef std::map<std::string, viennamini::init::initial_guess*> InitialGuessLookupType;
 
 protected:
   typedef viennamath::function_symbol               FunctionSymbolType;
@@ -51,7 +53,14 @@ public:
 
   pde_set() {}
 
-  virtual ~pde_set() {}
+  virtual ~pde_set() 
+  {
+    for(InitialGuessLookupType::iterator iter = initial_guess_lookup_.begin();
+        iter != initial_guess_lookup_.end(); iter++)
+    {
+      if(iter->second) delete iter->second;
+    }
+  }
 
   virtual std::string info() = 0;
 
@@ -75,12 +84,21 @@ public:
     quantity_name_id_[quantity_name] = quantity_id;
   }
 
-  /*
-  initial_guess* get_initial_guess(std::string const& quantity_name)
+  void set_initial_guess(std::string const& quantity_name, viennamini::init::initial_guess* init_guess)
   {
-    return initial_guesses[name];
+    initial_guess_lookup_[quantity_name] = init_guess;
   }
-  */
+
+  viennamini::init::initial_guess* get_initial_guess(std::string const& quantity_name, viennamini::device_handle& device, std::size_t segment_index)
+  {
+    if(initial_guess_lookup_.find(quantity_name) == initial_guess_lookup_.end())
+      throw viennamini::pde_set_exception("Initial guess \""+quantity_name+"\" is missing!");
+    if(!initial_guess_lookup_[quantity_name])
+      throw viennamini::pde_set_exception("Initial guess \""+quantity_name+"\" is not initialized!");
+//    initial_guess_lookup_[quantity_name]->device_handle() = device;
+    initial_guess_lookup_[quantity_name]->segment_index() = segment_index;
+    return initial_guess_lookup_[quantity_name];
+  }
 
 protected:
   void add_dependency  (std::string dependency) { dependencies_.push_back(dependency); }
@@ -104,7 +122,8 @@ private:
   IDsType               unknowns_;
 
   std::map<std::string, std::set<viennamini::role::segment_role_ids> >  role_lookup_;
-  std::map<std::string, std::size_t>    quantity_name_id_;
+  std::map<std::string, std::size_t>                                    quantity_name_id_;
+  std::map<std::string, viennamini::init::initial_guess*>               initial_guess_lookup_;
 };
 
 } // viennamini

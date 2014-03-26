@@ -17,6 +17,8 @@
 
 #include "viennamini/forwards.h"
 
+#include "viennamath/expression.hpp"
+
 namespace viennamini {
 
 struct pde

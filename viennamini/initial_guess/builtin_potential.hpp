@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_INITIALGUESS_HPP
-#define VIENNAMINI_INITIALGUESS_HPP
+#ifndef VIENNAMINI_INITIALGUESS_BUILTINPOTENTIAL_HPP
+#define VIENNAMINI_INITIALGUESS_BUILTINPOTENTIAL_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -18,26 +18,26 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
+#include "viennamini/initial_guess.hpp"
 
 namespace viennamini {
 namespace init {
 
-class initial_guess
+class builtin_potential : public initial_guess
 {
 public:
-  typedef viennamini::numeric   result_type;
+  builtin_potential() : initial_guess() 
+  {
+  }
 
-  initial_guess() {}
-  virtual ~initial_guess() {}
+  ~builtin_potential() {}
 
-  virtual result_type operator()(std::size_t cell_index) = 0;
-
-  viennamini::device_handle&  device_handle() { return device_handle_; }
-  std::size_t&                segment_index() { return segment_index_; }
+  result_type operator()(std::size_t cell_index)
+  {
+    return 0;
+  }
 
 private:
-  viennamini::device_handle device_handle_;
-  std::size_t               segment_index_;
 };
 
 } // init

@@ -134,39 +134,6 @@ viennamini::role::segment_role_ids device::get_segment_role(int segment_index)
   return segment_roles_[segment_index];
 }
 
-//void device::set_temperature(viennamini::numeric const& temp_val)
-//{
-//  if(this->is_line1d())
-//  {
-//    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
-//        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
-//    {
-//      this->set_quantity(viennamini::id::temperature(),       sit->id(), temp_val);
-//      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
-//    }
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
-//        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
-//    {
-//      this->set_quantity(viennamini::id::temperature(), sit->id(), temp_val);
-//      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
-//    }
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
-//        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
-//    {
-//      this->set_quantity(viennamini::id::temperature(), sit->id(), temp_val);
-//      this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(temp_val));
-//    }
-//  }
-//}
-
 std::size_t device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
 {
   return contact_semiconductor_interfaces_[segment_index];
@@ -243,37 +210,41 @@ void device::update()
 
   // finalize quantities
   //
-//  if(this->is_line1d())
-//  {
-//    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
-//        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
-//    {
-//      if(this->has_quantity(viennamini::id::temperature(), sit->id()))
-//      {
-//        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential(this->get_quantity(viennamini::id::thermal_potential(), sit->id())));
-//      }
-//    }
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
-//        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
-//    {
-
-//    }
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
-//        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
-//    {
-
-//    }
-//  }
-
-
+  if(this->is_line1d())
+  {
+    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
+        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
+    {
+      if(this->has_quantity(viennamini::id::temperature(), sit->id()))
+      {
+        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+      }
+    }
+  }
+  else
+  if(this->is_triangular2d())
+  {
+    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
+        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
+    {
+      if(this->has_quantity(viennamini::id::temperature(), sit->id()))
+      {
+        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+      }
+    }
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
+        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
+    {
+      if(this->has_quantity(viennamini::id::temperature(), sit->id()))
+      {
+        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+      }
+    }
+  }
 
 
   // transfer permittivity from the semiconductor/oxide segments to

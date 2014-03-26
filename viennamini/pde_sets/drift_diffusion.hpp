@@ -20,6 +20,7 @@
 #include "viennamini/forwards.h"
 #include "viennamini/pde_set.hpp"
 #include "viennamini/constants.hpp"
+#include "viennamini/initial_guess/builtin_potential.hpp"
 
 namespace viennamini {
 
@@ -54,6 +55,8 @@ public:
     add_role_support(viennamini::id::potential(),               viennamini::role::semiconductor);
     add_role_support(viennamini::id::electron_concentration(),  viennamini::role::semiconductor);
     add_role_support(viennamini::id::hole_concentration(),      viennamini::role::semiconductor);
+
+    set_initial_guess(viennamini::id::potential(), new viennamini::init::builtin_potential());
   }
 
   ~drift_diffusion() {}
@@ -81,7 +84,7 @@ public:
       viennamini::pde(
         viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)), /* = */ viennamini::q::val() * ((n - ND) - (p - NA))), 
         psi,
-        viennamath::expr( (n + p) * (-viennamini::q::val() / VT) ),
+        viennamath::expr( (n + p) * (-viennamini::q::val() / VT) ), // let n ~ exp(psi/VT), p~exp(-psi/VT)     dn/dpsi = n * q / VT,    dp/dpsi = - p * q / Vt
         false
       ) 
     );
@@ -109,7 +112,7 @@ public:
 
   bool is_linear()
   {
-    return true;
+    return false;
   }
 
 };

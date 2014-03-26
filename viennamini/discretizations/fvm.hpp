@@ -80,8 +80,13 @@ public:
 
           if(!config().model().pde_set().is_linear())
           {
-            // config().model().pde_set().initial_guess(*unknown_iter);
-            // viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), *(config().model().pde_set().get_initial_guess(*unknown_iter)));
+            if(device().has_quantity(*unknown_iter, current_segment_index))
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
+            else
+            {
+//              viennamini::init::initial_guess* init = config().model().pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index);
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), config().model().pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index));
+            }
           }
         }
       }
