@@ -17,7 +17,8 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/pde.hpp"
-#include "viennamini/initial_guess.hpp"
+#include "viennamini/quantity_generator.hpp"
+#include "viennamini/contact_model.hpp"
 
 #include "viennamath/expression.hpp"
 
@@ -42,7 +43,7 @@ class pde_set
 private:
   typedef std::vector<std::string>                  IDsType;
   typedef std::vector<pde>                          PDEsType;
-  typedef std::map<std::string, viennamini::init::initial_guess*> InitialGuessLookupType;
+  typedef std::map<std::string, viennamini::quantity_generator*> InitialGuessLookupType;
 
 protected:
   typedef viennamath::function_symbol               FunctionSymbolType;
@@ -84,12 +85,12 @@ public:
     quantity_name_id_[quantity_name] = quantity_id;
   }
 
-  void set_initial_guess(std::string const& quantity_name, viennamini::init::initial_guess* init_guess)
+  void set_initial_guess(std::string const& quantity_name, viennamini::quantity_generator* init_guess)
   {
     initial_guess_lookup_[quantity_name] = init_guess;
   }
 
-  viennamini::init::initial_guess* get_initial_guess(std::string const& quantity_name, viennamini::device_handle& device_handle, std::size_t segment_index)
+  viennamini::quantity_generator* get_initial_guess(std::string const& quantity_name, viennamini::device_handle& device_handle, std::size_t segment_index)
   {
     if(initial_guess_lookup_.find(quantity_name) == initial_guess_lookup_.end())
       throw viennamini::pde_set_exception("Initial guess \""+quantity_name+"\" is missing!");
@@ -98,6 +99,29 @@ public:
     initial_guess_lookup_[quantity_name]->set_device(device_handle.get());
     initial_guess_lookup_[quantity_name]->set_segment_index(segment_index);
     return initial_guess_lookup_[quantity_name];
+  }
+
+  void set_contact_model(std::string const& quantity_name, viennamini::contact_model* model)
+  {
+    contact_model_lookup_[quantity_name] = model;
+  }
+
+  viennamini::contact_model* get_contact_model(std::string const& quantity_name)
+  {
+    if(!this->has_contact_model(quantity_name))
+      throw viennamini::pde_set_exception("Contact model not available for quantity \""+quantity_name+"\"!");
+    contact_model_lookup_[quantity_name]->set_quantity_name(quantity_name);
+    return contact_model_lookup_[quantity_name];
+  }
+
+  bool has_contact_model(std::string const& quantity_name)
+  {
+    if( contact_model_lookup_.find(quantity_name) != contact_model_lookup_.end() )
+    {
+      if(contact_model_lookup_[quantity_name]) return true;
+      else return false;
+    }
+    else return false;
   }
 
 protected:
@@ -123,7 +147,8 @@ private:
 
   std::map<std::string, std::set<viennamini::role::segment_role_ids> >  role_lookup_;
   std::map<std::string, std::size_t>                                    quantity_name_id_;
-  std::map<std::string, viennamini::init::initial_guess*>               initial_guess_lookup_;
+  std::map<std::string, viennamini::quantity_generator*>                initial_guess_lookup_;
+  std::map<std::string, viennamini::contact_model*>                     contact_model_lookup_;
 };
 
 } // viennamini

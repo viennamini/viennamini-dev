@@ -42,7 +42,7 @@ int main()
   mysim.device().set_material         (left, "Si");
 
   mysim.device().make_semiconductor   (intrinsic);
-  mysim.device().set_name             (intrinsic, "left");
+  mysim.device().set_name             (intrinsic, "intrinsic");
   mysim.device().set_material         (intrinsic, "Si");
 
   mysim.device().make_semiconductor   (right);
@@ -58,11 +58,11 @@ int main()
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
 
-  mysim.device().set_quantity(viennamini::id::potential(), left_contact,  0.0);
-  mysim.device().set_quantity(viennamini::id::potential(), right_contact, 0.2);
+  mysim.config().model().set_pdeset(viennamini::pdeset::laplace);
+  mysim.config().model().set_discretization(viennamini::discret::fvm);
 
-  mysim.config().model().use_pdeset(viennamini::pdeset::laplace);
-  mysim.config().model().use_discretization(viennamini::discret::fvm);
+  mysim.device().set_contact(viennamini::id::potential(), left_contact,  0.0);
+  mysim.device().set_contact(viennamini::id::potential(), right_contact, 0.2);
 
   mysim.run();
 

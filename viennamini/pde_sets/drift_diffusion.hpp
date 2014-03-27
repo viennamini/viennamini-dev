@@ -20,8 +20,9 @@
 #include "viennamini/forwards.h"
 #include "viennamini/pde_set.hpp"
 #include "viennamini/constants.hpp"
-#include "viennamini/initial_guess/builtin_potential.hpp"
-#include "viennamini/initial_guess/quantity.hpp"
+#include "viennamini/quantity_generators/builtin_potential.hpp"
+#include "viennamini/quantity_generators/use_quantity.hpp"
+#include "viennamini/contact_models/ohmic_contact.hpp"
 
 namespace viennamini {
 
@@ -59,9 +60,13 @@ public:
     add_role_support(viennamini::id::electron_concentration(),  viennamini::role::semiconductor);
     add_role_support(viennamini::id::hole_concentration(),      viennamini::role::semiconductor);
 
-    set_initial_guess(viennamini::id::potential(),              new viennamini::init::builtin_potential());
-    set_initial_guess(viennamini::id::electron_concentration(), new viennamini::init::quantity(viennamini::id::donor_doping()));
-    set_initial_guess(viennamini::id::hole_concentration(),     new viennamini::init::quantity(viennamini::id::acceptor_doping()));
+    set_initial_guess(viennamini::id::potential(),              new viennamini::builtin_potential());
+    set_initial_guess(viennamini::id::electron_concentration(), new viennamini::use_quantity(viennamini::id::donor_doping()));
+    set_initial_guess(viennamini::id::hole_concentration(),     new viennamini::use_quantity(viennamini::id::acceptor_doping()));
+
+    set_contact_model(viennamini::id::potential(),              new viennamini::ohmic_contact());
+    set_contact_model(viennamini::id::electron_concentration(), new viennamini::ohmic_contact());
+    set_contact_model(viennamini::id::hole_concentration(),     new viennamini::ohmic_contact());
   }
 
   ~drift_diffusion() {}

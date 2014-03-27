@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_INITIALGUESS_HPP
-#define VIENNAMINI_INITIALGUESS_HPP
+#ifndef VIENNAMINI_QUANTITYGENERATORS_BUILTINPOTENTIAL_HPP
+#define VIENNAMINI_QUANTITYGENERATORS_BUILTINPOTENTIAL_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -18,33 +18,26 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
-#include "viennamini/device.hpp"
+#include "viennamini/quantity_generator.hpp"
+#include "viennamini/physics.hpp"
 
 namespace viennamini {
-namespace init {
 
-class initial_guess
+class builtin_potential : public quantity_generator
 {
 public:
-  typedef viennamini::numeric   result_type;
 
-  initial_guess() {}
-  virtual ~initial_guess() {}
-
-  virtual result_type operator()(std::size_t cell_index) = 0;
-
-  void set_device(viennamini::device* device)       { device_ = device; }
-  void set_segment_index(std::size_t segment_index) { segment_index_ = segment_index; }
-
-  viennamini::device& get_device()        { return *device_; }
-  std::size_t&        get_segment_index() { return segment_index_; }
-
-private:
-  viennamini::device*       device_;
-  std::size_t               segment_index_;
+  result_type operator()(std::size_t cell_index)
+  {
+    return viennamini::built_in_potential(
+      get_device().get_quantity(viennamini::id::donor_doping(),     get_segment_index(), cell_index),
+      get_device().get_quantity(viennamini::id::acceptor_doping(),  get_segment_index(), cell_index),
+      get_device().get_quantity(viennamini::id::temperature(),      get_segment_index(), cell_index),
+      get_device().get_quantity(viennamini::id::intrinsic_carrier(),get_segment_index(), cell_index)
+    );
+  }
 };
 
-} // init
 } // viennamini
 
 

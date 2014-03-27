@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_INITIALGUESS_QUANTITY_HPP
-#define VIENNAMINI_INITIALGUESS_QUANTITY_HPP
+#ifndef VIENNAMINI_CONTACTMODEL_HPP
+#define VIENNAMINI_CONTACTMODEL_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -18,30 +18,34 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
-#include "viennamini/initial_guess.hpp"
+#include "viennamini/device.hpp"
 
 namespace viennamini {
-namespace init {
 
-class quantity : public initial_guess
-{
+
+class contact_model_exception : public std::runtime_error {
 public:
-  quantity(std::string const& quantity_name) : initial_guess(), quantity_name_(quantity_name)
-  {
-  }
-
-  ~quantity() {}
-
-  result_type operator()(std::size_t cell_index)
-  {
-    return get_device().get_quantity(quantity_name_, get_segment_index(), cell_index);
-  }
-
-private:
-  std::string quantity_name_;
+  contact_model_exception(std::string const & str) : std::runtime_error(str) {}
 };
 
-} // init
+
+class contact_model
+{
+public:
+
+  contact_model() {}
+  virtual ~contact_model() {}
+
+  virtual void apply(viennamini::device_handle& device, std::size_t segment_index) = 0;
+
+  void set_quantity_name(std::string const& quantity_name)  { quantity_name_ = quantity_name; }
+
+  std::string&        get_quantity_name() { return quantity_name_; }
+
+private:
+  std::string               quantity_name_;
+};
+
 } // viennamini
 
 

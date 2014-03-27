@@ -278,6 +278,7 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
+
       this->set_quantity(viennamini::id::permittivity(), *contact_iter, epsr_value * viennamini::eps0::val());
     }
   }
@@ -633,6 +634,30 @@ viennamini::sparse_values device::get_quantity(std::string const& quantity_name,
 viennamini::numeric device::get_quantity(std::string const& quantity_name, int segment_index, std::size_t cell_index)
 {
   return quantity_database_[quantity_name][segment_index][cell_index];
+}
+
+void device::set_contact (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value)
+{
+  contact_database_[quantity_name][segment_index] = value;
+}
+
+viennamini::numeric device::get_contact (std::string const& quantity_name, int segment_index)
+{
+//  if(!(this->has_contact(quantity_name, segment_index))) 
+//    throw device_exception("Device contact quantity \""+quantity_name+
+//          "\" is not available on segment "+viennamini::convert<std::string>()(segment_index));
+  return contact_database_[quantity_name][segment_index];
+}
+
+bool device::has_contact (std::string const& quantity_name, int segment_index)
+{
+  if(contact_database_.find(quantity_name) != contact_database_.end())
+  {
+    if(contact_database_[quantity_name].find(segment_index) != contact_database_[quantity_name].end())
+      return true;
+    else return false;
+  }
+  else return false;
 }
 
 bool device::has_quantity(std::string const& quantity_name, int segment_index)

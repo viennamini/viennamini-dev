@@ -69,6 +69,12 @@ namespace viennamini
     device_lacks_material_library(std::string const & str) : std::runtime_error(str) {}
   };
 
+  class device_exception : public std::runtime_error {
+  public:
+    device_exception(std::string const & str) : std::runtime_error(str) {}
+  };
+
+
   class device
   {
   private:
@@ -85,6 +91,7 @@ namespace viennamini
     typedef std::map<std::size_t, std::string>                                             IndexKeysType;
     typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
     typedef std::map<std::string, std::map<std::size_t, viennamini::sparse_values> >       QuantityDatabaseType;
+    typedef std::map<std::string, std::map<std::size_t, viennamini::numeric> >             ContactDatabaseType;
 
   public:
     typedef GenericMeshType                                                                generic_mesh_type;
@@ -92,6 +99,7 @@ namespace viennamini
     typedef IndexMapType                                                                   index_map_type;
     typedef IndexKeysType                                                                  index_keys_type;
     typedef QuantityDatabaseType                                                           quantity_database_type;
+    typedef ContactDatabaseType                                                            contact_database_type;
 
     device(std::ostream& stream = std::cout);
 
@@ -207,6 +215,15 @@ namespace viennamini
     /// Test whether a quantity is stored for each cell of a specific segment
     bool                  has_quantity (std::string const& quantity_name, int segment_index);
 
+    /// Store a contact value
+    void                  set_contact (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value);
+
+    /// Retrieve a contact value
+    viennamini::numeric   get_contact (std::string const& quantity_name, int segment_index);
+
+    /// Test whether a contact value is stored for a specific segment
+    bool                  has_contact (std::string const& quantity_name, int segment_index);
+
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
 
@@ -244,6 +261,7 @@ namespace viennamini
     SegmentRecombinationsType  segment_recombinations_;
 
     QuantityDatabaseType      quantity_database_;
+    ContactDatabaseType       contact_database_;
 
     viennamini::material_library_handle  matlib_;
 

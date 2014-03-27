@@ -29,8 +29,10 @@ public:
   laplace()  
   {
     add_dependency(viennamini::id::permittivity());
-    add_unknown(viennamini::id::potential());
+    add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
+    add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
 
+    add_unknown(viennamini::id::potential());
     add_role_support(viennamini::id::potential(), viennamini::role::oxide);
     add_role_support(viennamini::id::potential(), viennamini::role::semiconductor);
   }

@@ -33,7 +33,7 @@ public:
   model() : 
     discret_id_ (viennamini::discret::fvm)  {}
 
-  void use_pdeset (viennamini::pdeset::pdeset_ids   pdeset_id ) 
+  void set_pdeset (viennamini::pdeset::pdeset_ids   pdeset_id ) 
   { 
     if(pdeset_id == viennamini::pdeset::laplace)
     {
@@ -46,11 +46,11 @@ public:
     else throw model_exception("PDE Set type is not supported!");
   }
 
-  void use_discretization(viennamini::discret::discret_ids discret_id) { discret_id_ = discret_id; }
+  void set_discretization(viennamini::discret::discret_ids discret_id) { discret_id_ = discret_id; }
 
   viennamini::discret::discret_ids get_discret_id() { return discret_id_; }
 
-  viennamini::pde_set& pde_set() { return *pde_set_handle_; }
+  viennamini::pde_set& get_pde_set() { return *pde_set_handle_; }
 
 private:
   viennamini::discret::discret_ids  discret_id_;

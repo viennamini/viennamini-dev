@@ -51,14 +51,14 @@ public:
 
     initialize(segmesh, current_pbdesc);
 
-    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().pde_set().unknowns().begin();
-        unknown_iter != config().model().pde_set().unknowns().end(); unknown_iter++)
+    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().get_pde_set().unknowns().begin();
+        unknown_iter != config().model().get_pde_set().unknowns().end(); unknown_iter++)
     {
     #ifdef VIENNAMINI_VERBOSE
       stream() << "processing unknown: " << *unknown_iter << std::endl;
     #endif
       QuantityType & quan = current_pbdesc.add_quantity(*unknown_iter);
-      config().model().pde_set().register_quantity(quan.get_name(), quan.id());
+      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
 
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
@@ -69,22 +69,37 @@ public:
 
         if(role == viennamini::role::contact)
         {
-          if(device().has_quantity(*unknown_iter, current_segment_index))
-            viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
-          else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+"\" is not available on segment \""+device().get_name(current_segment_index)+"\"");
+          // if the PDE set has a contact model for this segment, apply it
+          // i.e., overwrite the corresponding contact value on the device
+          //
+          if(config().model().get_pde_set().has_contact_model(*unknown_iter))
+          {
+            config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
+          }
+  
+          // apply the contact value stored on the device as a Dirichlet contact
+          //
+          if(device().has_contact(*unknown_iter, current_segment_index))
+          {
+//            std::cout << "assigning dirichlet BC: " << *unknown_iter << " " << current_segment_index << " : " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
+            viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
+          }
+          else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
+            "\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
         }
 
-        if(config().model().pde_set().is_role_supported(*unknown_iter, role))
+        if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
         {
+          std::cout << "setting unknown " << *unknown_iter << std::endl;
           viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
 
-          if(!config().model().pde_set().is_linear())
+          if(!config().model().get_pde_set().is_linear())
           {
             if(device().has_quantity(*unknown_iter, current_segment_index))
               viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
             else
             {
-              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().get_pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
             }
           }
         }
@@ -92,9 +107,9 @@ public:
     }
 
     viennafvm::linear_pde_system<> pde_system;
-    pde_system.is_linear(config().model().pde_set().is_linear());
+    pde_system.is_linear(config().model().get_pde_set().is_linear());
     typedef typename viennamini::pde_set::pdes_type PDEsType;
-    PDEsType pdes = config().model().pde_set().get_pdes();
+    PDEsType pdes = config().model().get_pde_set().get_pdes();
     int pde_index = 0;
     for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
     {
@@ -119,7 +134,7 @@ public:
     pde_solver.set_damping(config().damping());
     bool converged = pde_solver(current_pbdesc, pde_system, linear_solver);
 
-    if(converged) stream() << "Simulation did converged" << std::endl;
+    if(converged) stream() << "Simulation did converge" << std::endl;
     else          stream() << "Simulation did NOT converge" << std::endl;
 
     viennafvm::io::write_solution_to_VTK_file(
@@ -138,14 +153,14 @@ private:
     typedef typename SegmentedMeshT::segmentation_type          SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type         QuantityType;
 
-    for(viennamini::pde_set::ids_type::iterator dep_iter = config().model().pde_set().dependencies().begin();
-        dep_iter != config().model().pde_set().dependencies().end(); dep_iter++)
+    for(viennamini::pde_set::ids_type::iterator dep_iter = config().model().get_pde_set().dependencies().begin();
+        dep_iter != config().model().get_pde_set().dependencies().end(); dep_iter++)
     {
     #ifdef VIENNAMINI_VERBOSE
       stream() << "processing dependency: " << *dep_iter << std::endl;
     #endif
       QuantityType & quan = pdesc.add_quantity(*dep_iter);
-      config().model().pde_set().register_quantity(quan.get_name(), quan.id());
+      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
 
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
@@ -153,7 +168,7 @@ private:
         std::size_t current_segment_index = sit->id();
 
         viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
-        if(config().model().pde_set().is_role_supported(*dep_iter, role))
+        if(config().model().get_pde_set().is_role_supported(*dep_iter, role))
         {
           if(device().has_quantity(*dep_iter, current_segment_index))
             viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));

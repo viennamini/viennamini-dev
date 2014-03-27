@@ -67,44 +67,13 @@ int main()
   mysim.config().write_initial_guess_files()          = true;
   mysim.config().write_result_files()                 = true;
 
-  mysim.config().model().use_pdeset(viennamini::pdeset::drift_diffusion);
-  mysim.config().model().use_discretization(viennamini::discret::fvm);
+  mysim.config().model().set_pdeset(viennamini::pdeset::drift_diffusion);
+  mysim.config().model().set_discretization(viennamini::discret::fvm);
 
-  mysim.device().set_quantity(viennamini::id::potential(), left_contact,  0.0);
-  mysim.device().set_quantity(viennamini::id::potential(), right_contact, 0.2);
-
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), left_contact,  1.0E24);
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), right_contact, 1.0E24);
-
-  mysim.device().set_quantity(viennamini::id::hole_concentration(), left_contact,  1.0E8);
-  mysim.device().set_quantity(viennamini::id::hole_concentration(), right_contact, 1.0E8);
-
-/*
-  mysim.device().set_quantity(viennamini::id::potential(), left,      viennamini::built_in_potential());
-  mysim.device().set_quantity(viennamini::id::potential(), intrinsic, viennamini::built_in_potential());
-  mysim.device().set_quantity(viennamini::id::potential(), right,     viennamini::built_in_potential());
+  mysim.device().set_contact(viennamini::id::potential(), left_contact,  0.0);
+  mysim.device().set_contact(viennamini::id::potential(), right_contact, 0.2);
 
 
-
-  mysim.config().model().pde_set().set_initial_guess(viennamini::id::potential(), viennamini::built_in_potential(mysim.device()));
-
-
-
-
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), right, viennamini::initial::ohmic);
-
-  mysim.device().set_quantity(viennamini::id::potential(), left,      viennamini::built_in_potential());
-  mysim.device().set_quantity(viennamini::id::potential(), intrinsic, viennamini::built_in_potential());
-  mysim.device().set_quantity(viennamini::id::potential(), right,     viennamini::built_in_potential());
-
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), left,      viennamini::ohmic_electrons());
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), intrinsic, viennamini::ohmic_electrons());
-  mysim.device().set_quantity(viennamini::id::electron_concentration(), right,     viennamini::ohmic_electrons());
-
-  mysim.device().set_quantity(viennamini::id::hole_concentration(), left,      viennamini::ohmic_holes());
-  mysim.device().set_quantity(viennamini::id::hole_concentration(), intrinsic, viennamini::ohmic_holes());
-  mysim.device().set_quantity(viennamini::id::hole_concentration(), right,     viennamini::ohmic_holes());
-*/
 
   mysim.run();
 
