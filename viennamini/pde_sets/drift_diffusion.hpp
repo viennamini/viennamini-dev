@@ -21,6 +21,7 @@
 #include "viennamini/pde_set.hpp"
 #include "viennamini/constants.hpp"
 #include "viennamini/initial_guess/builtin_potential.hpp"
+#include "viennamini/initial_guess/quantity.hpp"
 
 namespace viennamini {
 
@@ -37,6 +38,7 @@ public:
     add_dependency(viennamini::id::acceptor_doping());
     add_dependency(viennamini::id::electron_mobility());
     add_dependency(viennamini::id::hole_mobility());
+    add_dependency(viennamini::id::intrinsic_carrier());
 
     add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
     add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
@@ -46,6 +48,7 @@ public:
     add_role_support(viennamini::id::acceptor_doping(),         viennamini::role::semiconductor);
     add_role_support(viennamini::id::electron_mobility(),       viennamini::role::semiconductor);
     add_role_support(viennamini::id::hole_mobility(),           viennamini::role::semiconductor);
+    add_role_support(viennamini::id::intrinsic_carrier(),       viennamini::role::semiconductor);
 
     add_unknown(viennamini::id::potential());
     add_unknown(viennamini::id::electron_concentration());
@@ -56,7 +59,9 @@ public:
     add_role_support(viennamini::id::electron_concentration(),  viennamini::role::semiconductor);
     add_role_support(viennamini::id::hole_concentration(),      viennamini::role::semiconductor);
 
-    set_initial_guess(viennamini::id::potential(), new viennamini::init::builtin_potential());
+    set_initial_guess(viennamini::id::potential(),              new viennamini::init::builtin_potential());
+    set_initial_guess(viennamini::id::electron_concentration(), new viennamini::init::quantity(viennamini::id::donor_doping()));
+    set_initial_guess(viennamini::id::hole_concentration(),     new viennamini::init::quantity(viennamini::id::acceptor_doping()));
   }
 
   ~drift_diffusion() {}

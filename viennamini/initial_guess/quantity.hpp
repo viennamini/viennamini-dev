@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_INITIALGUESS_HPP
-#define VIENNAMINI_INITIALGUESS_HPP
+#ifndef VIENNAMINI_INITIALGUESS_QUANTITY_HPP
+#define VIENNAMINI_INITIALGUESS_QUANTITY_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -18,30 +18,27 @@
 #include <vector>
 
 #include "viennamini/forwards.h"
-#include "viennamini/device.hpp"
+#include "viennamini/initial_guess.hpp"
 
 namespace viennamini {
 namespace init {
 
-class initial_guess
+class quantity : public initial_guess
 {
 public:
-  typedef viennamini::numeric   result_type;
+  quantity(std::string const& quantity_name) : initial_guess(), quantity_name_(quantity_name)
+  {
+  }
 
-  initial_guess() {}
-  virtual ~initial_guess() {}
+  ~quantity() {}
 
-  virtual result_type operator()(std::size_t cell_index) = 0;
-
-  void set_device(viennamini::device* device)       { device_ = device; }
-  void set_segment_index(std::size_t segment_index) { segment_index_ = segment_index; }
-
-  viennamini::device& get_device()        { return *device_; }
-  std::size_t&        get_segment_index() { return segment_index_; }
+  result_type operator()(std::size_t cell_index)
+  {
+    return get_device().get_quantity(quantity_name_, get_segment_index(), cell_index);
+  }
 
 private:
-  viennamini::device*       device_;
-  std::size_t               segment_index_;
+  std::string quantity_name_;
 };
 
 } // init

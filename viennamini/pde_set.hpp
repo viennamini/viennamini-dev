@@ -89,14 +89,14 @@ public:
     initial_guess_lookup_[quantity_name] = init_guess;
   }
 
-  viennamini::init::initial_guess* get_initial_guess(std::string const& quantity_name, viennamini::device_handle& device, std::size_t segment_index)
+  viennamini::init::initial_guess* get_initial_guess(std::string const& quantity_name, viennamini::device_handle& device_handle, std::size_t segment_index)
   {
     if(initial_guess_lookup_.find(quantity_name) == initial_guess_lookup_.end())
       throw viennamini::pde_set_exception("Initial guess \""+quantity_name+"\" is missing!");
     if(!initial_guess_lookup_[quantity_name])
       throw viennamini::pde_set_exception("Initial guess \""+quantity_name+"\" is not initialized!");
-//    initial_guess_lookup_[quantity_name]->device_handle() = device;
-    initial_guess_lookup_[quantity_name]->segment_index() = segment_index;
+    initial_guess_lookup_[quantity_name]->set_device(device_handle.get());
+    initial_guess_lookup_[quantity_name]->set_segment_index(segment_index);
     return initial_guess_lookup_[quantity_name];
   }
 

@@ -201,6 +201,9 @@ namespace viennamini
     /// Retrieve a quantity container holding cell values (previously distributed via the 'set_quantity' method) 
     viennamini::sparse_values get_quantity (std::string const& quantity_name, int segment_index);
 
+    /// Retrieve a cell quantity (previously distributed via the 'set_quantity' method) 
+    viennamini::numeric get_quantity (std::string const& quantity_name, int segment_index, std::size_t cell_index);
+
     /// Test whether a quantity is stored for each cell of a specific segment
     bool                  has_quantity (std::string const& quantity_name, int segment_index);
 

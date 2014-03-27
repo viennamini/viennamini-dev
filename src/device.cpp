@@ -464,6 +464,13 @@ void device::set_material(int segment_index, std::string const& new_material)
                      vmat::make_entry(this->matlib_data()     , material::value()))
   );
   this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value);
+
+  numeric ni_value        = this->material_library()->query_value(
+    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                     vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
+                     vmat::make_entry(this->matlib_data()     , material::value()))
+  );
+  this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value);
 }
 
 std::string device::get_name(int segment_index)
@@ -621,6 +628,11 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 viennamini::sparse_values device::get_quantity(std::string const& quantity_name, int segment_index)
 {
   return quantity_database_[quantity_name][segment_index];
+}
+
+viennamini::numeric device::get_quantity(std::string const& quantity_name, int segment_index, std::size_t cell_index)
+{
+  return quantity_database_[quantity_name][segment_index][cell_index];
 }
 
 bool device::has_quantity(std::string const& quantity_name, int segment_index)
