@@ -121,15 +121,39 @@ viennamini::role::segment_role_ids device::get_segment_role(int segment_index)
   return segment_roles_[segment_index];
 }
 
-std::size_t device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
+std::string device::get_segment_role_string(int segment_index)
+{
+    if(this->is_oxide(segment_index))
+        return viennamini::id::oxide();
+    else
+    if(this->is_semiconductor(segment_index))
+        return viennamini::id::semiconductor();
+    else
+    if(this->is_contact(segment_index))
+        return viennamini::id::contact();
+    else throw device_exception("Segment "+viennamini::convert<std::string>()(segment_index)+" does not have a valid role!");
+}
+
+
+int device::get_adjacent_semiconductor_segment_for_contact(int segment_index)
 {
   return contact_semiconductor_interfaces_[segment_index];
 }
 
-std::size_t device::get_adjacent_oxide_segment_for_contact(int segment_index)
+int device::get_adjacent_oxide_segment_for_contact(int segment_index)
 {
   return contact_oxide_interfaces_[segment_index];
 }
+
+int device::get_adjacent_segment_for_contact(int segment_index)
+{
+  if(is_contact_at_oxide(segment_index)) return get_adjacent_oxide_segment_for_contact(segment_index);
+  else
+  if(is_contact_at_semiconductor(segment_index)) return get_adjacent_semiconductor_segment_for_contact(segment_index);
+  else throw device_exception("Could not determine adjacent segment for contact " +
+    viennamini::convert<std::string>()(segment_index) + "\"" + get_name(segment_index) + "\"" );
+}
+
 
 void device::update()
 {

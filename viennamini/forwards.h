@@ -35,8 +35,6 @@ namespace viennamini
 {
 
   namespace id {
-//    inline std::string laplace()                    { return "Laplace"; }
-//    inline std::string poisson_drift_diffusion_np() { return "Poisson Drift-Diffusion"; }
     inline std::string permittivity()               { return "Permittivity"; }
     inline std::string donor_doping()               { return "Donor Doping"; }
     inline std::string acceptor_doping()            { return "Acceptor Doping"; }
@@ -55,6 +53,9 @@ namespace viennamini
     inline std::string tau_p()                      { return "Hole minority lifetime"; }
     inline std::string srh_n1()                     { return "SRH n1"; }
     inline std::string srh_p1()                     { return "SRH p1";  }
+    inline std::string oxide()                      { return "oxide"; }
+    inline std::string semiconductor()              { return "semiconductor"; }
+    inline std::string contact()                    { return "contact"; }
   } // id
 
   // the XML Tags used in the materials file

@@ -18,7 +18,7 @@
 #include "viennamini/forwards.h"
 #include "viennamini/discretization.hpp"
 
-// ViennaFVM includes:
+ //ViennaFVM includes:
 #ifdef VIENNAMINI_VERBOSE
   #define VIENNAFVM_VERBOSE
 #endif
@@ -65,8 +65,18 @@ public:
       {
         std::size_t current_segment_index = sit->id();
 
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "  processing segment " << current_segment_index << ": \"" << device().get_name(current_segment_index) << "\"" << std::endl;
+      #endif
+
         viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
 
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "    identified role: " << device().get_segment_role_string(current_segment_index) << std::endl;
+      #endif
+
+        // process only contact segments
+        //
         if(role == viennamini::role::contact)
         {
           // if the PDE set has a contact model for this segment, apply it
@@ -74,32 +84,63 @@ public:
           //
           if(config().model().get_pde_set().has_contact_model(*unknown_iter))
           {
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    applying contact model from PDE set .. " << std::endl;
+            #endif
             config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
           }
 
           // apply the contact value stored on the device as a Dirichlet contact
+          // first evaluate whether the current unknown is to be solved on the neighbour segment,
+          // otherwise we cannot expect a contact value to be present on the device
           //
-          if(device().has_contact(*unknown_iter, current_segment_index))
+          if(config().model().get_pde_set().is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
           {
-            std::cout << "assigning dirichlet BC: " << *unknown_iter << " " << current_segment_index << " : " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
-            viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
+            // sanity check: make sure that a contact value is available ..
+            if(device().has_contact(*unknown_iter, current_segment_index))
+            {
+              #ifdef VIENNAMINI_VERBOSE
+                std::cout << "    assigning Dirichlet boundary value: " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
+              #endif
+              viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
+            }
+            else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
+              "\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
           }
-          else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
-            "\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
         }
 
+        // Register 'unknowns' and set initial guesses if required if the current unknown
+        // 'supports' the current segment role
+        //
         if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
         {
-//          std::cout << "setting unknown " << *unknown_iter << std::endl;
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    identified as 'unknown' .." << std::endl;
+        #endif
           viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
 
+          // if we deal with a nonlinear problem, we have to assign an initial guess
           if(!config().model().get_pde_set().is_linear())
           {
+            // if there is a quantity distribution available, use it.
+            // this way the user can conveniently 'inject' an initial guess
+            //
             if(device().has_quantity(*unknown_iter, current_segment_index))
+            {
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    using initial guess from device .. " << std::endl;
+            #endif
               viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
+            }
+            //
+            // otherwise ask the PDE set to provide an initial guess functor and forward it to ViennaFVM
+            //
             else
             {
               viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().get_pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    using initial guess from PDE set .. " << std::endl;
+            #endif
             }
           }
         }

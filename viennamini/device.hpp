@@ -86,12 +86,12 @@ namespace viennamini
     typedef generic_mesh    GenericMeshType;
 
     // TODO check if these types are still required
-    typedef std::vector<std::size_t>                                                       IndicesType;
-    typedef std::map<std::size_t, std::size_t>                                             IndexMapType;
-    typedef std::map<std::size_t, std::string>                                             IndexKeysType;
-    typedef std::map<std::size_t, viennamini::numeric>                                     IndexValuesType;
-    typedef std::map<std::string, std::map<std::size_t, viennamini::sparse_values> >       QuantityDatabaseType;
-    typedef std::map<std::string, std::map<std::size_t, viennamini::numeric> >             ContactDatabaseType;
+    typedef std::vector<int>                                                               IndicesType;
+    typedef std::map<int, int>                                                             IndexMapType;
+    typedef std::map<int, std::string>                                                     IndexKeysType;
+    typedef std::map<int, viennamini::numeric>                                             IndexValuesType;
+    typedef std::map<std::string, std::map<int, viennamini::sparse_values> >               QuantityDatabaseType;
+    typedef std::map<std::string, std::map<int, viennamini::numeric> >                     ContactDatabaseType;
 
   public:
     typedef GenericMeshType                                                                generic_mesh_type;
@@ -124,11 +124,14 @@ namespace viennamini
     bool is_semiconductor           (int segment_index);
 
     viennamini::role::segment_role_ids get_segment_role(int segment_index);
+    std::string                        get_segment_role_string(int segment_index);
+
 
     void set_temperature(viennamini::numeric const& temp_val);
 
-    std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
-    std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);
+    int get_adjacent_semiconductor_segment_for_contact(int segment_index);
+    int get_adjacent_oxide_segment_for_contact        (int segment_index);
+    int get_adjacent_segment_for_contact              (int segment_index);
 
     void update();
 

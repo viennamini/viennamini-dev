@@ -49,18 +49,18 @@ int main()
   mysim.device().make(viennamini::role::contact,        source_contact, "source_contact",  "Cu");
   mysim.device().make(viennamini::role::contact,        drain_contact,  "drain_contact",   "Cu");
 
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    source, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), source, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    channel, 1.0E22);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), channel, 1.0E10);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    source,     1.0E24);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), source,     1.0E8);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain,      1.0E24);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain,      1.0E8);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    channel,    1.0E22);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), channel,    1.0E10);
   mysim.device().set_quantity(viennamini::id::donor_doping(),    source_ext, 1.0E24);
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), source_ext, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain_ext, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain_ext, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    body, 1.0E22);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), body, 1.0E10);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain_ext,  1.0E24);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain_ext,  1.0E8);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    body,       1.0E22);
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), body,       1.0E10);
 
   mysim.config().linear_breaktol()                    = 1.0E-10;
   mysim.config().linear_iterations()                  = 1000;

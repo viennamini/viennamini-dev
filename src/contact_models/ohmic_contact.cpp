@@ -18,6 +18,9 @@ namespace viennamini {
 
 void ohmic_contact::apply(viennamini::device_handle& device, std::size_t segment_index)
 {
+    // the ohmic contact model does not make sense for a metal-oxide interface
+    if(device->is_contact_at_oxide(segment_index)) return;
+
     // extract the required quantities from the neighbour segment
     //
     quantity_set qset;
