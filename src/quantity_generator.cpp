@@ -1,6 +1,3 @@
-#ifndef VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-#define VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
@@ -15,26 +12,38 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include <vector>
-
-#include "viennamini/forwards.h"
 #include "viennamini/quantity_generator.hpp"
 
 namespace viennamini {
 
-class use_quantity : public quantity_generator
+quantity_generator::quantity_generator()
 {
-public:
-  use_quantity(std::string const& quantity_name);
+}
 
-  result_type operator()(std::size_t cell_index);
+quantity_generator::~quantity_generator()
+{
+}
 
-private:
-  std::string quantity_name_;
-};
+void quantity_generator::set_device(viennamini::device* device)
+{
+  device_ = device;
+}
+
+void quantity_generator::set_segment_index(std::size_t segment_index)
+{
+  segment_index_ = segment_index;
+}
+
+viennamini::device& quantity_generator::get_device()
+{
+  return *device_;
+}
+
+std::size_t&        quantity_generator::get_segment_index()
+{
+  return segment_index_;
+}
 
 } // viennamini
 
-
-#endif
 

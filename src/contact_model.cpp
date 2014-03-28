@@ -1,6 +1,3 @@
-#ifndef VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-#define VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
@@ -15,26 +12,22 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include <vector>
-
-#include "viennamini/forwards.h"
-#include "viennamini/quantity_generator.hpp"
+#include "viennamini/contact_model.hpp"
 
 namespace viennamini {
 
-class use_quantity : public quantity_generator
+contact_model::contact_model() {}
+contact_model::~contact_model() {}
+
+void contact_model::set_quantity_name(std::string const& quantity_name)
 {
-public:
-  use_quantity(std::string const& quantity_name);
+  quantity_name_ = quantity_name;
+}
 
-  result_type operator()(std::size_t cell_index);
-
-private:
-  std::string quantity_name_;
-};
+std::string& contact_model::get_quantity_name()
+{
+  return quantity_name_;
+}
 
 } // viennamini
-
-
-#endif
 

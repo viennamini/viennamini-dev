@@ -30,27 +30,15 @@ public:
 struct model
 {
 public:
-  model() : 
-    discret_id_ (viennamini::discret::fvm)  {}
+  model();
 
-  void set_pdeset (viennamini::pdeset::pdeset_ids   pdeset_id ) 
-  { 
-    if(pdeset_id == viennamini::pdeset::laplace)
-    {
-      pde_set_handle_ = viennamini::pde_set_handle(new viennamini::laplace());
-    }
-    else if(pdeset_id == viennamini::pdeset::drift_diffusion)
-    {
-      pde_set_handle_ = viennamini::pde_set_handle(new viennamini::drift_diffusion());
-    }
-    else throw model_exception("PDE Set type is not supported!");
-  }
+  void set_pdeset (viennamini::pdeset::pdeset_ids   pdeset_id );
 
-  void set_discretization(viennamini::discret::discret_ids discret_id) { discret_id_ = discret_id; }
+  void set_discretization(viennamini::discret::discret_ids discret_id);
 
-  viennamini::discret::discret_ids get_discret_id() { return discret_id_; }
+  viennamini::discret::discret_ids get_discret_id();
 
-  viennamini::pde_set& get_pde_set() { return *pde_set_handle_; }
+  viennamini::pde_set& get_pde_set();
 
 private:
   viennamini::discret::discret_ids  discret_id_;

@@ -27,16 +27,16 @@ class quantity_generator
 public:
   typedef viennamini::numeric   result_type;
 
-  quantity_generator() {}
-  virtual ~quantity_generator() {}
+  quantity_generator();
+  virtual ~quantity_generator();
 
   virtual result_type operator()(std::size_t cell_index) = 0;
 
-  void set_device(viennamini::device* device)       { device_ = device; }
-  void set_segment_index(std::size_t segment_index) { segment_index_ = segment_index; }
+  void set_device(viennamini::device* device);
+  void set_segment_index(std::size_t segment_index);
 
-  viennamini::device& get_device()        { return *device_; }
-  std::size_t&        get_segment_index() { return segment_index_; }
+  viennamini::device& get_device();
+  std::size_t&        get_segment_index();
 
 private:
   viennamini::device*       device_;

@@ -1,6 +1,3 @@
-#ifndef VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-#define VIENNAMINI_QUANTITYGENERATORS_USEQUANTITY_HPP
-
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
@@ -15,26 +12,35 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include <vector>
-
-#include "viennamini/forwards.h"
-#include "viennamini/quantity_generator.hpp"
+#include "viennamini/pde.hpp"
 
 namespace viennamini {
 
-class use_quantity : public quantity_generator
+pde::pde(viennamath::equation const& equ, viennamath::function_symbol const& fs, viennamath::expr const& damping, bool geom_update)
+  : equation_(equ), function_symbol_(fs), damping_term_(damping), geometric_update_(geom_update)
 {
-public:
-  use_quantity(std::string const& quantity_name);
+}
 
-  result_type operator()(std::size_t cell_index);
+viennamath::equation        const& pde::equation()
+{
+  return equation_;
+}
 
-private:
-  std::string quantity_name_;
-};
+viennamath::function_symbol const& pde::function_symbol()
+{
+  return function_symbol_;
+}
+
+viennamath::expr            const& pde::damping_term()
+{
+  return damping_term_;
+}
+
+bool                               pde::geometric_update()
+{
+  return geometric_update_;
+}
 
 } // viennamini
 
-
-#endif
 

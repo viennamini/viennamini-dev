@@ -62,7 +62,7 @@ int main()
   mysim.config().model().set_discretization(viennamini::discret::fvm);
 
   mysim.device().set_contact(viennamini::id::potential(), left_contact,  0.0);
-  mysim.device().set_contact(viennamini::id::potential(), right_contact, 0.2);
+  mysim.device().set_contact(viennamini::id::potential(), right_contact, 0.5);
 
   mysim.run();
 

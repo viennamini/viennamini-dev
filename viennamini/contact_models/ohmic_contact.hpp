@@ -28,43 +28,13 @@ namespace viennamini {
 class ohmic_contact : public contact_model
 {
 public:
-  void apply(viennamini::device_handle& device, std::size_t segment_index)
-  {
-    // extract the required quantities from the neighbour segment
-    //
-    quantity_set qset;
-    if(device->is_line1d()) 
-      qset = extract_quantities(device->get_segmesh_line_1d(), device, segment_index);
-    else
-    if(device->is_triangular2d())
-      qset = extract_quantities(device->get_segmesh_triangular_2d(), device, segment_index);
-    else
-    if(device->is_tetrahedral3d())
-      qset = extract_quantities(device->get_segmesh_tetrahedral_3d(), device, segment_index);
-
-    // apply the individual, quantity-specific contact models
-    //
-    if(get_quantity_name() == viennamini::id::potential())
-    {
-      device->set_contact(get_quantity_name(), segment_index, device->get_contact(get_quantity_name(), segment_index) + viennamini::built_in_potential(qset.ND, qset.NA, qset.T, qset.ni));
-    }
-    else 
-    if(get_quantity_name() == viennamini::id::electron_concentration())
-    {
-      device->set_contact(get_quantity_name(), segment_index, viennamini::ohmic_electrons_initial(qset.ND, qset.NA, qset.ni));
-    }
-    else 
-    if(get_quantity_name() == viennamini::id::hole_concentration())
-    {
-      device->set_contact(get_quantity_name(), segment_index, viennamini::ohmic_holes_initial(qset.ND, qset.NA, qset.ni));
-    }
-    else throw contact_model_exception("Ohmic contact model is not defined for quantity \""+get_quantity_name()+"\"!");
-  }
+  void apply(viennamini::device_handle& device, std::size_t segment_index);
 
 private:
 
   struct quantity_set
   {
+    quantity_set() : ND(0.0), NA(0.0), T(0.0), ni(0.0) {}
     viennamini::numeric ND, NA, T, ni;
   };
 
@@ -103,7 +73,7 @@ private:
           qset.NA = device->get_quantity(viennamini::id::acceptor_doping(),   semiconductor_segment, (*cofit).id().get());
           qset.T  = device->get_quantity(viennamini::id::temperature(),       semiconductor_segment, (*cofit).id().get());
           qset.ni = device->get_quantity(viennamini::id::intrinsic_carrier(), semiconductor_segment, (*cofit).id().get());
-          return qset; // we only need the quantity from the first cell we find, as all cells along the interface on the semiconductor 
+          return qset; // we only need the quantity from the first cell we find, as all cells along the interface on the semiconductor
           // segment are assumed to offer constant quantitiy values of ND, NA, ni, T
         }
       }

@@ -24,13 +24,12 @@ namespace viennamini {
 struct pde
 {
 public:
-  pde(viennamath::equation const& equ, viennamath::function_symbol const& fs, viennamath::expr const& damping, bool geom_update) 
-    : equation_(equ), function_symbol_(fs), damping_term_(damping), geometric_update_(geom_update) {}
+  pde(viennamath::equation const& equ, viennamath::function_symbol const& fs, viennamath::expr const& damping, bool geom_update);
 
-  viennamath::equation        const& equation()        { return equation_;        }
-  viennamath::function_symbol const& function_symbol() { return function_symbol_; }
-  viennamath::expr            const& damping_term()    { return damping_term_;    }
-  bool                               geometric_update(){ return geometric_update_;}
+  viennamath::equation        const& equation();
+  viennamath::function_symbol const& function_symbol();
+  viennamath::expr            const& damping_term();
+  bool                               geometric_update();
 
 private:
   viennamath::equation            equation_;

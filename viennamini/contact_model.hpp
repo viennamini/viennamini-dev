@@ -33,14 +33,14 @@ class contact_model
 {
 public:
 
-  contact_model() {}
-  virtual ~contact_model() {}
+  contact_model();
+  virtual ~contact_model();
 
   virtual void apply(viennamini::device_handle& device, std::size_t segment_index) = 0;
 
-  void set_quantity_name(std::string const& quantity_name)  { quantity_name_ = quantity_name; }
+  void set_quantity_name(std::string const& quantity_name);
 
-  std::string&        get_quantity_name() { return quantity_name_; }
+  std::string& get_quantity_name();
 
 private:
   std::string               quantity_name_;

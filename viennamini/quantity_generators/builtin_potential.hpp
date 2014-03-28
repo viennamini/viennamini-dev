@@ -27,15 +27,7 @@ class builtin_potential : public quantity_generator
 {
 public:
 
-  result_type operator()(std::size_t cell_index)
-  {
-    return viennamini::built_in_potential(
-      get_device().get_quantity(viennamini::id::donor_doping(),     get_segment_index(), cell_index),
-      get_device().get_quantity(viennamini::id::acceptor_doping(),  get_segment_index(), cell_index),
-      get_device().get_quantity(viennamini::id::temperature(),      get_segment_index(), cell_index),
-      get_device().get_quantity(viennamini::id::intrinsic_carrier(),get_segment_index(), cell_index)
-    );
-  }
+  result_type operator()(std::size_t cell_index);
 };
 
 } // viennamini

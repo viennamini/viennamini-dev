@@ -58,21 +58,20 @@ public: \
 class discretization
 {
 public:
-  discretization(viennamini::device_handle        device, 
-                 viennamini::configuration_handle config, 
-                 viennamini::stepper_handle       stepper, 
-                 std::ostream                   & stream) :
-    device_(device), config_(config), stepper_(stepper), stream_(stream) {}
+  discretization(viennamini::device_handle        device,
+                 viennamini::configuration_handle config,
+                 viennamini::stepper_handle       stepper,
+                 std::ostream                   & stream);
 
-  virtual ~discretization() {}
+  virtual ~discretization();
 
-  virtual void run_auto() {}
+  virtual void run_auto() = 0;
 
-  viennamini::device&         device()          { return *device_;  }
-  viennamini::device_handle&  device_handle()   { return  device_;  }
-  viennamini::configuration&  config()          { return *config_;  }
-  viennamini::stepper&        stepper()         { return *stepper_; }
-  std::ostream&               stream()          { return stream_;   }
+  viennamini::device&         device();
+  viennamini::device_handle&  device_handle();
+  viennamini::configuration&  config();
+  viennamini::stepper&        stepper();
+  std::ostream&               stream();
 
 private:
   viennamini::device_handle           device_;
