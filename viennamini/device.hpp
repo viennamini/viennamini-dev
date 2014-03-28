@@ -115,20 +115,17 @@ namespace viennamini
     segmesh_triangular_2d&  get_segmesh_triangular_2d();
     segmesh_tetrahedral_3d& get_segmesh_tetrahedral_3d();
 
-    void make_neutral       (int segment_index);
-    void make_contact       (int segment_index);
-    void make_oxide         (int segment_index);
-    void make_semiconductor (int segment_index);
+    void make(viennamini::role::segment_role_ids role, int segment_index, std::string const& name, std::string const& material);
 
     bool is_contact                 (int segment_index);
     bool is_contact_at_oxide        (int segment_index);
     bool is_contact_at_semiconductor(int segment_index);
     bool is_oxide                   (int segment_index);
     bool is_semiconductor           (int segment_index);
-    
+
     viennamini::role::segment_role_ids get_segment_role(int segment_index);
 
-    void set_temperature(viennamini::numeric const& temp_val); 
+    void set_temperature(viennamini::numeric const& temp_val);
 
     std::size_t get_adjacent_semiconductor_segment_for_contact(int segment_index);
     std::size_t get_adjacent_oxide_segment_for_contact        (int segment_index);
@@ -150,7 +147,6 @@ namespace viennamini
 
     void scale(viennamini::numeric factor);
 
-    void set_name                 (int segment_index, std::string const& new_name);
     void set_material             (int segment_index, std::string const& new_material);
     std::string get_name          (int segment_index);
     std::string get_material      (int segment_index);
@@ -206,10 +202,10 @@ namespace viennamini
       }
     }
 
-    /// Retrieve a quantity container holding cell values (previously distributed via the 'set_quantity' method) 
+    /// Retrieve a quantity container holding cell values (previously distributed via the 'set_quantity' method)
     viennamini::sparse_values get_quantity (std::string const& quantity_name, int segment_index);
 
-    /// Retrieve a cell quantity (previously distributed via the 'set_quantity' method) 
+    /// Retrieve a cell quantity (previously distributed via the 'set_quantity' method)
     viennamini::numeric get_quantity (std::string const& quantity_name, int segment_index, std::size_t cell_index);
 
     /// Test whether a quantity is stored for each cell of a specific segment
@@ -242,8 +238,8 @@ namespace viennamini
     std::ostream & stream();
 
   private:
- 
-  
+
+
     GenericMeshType               mesh_;
 
     IndicesType                segment_indices_;

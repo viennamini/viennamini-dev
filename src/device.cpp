@@ -84,24 +84,11 @@ segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
   return *mesh_.segmesh_tetrahedral_3d_ptr;
 }
 
-void device::make_neutral(int segment_index)
+void device::make(viennamini::role::segment_role_ids role, int segment_index, std::string const& name, std::string const& material)
 {
-  segment_roles_[segment_index] = role::none;
-}
-
-void device::make_contact(int segment_index)
-{
-  segment_roles_[segment_index] = role::contact;
-}
-
-void device::make_oxide(int segment_index)
-{
-  segment_roles_[segment_index] = role::oxide;
-}
-
-void device::make_semiconductor(int segment_index)
-{
-  segment_roles_[segment_index] = role::semiconductor;
+    segment_roles_[segment_index] = role;
+    segment_names_[segment_index] = name;
+    this->set_material(segment_index, material);
 }
 
 bool device::is_contact(int segment_index)
@@ -164,7 +151,7 @@ void device::update()
     else
     if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
     else
-    if(siter->second == role::none) 
+    if(siter->second == role::none)
       throw unassigned_segment_role_exception(
         "Segment "+viennamini::convert<std::string>()(siter->first)+
         " lacks a segment role, such as 'oxide'.");
@@ -310,7 +297,7 @@ void device::read(std::string const& filename, viennamini::line_1d const&)
     viennagrid::io::vtk_reader<mesh_line_1d, segmentation_line_1d> reader;
     reader(get_segmesh_line_1d().mesh, get_segmesh_line_1d().segmentation, filename);
   }
-  else 
+  else
     throw unknown_mesh_file_exception(filename);
 }
 
@@ -329,7 +316,7 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
     viennagrid::io::vtk_reader<mesh_triangular_2d, segmentation_triangular_2d> reader;
     reader(get_segmesh_triangular_2d().mesh, get_segmesh_triangular_2d().segmentation, filename);
   }
-  else 
+  else
     throw unknown_mesh_file_exception(filename);
 }
 
@@ -348,7 +335,7 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
     viennagrid::io::vtk_reader<mesh_tetrahedral_3d, segmentation_tetrahedral_3d> reader;
     reader(get_segmesh_tetrahedral_3d().mesh, get_segmesh_tetrahedral_3d().segmentation, filename);
   }
-  else 
+  else
     throw unknown_mesh_file_exception(filename);
 }
 
@@ -422,11 +409,6 @@ void device::scale(viennamini::numeric factor)
   else throw device_not_supported_exception("at: device::scale()");
 }
 
-void device::set_name(int segment_index, std::string const& new_name)
-{
-  segment_names_[segment_index] = new_name;
-}
-
 void device::set_material(int segment_index, std::string const& new_material)
 {
   // store the material key for this segment
@@ -439,7 +421,7 @@ void device::set_material(int segment_index, std::string const& new_material)
 
   namespace vmat = viennamaterials;
 
-  // set the permittivity for this segment
+  // set the permittivity for this segment. this should be done for oxides and semiconductors
   //
   numeric epsr_value    = this->material_library()->query_value(
     vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -448,30 +430,35 @@ void device::set_material(int segment_index, std::string const& new_material)
   );
   this->set_quantity(viennamini::id::permittivity(), segment_index, epsr_value * viennamini::eps0::val());
 
-  // set the electron mobility for this segment
+  // the following quantities are only available for semiconductors
   //
-  numeric mu_n_0_value    = this->material_library()->query_value(
-    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-                     vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
-                     vmat::make_entry(this->matlib_data()     , material::value()))
-  );
-  this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value);
+  if(this->is_semiconductor(segment_index))
+  {
+      // set the electron mobility for this segment
+      //
+      numeric mu_n_0_value    = this->material_library()->query_value(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
+                         vmat::make_entry(this->matlib_data()     , material::value()))
+      );
+      this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value);
 
-  // set the hole mobility for this segment
-  //
-  numeric mu_p_0_value    = this->material_library()->query_value(
-    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-                     vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
-                     vmat::make_entry(this->matlib_data()     , material::value()))
-  );
-  this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value);
+      // set the hole mobility for this segment
+      //
+      numeric mu_p_0_value    = this->material_library()->query_value(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
+                         vmat::make_entry(this->matlib_data()     , material::value()))
+      );
+      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value);
 
-  numeric ni_value        = this->material_library()->query_value(
-    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-                     vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
-                     vmat::make_entry(this->matlib_data()     , material::value()))
-  );
-  this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value);
+      numeric ni_value        = this->material_library()->query_value(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
+                         vmat::make_entry(this->matlib_data()     , material::value()))
+      );
+      this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value);
+  }
 }
 
 std::string device::get_name(int segment_index)
@@ -488,7 +475,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::numeric 
 {
   if(this->is_line1d())
   {
-    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin(); 
+    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
         sit != get_segmesh_line_1d().segmentation.end(); ++sit)
     {
       this->set_quantity(quantity_name, (*sit).id(), value);
@@ -497,7 +484,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::numeric 
   else
   if(this->is_triangular2d())
   {
-    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin(); 
+    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
         sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
     {
       this->set_quantity(quantity_name, (*sit).id(), value);
@@ -506,7 +493,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::numeric 
   else
   if(this->is_tetrahedral3d())
   {
-    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin(); 
+    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
         sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
     {
       this->set_quantity(quantity_name, (*sit).id(), value);
@@ -643,7 +630,7 @@ void device::set_contact (std::string const& quantity_name, int segment_index, v
 
 viennamini::numeric device::get_contact (std::string const& quantity_name, int segment_index)
 {
-//  if(!(this->has_contact(quantity_name, segment_index))) 
+//  if(!(this->has_contact(quantity_name, segment_index)))
 //    throw device_exception("Device contact quantity \""+quantity_name+
 //          "\" is not available on segment "+viennamini::convert<std::string>()(segment_index));
   return contact_database_[quantity_name][segment_index];
@@ -666,7 +653,7 @@ bool device::has_quantity(std::string const& quantity_name, int segment_index)
   {
     if(quantity_database_[quantity_name].find(segment_index) != quantity_database_[quantity_name].end())
     {
-      if(this->is_line1d()) 
+      if(this->is_line1d())
       {
         typedef viennagrid::result_of::cell_range<segment_line_1d>::type            CellOnSegmentRange;
         typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
@@ -711,7 +698,7 @@ bool device::has_quantity(std::string const& quantity_name, int segment_index)
     }
     else return false;
   }
-  else return false; 
+  else return false;
 }
 
 void device::set_recombination(int segment_index, recombination::recombination_ids id)
@@ -787,7 +774,7 @@ std::ostream& device::stream()
 //  }
 //  else
 //  if(this->is_triangular2d())
-//  { 
+//  {
 //    typedef problem_description_triangular_2d::quantity_type  QuantityType;
 //    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::permittivity());
 //    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), segment_permittivity_[segment_index]);
