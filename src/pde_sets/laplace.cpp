@@ -19,6 +19,7 @@ namespace viennamini {
 laplace::laplace()
 {
   add_dependency(viennamini::id::permittivity());
+  add_role_support(viennamini::id::permittivity(),            viennamini::role::contact);
   add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
   add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
 

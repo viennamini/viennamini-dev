@@ -76,12 +76,12 @@ public:
           {
             config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
           }
-  
+
           // apply the contact value stored on the device as a Dirichlet contact
           //
           if(device().has_contact(*unknown_iter, current_segment_index))
           {
-//            std::cout << "assigning dirichlet BC: " << *unknown_iter << " " << current_segment_index << " : " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
+            std::cout << "assigning dirichlet BC: " << *unknown_iter << " " << current_segment_index << " : " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
             viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
           }
           else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
@@ -90,7 +90,7 @@ public:
 
         if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
         {
-          std::cout << "setting unknown " << *unknown_iter << std::endl;
+//          std::cout << "setting unknown " << *unknown_iter << std::endl;
           viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
 
           if(!config().model().get_pde_set().is_linear())
@@ -149,7 +149,7 @@ private:
 
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
   void initialize(SegmentedMeshT & segmesh, ProblemDescriptionT & pdesc)
-  { 
+  {
     typedef typename SegmentedMeshT::segmentation_type          SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type         QuantityType;
 
@@ -171,7 +171,9 @@ private:
         if(config().model().get_pde_set().is_role_supported(*dep_iter, role))
         {
           if(device().has_quantity(*dep_iter, current_segment_index))
+          {
             viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
+          }
           else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>()(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
         }
       }

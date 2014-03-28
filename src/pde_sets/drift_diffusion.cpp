@@ -27,6 +27,7 @@ add_dependency(viennamini::id::electron_mobility());
 add_dependency(viennamini::id::hole_mobility());
 add_dependency(viennamini::id::intrinsic_carrier());
 
+add_role_support(viennamini::id::permittivity(),            viennamini::role::contact);
 add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
 add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
 add_role_support(viennamini::id::temperature(),             viennamini::role::semiconductor);
