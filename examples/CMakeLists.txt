@@ -9,6 +9,9 @@ IF(VIENNADEVICECOLLECTION_FOUND)
   ADD_EXECUTABLE(nin2d_poisson_dd_np     nin2d_poisson_dd_np.cpp)
   TARGET_LINK_LIBRARIES(nin2d_poisson_dd_np ${LIBRARIES})
 
+  ADD_EXECUTABLE(mos2d     mos2d.cpp)
+  TARGET_LINK_LIBRARIES(mos2d ${LIBRARIES})
+
   ADD_EXECUTABLE(mosfet2d_poisson_dd_np     mosfet2d_poisson_dd_np.cpp)
   TARGET_LINK_LIBRARIES(mosfet2d_poisson_dd_np ${LIBRARIES})
 

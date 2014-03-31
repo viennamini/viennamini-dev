@@ -275,8 +275,8 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-
-      this->set_quantity(viennamini::id::permittivity(), *contact_iter, epsr_value * viennamini::eps0::val());
+//      std::cout << "transferring permittivity from oxide to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value);
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -289,8 +289,8 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-
-      this->set_quantity(viennamini::id::permittivity(), *contact_iter, epsr_value * viennamini::eps0::val());
+//      std::cout << "transferring permittivity from semiconductor to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value);
     }
   }
 }
@@ -452,7 +452,7 @@ void device::set_material(int segment_index, std::string const& new_material)
                      vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                      vmat::make_entry(this->matlib_data()     , material::value()))
   );
-  this->set_quantity(viennamini::id::permittivity(), segment_index, epsr_value * viennamini::eps0::val());
+  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value);
 
   // the following quantities are only available for semiconductors
   //

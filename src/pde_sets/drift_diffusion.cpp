@@ -18,7 +18,7 @@ namespace viennamini {
 
 drift_diffusion::drift_diffusion()
 {
-add_dependency(viennamini::id::permittivity());
+add_dependency(viennamini::id::relative_permittivity());
 add_dependency(viennamini::id::temperature());
 add_dependency(viennamini::id::thermal_potential());
 add_dependency(viennamini::id::donor_doping());
@@ -27,9 +27,9 @@ add_dependency(viennamini::id::electron_mobility());
 add_dependency(viennamini::id::hole_mobility());
 add_dependency(viennamini::id::intrinsic_carrier());
 
-add_role_support(viennamini::id::permittivity(),            viennamini::role::contact);
-add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
-add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
+add_role_support(viennamini::id::relative_permittivity(),   viennamini::role::contact);
+add_role_support(viennamini::id::relative_permittivity(),   viennamini::role::oxide);
+add_role_support(viennamini::id::relative_permittivity(),   viennamini::role::semiconductor);
 add_role_support(viennamini::id::temperature(),             viennamini::role::semiconductor);
 add_role_support(viennamini::id::thermal_potential(),       viennamini::role::semiconductor);
 add_role_support(viennamini::id::donor_doping(),            viennamini::role::semiconductor);
@@ -63,7 +63,7 @@ return "The drift-diffusion transport model, consisting of Poisson's equation co
 
 drift_diffusion::pdes_type drift_diffusion::get_pdes()
 {
-FunctionSymbolType  eps (get_quantity_id(viennamini::id::permittivity()));
+FunctionSymbolType  epsr(get_quantity_id(viennamini::id::relative_permittivity()));
 FunctionSymbolType  VT  (get_quantity_id(viennamini::id::thermal_potential()));
 FunctionSymbolType  ND  (get_quantity_id(viennamini::id::donor_doping()));
 FunctionSymbolType  NA  (get_quantity_id(viennamini::id::acceptor_doping()));
@@ -77,7 +77,7 @@ pdes_type pdes;
 
 pdes.push_back(
   viennamini::pde(
-    viennamath::make_equation( viennamath::div(eps  * viennamath::grad(psi)), /* = */ viennamini::q::val() * ((n - ND) - (p - NA))),
+    viennamath::make_equation( viennamath::div(epsr * viennamini::eps0::val()  * viennamath::grad(psi)), /* = */ viennamini::q::val() * ((n - ND) - (p - NA))),
     psi,
     viennamath::expr( (n + p) * (-viennamini::q::val() / VT) ), // let n ~ exp(psi/VT), p~exp(-psi/VT)     dn/dpsi = n * q / VT,    dp/dpsi = - p * q / Vt
     false

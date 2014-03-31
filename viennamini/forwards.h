@@ -36,6 +36,7 @@ namespace viennamini
 
   namespace id {
     inline std::string permittivity()               { return "Permittivity"; }
+    inline std::string relative_permittivity()      { return "Relative Permittivity"; }
     inline std::string donor_doping()               { return "Donor Doping"; }
     inline std::string acceptor_doping()            { return "Acceptor Doping"; }
     inline std::string potential()                  { return "Potential"; }
@@ -122,8 +123,8 @@ namespace viennamini
     enum mesh_ids
     {
       none,
-      line_1d, 
-      triangular_2d, 
+      line_1d,
+      triangular_2d,
       tetrahedral_3d
     };
   } // mesh
@@ -132,8 +133,8 @@ namespace viennamini
     enum pdeset_ids
     {
       none,
-      laplace, 
-      drift_diffusion 
+      laplace,
+      drift_diffusion
     };
   } // pdeset
 
@@ -141,7 +142,7 @@ namespace viennamini
     enum discret_ids
     {
       none,
-      fvm, 
+      fvm,
       fem
     };
   } // discret

@@ -18,10 +18,10 @@ namespace viennamini {
 
 laplace::laplace()
 {
-  add_dependency(viennamini::id::permittivity());
-  add_role_support(viennamini::id::permittivity(),            viennamini::role::contact);
-  add_role_support(viennamini::id::permittivity(),            viennamini::role::oxide);
-  add_role_support(viennamini::id::permittivity(),            viennamini::role::semiconductor);
+  add_dependency(viennamini::id::relative_permittivity());
+  add_role_support(viennamini::id::relative_permittivity(),            viennamini::role::contact);
+  add_role_support(viennamini::id::relative_permittivity(),            viennamini::role::oxide);
+  add_role_support(viennamini::id::relative_permittivity(),            viennamini::role::semiconductor);
 
   add_unknown(viennamini::id::potential());
   add_role_support(viennamini::id::potential(), viennamini::role::oxide);
@@ -35,7 +35,7 @@ std::string laplace::info()
 
 laplace::pdes_type laplace::get_pdes()
 {
-  FunctionSymbolType  eps(get_quantity_id(viennamini::id::permittivity()));
+  FunctionSymbolType  eps(get_quantity_id(viennamini::id::relative_permittivity()));
   FunctionSymbolType  psi(get_quantity_id(viennamini::id::potential()));
 
   pdes_type pdes;

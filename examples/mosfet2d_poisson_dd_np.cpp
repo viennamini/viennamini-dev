@@ -68,6 +68,20 @@ int main()
   mysim.device().set_quantity(viennamini::id::donor_doping(),    body,   1.0E22);
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), body,   1.0E10);
 
+//  mysim.device().set_quantity(viennamini::id::potential(), oxide,             0.0);
+//  mysim.device().set_quantity(viennamini::id::acceptor_doping(),       1.0);
+//  mysim.device().set_quantity(viennamini::id::donor_doping(),          1.0);
+//  mysim.device().set_quantity(viennamini::id::electron_mobility(),     1.0);
+//  mysim.device().set_quantity(viennamini::id::hole_mobility(),         1.0);
+//  mysim.device().set_quantity(viennamini::id::intrinsic_carrier(),     1.0);
+//  mysim.device().set_quantity(viennamini::id::temperature(),           300.0);
+//  mysim.device().set_quantity(viennamini::id::thermal_potential(),     0.25);
+
+
+
+
+
+
   // set optional solver parameters
   //
   mysim.config().linear_breaktol()        = 1.0E-14;
