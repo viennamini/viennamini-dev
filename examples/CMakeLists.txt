@@ -1,5 +1,8 @@
 
 IF(VIENNADEVICECOLLECTION_FOUND)
+  ADD_EXECUTABLE(capacitor2d     capacitor2d.cpp)
+  TARGET_LINK_LIBRARIES(capacitor2d ${LIBRARIES})
+
   ADD_EXECUTABLE(nin2d_laplace     nin2d_laplace.cpp)
   TARGET_LINK_LIBRARIES(nin2d_laplace ${LIBRARIES})
 
