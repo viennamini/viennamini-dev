@@ -115,7 +115,7 @@ public:
         if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
         {
         #ifdef VIENNAMINI_VERBOSE
-          std::cout << "    identified as 'unknown' .." << std::endl;
+          std::cout << "    solving 'unknown' on this segment .." << std::endl;
         #endif
           viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
 
@@ -146,7 +146,9 @@ public:
         }
       }
     }
-
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << "preparing PDE system .." << std::endl;
+  #endif
     viennafvm::linear_pde_system<> pde_system;
     pde_system.is_linear(config().model().get_pde_set().is_linear());
     typedef typename viennamini::pde_set::pdes_type PDEsType;
@@ -165,6 +167,9 @@ public:
     // Assemble and solve the problem
     //
     // -------------------------------------------------------------------------
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << "preparing solvers .." << std::endl;
+  #endif
     viennafvm::linsolv::viennacl  linear_solver;
     linear_solver.break_tolerance() = config().linear_breaktol();
     linear_solver.max_iterations()  = config().linear_iterations();
@@ -172,11 +177,34 @@ public:
     viennafvm::pde_solver pde_solver;
     pde_solver.set_nonlinear_iterations(config().nonlinear_iterations());
     pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
+
+    // temporary fix to ensure proper handling of minority carriers
+    // atm the damping must not be 1.0, so to be sure, we limit the damping to 0.9
+    // see ViennaFVM commit:
+    // https://github.com/viennafvm/viennafvm-dev/commit/3144e05af36be3beb02ee9be85d6d07c34031395
+    if(config().damping() > 0.9)
+    {
+      config().damping() = 0.9;
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << "  non-linear solver damping too large, limiting damping to " << config().damping() << std::endl;
+    #endif
+    }
+    else if(config().damping() <= 0.0)
+    {
+      config().damping() = 0.5;
+    #ifdef VIENNAMINI_VERBOSE
+      std::cout << "  non-linear solver damping too small, limiting damping to " << config().damping() << std::endl;
+    #endif
+    }
     pde_solver.set_damping(config().damping());
+
+  #ifdef VIENNAMINI_VERBOSE
+    std::cout << "assembling and solving the system .." << std::endl;
+  #endif
     bool converged = pde_solver(current_pbdesc, pde_system, linear_solver);
 
-    if(converged) stream() << "Simulation did converge" << std::endl;
-    else          stream() << "Simulation did NOT converge" << std::endl;
+    if(converged) stream() << "  simulation did converge!" << std::endl;
+    else          stream() << "  simulation did NOT converge!" << std::endl;
 
     viennafvm::io::write_solution_to_VTK_file(
       current_pbdesc.quantities(),
