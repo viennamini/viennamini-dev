@@ -131,7 +131,7 @@ std::string device::get_segment_role_string(int segment_index)
     else
     if(this->is_contact(segment_index))
         return viennamini::id::contact();
-    else throw device_exception("Segment "+viennamini::convert<std::string>()(segment_index)+" does not have a valid role!");
+    else throw device_exception("Segment "+viennamini::convert<std::string>(segment_index)+" does not have a valid role!");
 }
 
 
@@ -151,7 +151,7 @@ int device::get_adjacent_segment_for_contact(int segment_index)
   else
   if(is_contact_at_semiconductor(segment_index)) return get_adjacent_semiconductor_segment_for_contact(segment_index);
   else throw device_exception("Could not determine adjacent segment for contact " +
-    viennamini::convert<std::string>()(segment_index) + "\"" + get_name(segment_index) + "\"" );
+    viennamini::convert<std::string>(segment_index) + "\"" + get_name(segment_index) + "\"" );
 }
 
 
@@ -177,11 +177,11 @@ void device::update()
     else
     if(siter->second == role::none)
       throw unassigned_segment_role_exception(
-        "Segment "+viennamini::convert<std::string>()(siter->first)+
+        "Segment "+viennamini::convert<std::string>(siter->first)+
         " lacks a segment role, such as 'oxide'.");
     else
       throw unassigned_segment_role_exception(
-        "Segment "+viennamini::convert<std::string>()(siter->first)+
+        "Segment "+viennamini::convert<std::string>(siter->first)+
         " lacks a segment role, such as 'oxide'.");
   }
 

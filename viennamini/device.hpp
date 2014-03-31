@@ -24,8 +24,6 @@
 #include "viennamini/forwards.h"
 #include "viennamini/generic_mesh.hpp"
 
-//#include "boost/variant.hpp"
-
 namespace viennamini
 {
 

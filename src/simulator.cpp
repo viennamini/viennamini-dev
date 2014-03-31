@@ -122,7 +122,7 @@ void simulator::run()
 //        siter != device().segment_indices().end(); siter++)
 //    {
 //      if(device().is_contact(*siter))
-//      {  
+//      {
 //        // if the contact is neither set to range or single,
 //        // make it a single value contact
 //        //
@@ -301,7 +301,7 @@ std::ostream& simulator::stream()
 //  for(stepper::step_setup_type::iterator iter = stepper().get_current_step_setup().begin();
 //      iter != stepper().get_current_step_setup().end(); iter++)
 //  {
-//    result += device().get_name(iter->first) + "=" + viennamini::convert<std::string>()(iter->second);
+//    result += device().get_name(iter->first) + "=" + viennamini::convert<std::string>(iter->second);
 //    if((iter+1) != stepper().get_current_step_setup().end()) result += "_";
 //  }
 //  return result;
@@ -339,7 +339,7 @@ std::ostream& simulator::stream()
 
 //    // now, create new problem descriptions for each simulation to be conducted
 //    //
-//    for(std::size_t i = 0; i < stepper_.size(); i++) 
+//    for(std::size_t i = 0; i < stepper_.size(); i++)
 //    {
 //      device().get_problem_description_triangular_2d_set().push_back( problem_description_triangular_2d(device().get_segmesh_triangular_2d().mesh) );
 //    }

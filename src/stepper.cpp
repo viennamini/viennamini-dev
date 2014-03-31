@@ -33,9 +33,9 @@ void stepper::add(std::size_t segment_index, numeric const& start, numeric const
 {
   ValuesType values = this->compute_value_range(start, end, delta);
   if(values.empty())
-    throw range_invalid_exception("Invalid range: "+viennamini::convert<std::string>()(start)+" -> "+
-                                                    viennamini::convert<std::string>()(end)  +", delta: "+
-                                                    viennamini::convert<std::string>()(delta));
+    throw range_invalid_exception("Invalid range: "+viennamini::convert<std::string>(start)+" -> "+
+                                                    viennamini::convert<std::string>(end)  +", delta: "+
+                                                    viennamini::convert<std::string>(delta));
   this->add_impl(segment_index, values);
 }
 

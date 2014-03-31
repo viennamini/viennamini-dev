@@ -16,101 +16,18 @@
 #define VIENNAMINI_UTILS_CONVERT_HPP
 
 #include <sstream>
-#include <string>
-
-#include <boost/type_traits/is_same.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace viennamini {
 
-template<typename Target>
-struct convert
+template<typename TargetT, typename SourceT>
+TargetT convert(SourceT const& source)
 {
-  typedef Target result_type;
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    return source;
-  }
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::disable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    return boost::lexical_cast<result_type>(source);
-  }
-};
-
-template<>
-struct convert<float>
-{
-  typedef float result_type;
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    return source;
-  }
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::disable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    sstr << source;
-    sstr >> target;
-    return target;
-  }
-private:
-  result_type target;
+  TargetT target;
   std::stringstream sstr;
-};
-
-template<>
-struct convert<double>
-{
-  typedef double result_type;
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    return source;
-  }
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::disable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    sstr << source;
-    sstr >> target;
-    return target;
-  }
-private:
-  result_type target;
-  std::stringstream sstr;
-};
-
-
-template<>
-struct convert<std::string>
-{
-  typedef std::string result_type;
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::enable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    return source;
-  }
-
-  template<typename Source>
-  result_type operator()(Source const& source, typename boost::disable_if<boost::is_same<Source,result_type> >::type* dummy = 0)
-  {
-    sstr << source;
-    sstr >> target;
-    return target;
-  }
-private:
-  result_type target;
-  std::stringstream sstr;
-};
+  sstr << source;
+  sstr >> target;
+  return target;
+}
 
 } // end namespace viennamini
 
