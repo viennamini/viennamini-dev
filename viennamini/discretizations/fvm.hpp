@@ -135,7 +135,7 @@ public:
             #ifdef VIENNAMINI_VERBOSE
               std::cout << "    using initial guess from device .. " << std::endl;
             #endif
-              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity_values(*unknown_iter, current_segment_index));
             }
             //
             // otherwise ask the PDE set to provide an initial guess functor and forward it to ViennaFVM
@@ -266,7 +266,7 @@ private:
         #endif
           if(device().has_quantity(*dep_iter, current_segment_index))
           {
-            viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*dep_iter, current_segment_index));
+            viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity_values(*dep_iter, current_segment_index));
           }
           else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
         }

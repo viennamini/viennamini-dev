@@ -153,61 +153,72 @@ namespace viennamini
     std::string get_material      (int segment_index);
 
     /// Store a scalar-valued quantity on all segments of the device
-    void                  set_quantity (std::string const& quantity_name,                    viennamini::numeric   const& value);
+    void                  set_quantity (std::string const& quantity_name,                    viennamini::quantity   const& quan);
 
     /// Store a scalar-valued quantity on a specific segment of the device
-    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value);
+    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::quantity   const& quan);
 
+    /// Store a set of quantities (indexed according to cell indices) on all segments of the device
+    void                  set_quantity (std::string const& quantity_name,                    viennamini::sparse_quantities const& quantities);
+
+    /// Store a set of quantities (indexed according to cell indices) on a specific segment of the device
+    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::sparse_quantities const& quantities);
+
+    template<typename FunctorT>
+    void                  set_quantity(std::string const& quantity_name, int segment_index, FunctorT functor)
+    {
+      std::cerr << "this is not implemented" << std::endl;
+      exit(0);
+
+//      quantity_database_[quantity_name][segment_index].clear();
+
+//      if(this->is_line1d())
+//      {
+//        typedef viennagrid::result_of::cell_range<segment_line_1d>::type      CellOnSegmentRange;
+//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type     CellOnSegmentIterator;
+//        typedef viennagrid::result_of::cell<mesh_line_1d>::type               CellType;
+
+//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
+//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
+//      }
+//      else
+//      if(this->is_triangular2d())
+//      {
+//        typedef viennagrid::result_of::cell_range<segment_triangular_2d>::type      CellOnSegmentRange;
+//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
+//        typedef viennagrid::result_of::cell<mesh_triangular_2d>::type               CellType;
+
+//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
+//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
+//      }
+//      else
+//      if(this->is_tetrahedral3d())
+//      {
+//        typedef viennagrid::result_of::cell_range<segment_tetrahedral_3d>::type     CellOnSegmentRange;
+//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
+//        typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type              CellType;
+
+//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
+//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
+//      }
+    }
+
+private:
     /// Store a set of quantities (indexed according to cell indices) on all segments of the device
     void                  set_quantity (std::string const& quantity_name,                    viennamini::sparse_values const& values);
 
     /// Store a set of quantities (indexed according to cell indices) on a specific segment of the device
     void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::sparse_values const& values);
 
-    template<typename FunctorT>
-    void                  set_quantity(std::string const& quantity_name, int segment_index, FunctorT functor)
-    {
-      quantity_database_[quantity_name][segment_index].clear();
-
-      if(this->is_line1d())
-      {
-        typedef viennagrid::result_of::cell_range<segment_line_1d>::type      CellOnSegmentRange;
-        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type     CellOnSegmentIterator;
-        typedef viennagrid::result_of::cell<mesh_line_1d>::type               CellType;
-
-        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
-        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-      }
-      else
-      if(this->is_triangular2d())
-      {
-        typedef viennagrid::result_of::cell_range<segment_triangular_2d>::type      CellOnSegmentRange;
-        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
-        typedef viennagrid::result_of::cell<mesh_triangular_2d>::type               CellType;
-
-        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
-        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-      }
-      else
-      if(this->is_tetrahedral3d())
-      {
-        typedef viennagrid::result_of::cell_range<segment_tetrahedral_3d>::type     CellOnSegmentRange;
-        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
-        typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type              CellType;
-
-        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
-        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-      }
-    }
-
+public:
     /// Retrieve a quantity container holding cell values (previously distributed via the 'set_quantity' method)
-    viennamini::sparse_values get_quantity (std::string const& quantity_name, int segment_index);
+    viennamini::sparse_values get_quantity_values (std::string const& quantity_name, int segment_index);
 
     /// Retrieve a cell quantity (previously distributed via the 'set_quantity' method)
-    viennamini::numeric get_quantity (std::string const& quantity_name, int segment_index, std::size_t cell_index);
+    viennamini::numeric get_quantity_value (std::string const& quantity_name, int segment_index, std::size_t cell_index);
 
     /// Test whether a quantity is stored for each cell of a specific segment
     bool                  has_quantity (std::string const& quantity_name, int segment_index);

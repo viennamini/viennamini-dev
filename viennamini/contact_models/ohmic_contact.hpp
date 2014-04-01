@@ -69,10 +69,10 @@ private:
         for (CellOnFacetIterator cofit = cells_on_facet.begin(); cofit != cells_on_facet.end(); ++cofit)
         {
           quantity_set qset;
-          qset.ND = device->get_quantity(viennamini::id::donor_doping(),      semiconductor_segment, (*cofit).id().get());
-          qset.NA = device->get_quantity(viennamini::id::acceptor_doping(),   semiconductor_segment, (*cofit).id().get());
-          qset.T  = device->get_quantity(viennamini::id::temperature(),       semiconductor_segment, (*cofit).id().get());
-          qset.ni = device->get_quantity(viennamini::id::intrinsic_carrier(), semiconductor_segment, (*cofit).id().get());
+          qset.ND = device->get_quantity_value(viennamini::id::donor_doping(),      semiconductor_segment, (*cofit).id().get());
+          qset.NA = device->get_quantity_value(viennamini::id::acceptor_doping(),   semiconductor_segment, (*cofit).id().get());
+          qset.T  = device->get_quantity_value(viennamini::id::temperature(),       semiconductor_segment, (*cofit).id().get());
+          qset.ni = device->get_quantity_value(viennamini::id::intrinsic_carrier(), semiconductor_segment, (*cofit).id().get());
           return qset; // we only need the quantity from the first cell we find, as all cells along the interface on the semiconductor
           // segment are assumed to offer constant quantitiy values of ND, NA, ni, T
         }

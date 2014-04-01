@@ -37,6 +37,11 @@ int main()
 
   // set the temperature of the device
   //
+  // typedef viennamini::value         data;
+  // typedef viennamini::dense_values  data;
+  // typedef viennamini::sparse_values data;
+  // mysim.device().set_quantity(viennamini::id::temperature(), viennamini::quantity(data,  viennamini::unit::K));
+  // mysim.device().set_quantity(viennamini::id::temperature(), viennamini::quantity(300.0, viennamini::unit::K));
   mysim.device().set_quantity(viennamini::id::temperature(), 300.0);
 
   // setup auxiliary segment indices, aiding in identifying the individual

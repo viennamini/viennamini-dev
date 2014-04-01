@@ -59,6 +59,10 @@ namespace viennamini
     inline std::string contact()                    { return "contact"; }
   } // id
 
+  namespace unit {
+    inline std::string kelvin()                     { return "K"; }
+  } // unit
+
   // the XML Tags used in the materials file
   namespace material {
     inline std::string relative_permittivity()              { return "relative_permittivity"; }
@@ -159,6 +163,7 @@ namespace viennamini
   class discretization;
   class stepper;
   class pde_set;
+  class quantity;
 
   typedef double                                                                                                  numeric;
   typedef std::map<std::size_t, numeric>                                                                          sparse_values;

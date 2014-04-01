@@ -228,7 +228,7 @@ void device::update()
     {
       if(this->has_quantity(viennamini::id::temperature(), sit->id()))
       {
-        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity_values(viennamini::id::temperature(), sit->id())));
       }
     }
   }
@@ -495,14 +495,14 @@ std::string device::get_material(int segment_index)
   return segment_materials_[segment_index];
 }
 
-void device::set_quantity(std::string const& quantity_name, viennamini::numeric const& value)
+void device::set_quantity(std::string const& quantity_name, viennamini::quantity const& quan)
 {
   if(this->is_line1d())
   {
     for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
         sit != get_segmesh_line_1d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), value);
+      this->set_quantity(quantity_name, (*sit).id(), quan);
     }
   }
   else
@@ -511,7 +511,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::numeric 
     for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
         sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), value);
+      this->set_quantity(quantity_name, (*sit).id(), quan);
     }
   }
   else
@@ -520,14 +520,16 @@ void device::set_quantity(std::string const& quantity_name, viennamini::numeric 
     for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
         sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), value);
+      this->set_quantity(quantity_name, (*sit).id(), quan);
     }
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::numeric const& value)
+void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::quantity const& quan)
 {
   quantity_database_[quantity_name][segment_index].clear();
+
+  // if unit handling available: convert
 
   if(this->is_line1d())
   {
@@ -537,7 +539,7 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
   }
   else
   if(this->is_triangular2d())
@@ -548,7 +550,7 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
   }
   else
   if(this->is_tetrahedral3d())
@@ -559,11 +561,11 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, viennamini::sparse_values const& values)
+void device::set_quantity(std::string const& quantity_name, viennamini::sparse_quantities const& quantities)
 {
   quantity_database_[quantity_name].clear();
 
@@ -575,7 +577,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
 
     CellRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().mesh);
 
-    for(viennamini::sparse_values::const_iterator iter = values.begin(); iter != values.end(); iter++)
+    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
     {
       // iter->first:  cell index
       // iter->second: value for the indexed cell
@@ -583,7 +585,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
       SegmentIDRange range = viennagrid::segment_ids(get_segmesh_line_1d().segmentation, cells[iter->first]);
       for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
       {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second;
+        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
       }
     }
   }
@@ -596,7 +598,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
 
     CellRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().mesh);
 
-    for(viennamini::sparse_values::const_iterator iter = values.begin(); iter != values.end(); iter++)
+    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
     {
       // iter->first:  cell index
       // iter->second: value for the indexed cell
@@ -604,7 +606,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
       SegmentIDRange range = viennagrid::segment_ids(get_segmesh_triangular_2d().segmentation, cells[iter->first]);
       for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
       {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second;
+        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
       }
     }
   }
@@ -617,7 +619,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
 
     CellRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().mesh);
 
-    for(viennamini::sparse_values::const_iterator iter = values.begin(); iter != values.end(); iter++)
+    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
     {
       // iter->first:  cell index
       // iter->second: value for the indexed cell
@@ -625,24 +627,30 @@ void device::set_quantity(std::string const& quantity_name, viennamini::sparse_v
       SegmentIDRange range = viennagrid::segment_ids(get_segmesh_tetrahedral_3d().segmentation, cells[iter->first]);
       for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
       {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second;
+        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
       }
     }
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::sparse_values const& values)
+void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::sparse_quantities const& quantities)
 {
   quantity_database_[quantity_name][segment_index].clear();
-  quantity_database_[quantity_name][segment_index].insert(values.begin(), values.end());
+  //quantity_database_[quantity_name][segment_index].insert(values.begin(), values.end());
+  for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
+  {
+
+  }
+  std::cerr << "this is not implemented yet" << std::endl;
+  exit(0);
 }
 
-viennamini::sparse_values device::get_quantity(std::string const& quantity_name, int segment_index)
+viennamini::sparse_values device::get_quantity_values(std::string const& quantity_name, int segment_index)
 {
   return quantity_database_[quantity_name][segment_index];
 }
 
-viennamini::numeric device::get_quantity(std::string const& quantity_name, int segment_index, std::size_t cell_index)
+viennamini::numeric device::get_quantity_value(std::string const& quantity_name, int segment_index, std::size_t cell_index)
 {
   return quantity_database_[quantity_name][segment_index][cell_index];
 }
