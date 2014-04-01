@@ -1,5 +1,5 @@
 /* =======================================================================
-   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2014, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
                  ViennaMini - The Vienna Device Simulator
@@ -9,10 +9,11 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
 // ViennaMini includes
+//
 #include "viennamini/simulator.hpp"
 #include "viennamini/device_collection.hpp"
 
@@ -68,25 +69,11 @@ int main()
   mysim.device().set_quantity(viennamini::id::donor_doping(),    body,   1.0E22);
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), body,   1.0E10);
 
-//  mysim.device().set_quantity(viennamini::id::potential(), oxide,             0.0);
-//  mysim.device().set_quantity(viennamini::id::acceptor_doping(),       1.0);
-//  mysim.device().set_quantity(viennamini::id::donor_doping(),          1.0);
-//  mysim.device().set_quantity(viennamini::id::electron_mobility(),     1.0);
-//  mysim.device().set_quantity(viennamini::id::hole_mobility(),         1.0);
-//  mysim.device().set_quantity(viennamini::id::intrinsic_carrier(),     1.0);
-//  mysim.device().set_quantity(viennamini::id::temperature(),           300.0);
-//  mysim.device().set_quantity(viennamini::id::thermal_potential(),     0.25);
-
-
-
-
-
-
   // set optional solver parameters
   //
   mysim.config().linear_breaktol()        = 1.0E-14;
   mysim.config().linear_iterations()      = 1000;
-  mysim.config().nonlinear_iterations()   = 1;
+  mysim.config().nonlinear_iterations()   = 100;
   mysim.config().nonlinear_breaktol()     = 1.0E-2;
   mysim.config().damping()                = 0.9;
 
@@ -97,18 +84,14 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact(viennamini::id::potential(), gate_contact,   0.0);
+  mysim.device().set_contact(viennamini::id::potential(), gate_contact,   0.6);
   mysim.device().set_contact(viennamini::id::potential(), source_contact, 0.0);
-  mysim.device().set_contact(viennamini::id::potential(), drain_contact,  0.0);
+  mysim.device().set_contact(viennamini::id::potential(), drain_contact,  0.2);
   mysim.device().set_contact(viennamini::id::potential(), body_contact,   0.0);
 
   // perform the simulation
   //
   mysim.run();
-
-  std::cout << "**********************************************************" << std::endl;
-  std::cout << "* MOSFET 2D DD Bipolar simulation finished successfully! *" << std::endl;
-  std::cout << "**********************************************************" << std::endl;
 
   return EXIT_SUCCESS;
 }

@@ -32,6 +32,7 @@ add_role_support(viennamini::id::relative_permittivity(),   viennamini::role::ox
 add_role_support(viennamini::id::relative_permittivity(),   viennamini::role::semiconductor);
 add_role_support(viennamini::id::temperature(),             viennamini::role::semiconductor);
 add_role_support(viennamini::id::thermal_potential(),       viennamini::role::semiconductor);
+add_role_support(viennamini::id::thermal_potential(),       viennamini::role::oxide); // VT is used in the damping term of the Poisson equation
 add_role_support(viennamini::id::donor_doping(),            viennamini::role::semiconductor);
 add_role_support(viennamini::id::acceptor_doping(),         viennamini::role::semiconductor);
 add_role_support(viennamini::id::electron_mobility(),       viennamini::role::semiconductor);

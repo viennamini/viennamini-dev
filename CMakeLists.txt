@@ -14,7 +14,7 @@ OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
 SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
 OPTION(BUILD_EXAMPLES "Build the examples" ON)
 OPTION(BUILD_TESTS "Build the tests" OFF)
-OPTION(VIENNAMINI_VERBOSE "Verbose messaging" OFF)
+OPTION(VIENNAMINI_VERBOSE "Verbose messaging" ON)
 OPTION(USE_CXX11 "Use C++11 features" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")

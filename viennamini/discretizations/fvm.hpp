@@ -51,143 +51,106 @@ public:
 
     initialize(segmesh, current_pbdesc);
 
+    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().get_pde_set().unknowns().begin();
+        unknown_iter != config().model().get_pde_set().unknowns().end(); unknown_iter++)
+    {
+    #ifdef VIENNAMINI_VERBOSE
+      stream() << "processing unknown: " << *unknown_iter << std::endl;
+    #endif
+      QuantityType & quan = current_pbdesc.add_quantity(*unknown_iter);
+      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
 
-    // manual ..
-    const int left_contact      = 1;
-    const int oxide             = 2;
-    const int semiconductor_one = 3;
-    const int semiconductor_two = 4;
-    const int right_contact     = 5;
+      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+          sit != segmesh.segmentation.end(); ++sit)
+      {
+        std::size_t current_segment_index = sit->id();
 
-//    QuantityType & permittivity = current_pbdesc.add_quantity(viennamini::id::potential());
-//    viennafvm::set_initial_value(permittivity, segmesh.segmentation(left_contact), 11.3);
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "  processing segment " << current_segment_index << ": \"" << device().get_name(current_segment_index) << "\"" << std::endl;
+      #endif
 
+        viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
 
-    QuantityType & potential = current_pbdesc.add_quantity(viennamini::id::potential());
-    QuantityType & electron_concentration = current_pbdesc.add_quantity(viennamini::id::electron_concentration());
-    QuantityType & hole_concentration = current_pbdesc.add_quantity(viennamini::id::hole_concentration());
+      #ifdef VIENNAMINI_VERBOSE
+        stream() << "    identified role: " << device().get_segment_role_string(current_segment_index) << std::endl;
+      #endif
 
-    config().model().get_pde_set().register_quantity(potential.get_name(), potential.id());
-    config().model().get_pde_set().register_quantity(electron_concentration.get_name(), electron_concentration.id());
-    config().model().get_pde_set().register_quantity(hole_concentration.get_name(), hole_concentration.id());
+        // process only contact segments
+        //
+        if(role == viennamini::role::contact)
+        {
+          // if the PDE set has a contact model for this segment, apply it
+          // i.e., overwrite the corresponding contact value on the device
+          //
+          if(config().model().get_pde_set().has_contact_model(*unknown_iter))
+          {
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    applying contact model from PDE set .. " << std::endl;
+            #endif
+            config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
+          }
 
-    viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(left_contact), 0.2);
-    viennafvm::set_dirichlet_boundary(potential, segmesh.segmentation(right_contact), 0.0);
-    viennafvm::set_dirichlet_boundary(electron_concentration, segmesh.segmentation(right_contact), 1.0E24);
-    viennafvm::set_dirichlet_boundary(hole_concentration, segmesh.segmentation(right_contact), 1.0E8);
+          // apply the contact value stored on the device as a Dirichlet contact
+          // first evaluate whether the current unknown is to be solved on the neighbour segment,
+          // otherwise we cannot expect a contact value to be present on the device
+          //
+          if(config().model().get_pde_set().is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
+          {
+            // sanity check: make sure that a contact value is available ..
+            if(device().has_contact(*unknown_iter, current_segment_index))
+            {
+              #ifdef VIENNAMINI_VERBOSE
+                std::cout << "    assigning Dirichlet boundary value: " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
+              #endif
+              viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
+            }
+            else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
+              "\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
+          }
+        }
 
-    viennafvm::set_unknown(potential, segmesh.segmentation(oxide));
-    viennafvm::set_unknown(potential, segmesh.segmentation(semiconductor_one));
-    viennafvm::set_unknown(potential, segmesh.segmentation(semiconductor_two));
-    viennafvm::set_unknown(electron_concentration, segmesh.segmentation(semiconductor_one));
-    viennafvm::set_unknown(electron_concentration, segmesh.segmentation(semiconductor_two));
-    viennafvm::set_unknown(hole_concentration, segmesh.segmentation(semiconductor_one));
-    viennafvm::set_unknown(hole_concentration, segmesh.segmentation(semiconductor_two));
+        // Register 'unknowns' and set initial guesses if required if the current unknown
+        // 'supports' the current segment role
+        //
+        if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
+        {
+        #ifdef VIENNAMINI_VERBOSE
+          std::cout << "    solving 'unknown' on this segment .." << std::endl;
+        #endif
+          viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
 
-    viennafvm::set_initial_value(potential, segmesh.segmentation(semiconductor_one), config().model().get_pde_set().get_initial_guess(viennamini::id::potential(), device_handle(), semiconductor_one));
-    viennafvm::set_initial_value(potential, segmesh.segmentation(semiconductor_two), config().model().get_pde_set().get_initial_guess(viennamini::id::potential(), device_handle(), semiconductor_two));
-    viennafvm::set_initial_value(electron_concentration, segmesh.segmentation(semiconductor_one), config().model().get_pde_set().get_initial_guess(viennamini::id::electron_concentration(), device_handle(), semiconductor_one));
-    viennafvm::set_initial_value(electron_concentration, segmesh.segmentation(semiconductor_two), config().model().get_pde_set().get_initial_guess(viennamini::id::electron_concentration(), device_handle(), semiconductor_two));
-    viennafvm::set_initial_value(hole_concentration, segmesh.segmentation(semiconductor_one), config().model().get_pde_set().get_initial_guess(viennamini::id::hole_concentration(), device_handle(), semiconductor_one));
-    viennafvm::set_initial_value(hole_concentration, segmesh.segmentation(semiconductor_two), config().model().get_pde_set().get_initial_guess(viennamini::id::hole_concentration(), device_handle(), semiconductor_two));
+          // Oxides do not require an initial guess.
+          // TODO: maybe move this 'logic' to the pde set
+          //
+          if(role == viennamini::role::oxide) continue;
 
-//    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().get_pde_set().unknowns().begin();
-//        unknown_iter != config().model().get_pde_set().unknowns().end(); unknown_iter++)
-//    {
-//    #ifdef VIENNAMINI_VERBOSE
-//      stream() << "processing unknown: " << *unknown_iter << std::endl;
-//    #endif
-//      QuantityType & quan = current_pbdesc.add_quantity(*unknown_iter);
-//      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
-
-//      for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
-//          sit != segmesh.segmentation.end(); ++sit)
-//      {
-//        std::size_t current_segment_index = sit->id();
-
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "  processing segment " << current_segment_index << ": \"" << device().get_name(current_segment_index) << "\"" << std::endl;
-//      #endif
-
-//        viennamini::role::segment_role_ids role = device().get_segment_role(current_segment_index);
-
-//      #ifdef VIENNAMINI_VERBOSE
-//        stream() << "    identified role: " << device().get_segment_role_string(current_segment_index) << std::endl;
-//      #endif
-
-//        // process only contact segments
-//        //
-//        if(role == viennamini::role::contact)
-//        {
-//          // if the PDE set has a contact model for this segment, apply it
-//          // i.e., overwrite the corresponding contact value on the device
-//          //
-//          if(config().model().get_pde_set().has_contact_model(*unknown_iter))
-//          {
-//            #ifdef VIENNAMINI_VERBOSE
-//              std::cout << "    applying contact model from PDE set .. " << std::endl;
-//            #endif
-//            config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
-//          }
-
-//          // apply the contact value stored on the device as a Dirichlet contact
-//          // first evaluate whether the current unknown is to be solved on the neighbour segment,
-//          // otherwise we cannot expect a contact value to be present on the device
-//          //
-//          if(config().model().get_pde_set().is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
-//          {
-//            // sanity check: make sure that a contact value is available ..
-//            if(device().has_contact(*unknown_iter, current_segment_index))
-//            {
-//              #ifdef VIENNAMINI_VERBOSE
-//                std::cout << "    assigning Dirichlet boundary value: " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
-//              #endif
-//              viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
-//            }
-//            else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
-//              "\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
-//          }
-//        }
-
-//        // Register 'unknowns' and set initial guesses if required if the current unknown
-//        // 'supports' the current segment role
-//        //
-//        if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
-//        {
-//        #ifdef VIENNAMINI_VERBOSE
-//          std::cout << "    solving 'unknown' on this segment .." << std::endl;
-//        #endif
-//          viennafvm::set_unknown(quan, segmesh.segmentation(current_segment_index));
-
-//          if(role == viennamini::role::oxide) continue; // TODO remove this, this is logic which should come from the PDE set
-
-//          // if we deal with a nonlinear problem, we have to assign an initial guess
-//          if(!config().model().get_pde_set().is_linear())
-//          {
-//            // if there is a quantity distribution available, use it.
-//            // this way the user can conveniently 'inject' an initial guess
-//            //
-//            if(device().has_quantity(*unknown_iter, current_segment_index))
-//            {
-//            #ifdef VIENNAMINI_VERBOSE
-//              std::cout << "    using initial guess from device .. " << std::endl;
-//            #endif
-//              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
-//            }
-//            //
-//            // otherwise ask the PDE set to provide an initial guess functor and forward it to ViennaFVM
-//            //
-//            else
-//            {
-//              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().get_pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
-//            #ifdef VIENNAMINI_VERBOSE
-//              std::cout << "    using initial guess from PDE set .. " << std::endl;
-//            #endif
-//            }
-//          }
-//        }
-//      }
-//    }
+          // if we deal with a nonlinear problem, we have to assign an initial guess
+          if(!config().model().get_pde_set().is_linear())
+          {
+            // if there is a quantity distribution available, use it.
+            // this way the user can conveniently 'inject' an initial guess
+            //
+            if(device().has_quantity(*unknown_iter, current_segment_index))
+            {
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    using initial guess from device .. " << std::endl;
+            #endif
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity(*unknown_iter, current_segment_index));
+            }
+            //
+            // otherwise ask the PDE set to provide an initial guess functor and forward it to ViennaFVM
+            //
+            else
+            {
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().get_pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
+            #ifdef VIENNAMINI_VERBOSE
+              std::cout << "    using initial guess from PDE set .. " << std::endl;
+            #endif
+            }
+          }
+        }
+      }
+    }
 
 
     viennafvm::io::write_solution_to_VTK_file(
@@ -206,8 +169,6 @@ public:
     int pde_index = 0;
     for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
     {
-//        std::cout << "  adding PDE: " << pde_iter->equation() << std::endl;
-//        std::cout << "    damping term: " << pde_iter->damping_term() << std::endl;
       pde_system.add_pde(pde_iter->equation(), pde_iter->function_symbol());
       pde_system.option(pde_index).damping_term( pde_iter->damping_term() );
       pde_system.option(pde_index).geometric_update( pde_iter->geometric_update() );
