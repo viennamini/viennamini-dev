@@ -23,49 +23,11 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/generic_mesh.hpp"
+#include "viennamini/value_accessor.hpp"
+#include "viennamini/quantity_converter.hpp"
 
 namespace viennamini
 {
-
-  /** @brief Exception for the case that the device type is not supported */
-  class device_not_supported_exception : public std::runtime_error {
-  public:
-    device_not_supported_exception()                        : std::runtime_error("") {}
-    device_not_supported_exception(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  /** @brief Exception for the case that the input material library xml file is not supported */
-  class unknown_material_library_file_exception : public std::runtime_error {
-  public:
-    unknown_material_library_file_exception(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  /** @brief Exception for the case that the input mesh file is not supported */
-  class unknown_mesh_file_exception : public std::runtime_error {
-  public:
-    unknown_mesh_file_exception(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  /** @brief Exception for the case that the eps value is zero, indicating a problem with accessing the material database */
-  class eps_is_zero_exception : public std::runtime_error {
-  public:
-    eps_is_zero_exception(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  class segment_material_information_missing : public std::runtime_error {
-  public:
-    segment_material_information_missing(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  class unassigned_segment_role_exception : public std::runtime_error {
-  public:
-    unassigned_segment_role_exception(std::string const & str) : std::runtime_error(str) {}
-  };
-
-  class device_lacks_material_library : public std::runtime_error {
-  public:
-    device_lacks_material_library(std::string const & str) : std::runtime_error(str) {}
-  };
 
   class device_exception : public std::runtime_error {
   public:
@@ -152,72 +114,105 @@ namespace viennamini
     std::string get_name          (int segment_index);
     std::string get_material      (int segment_index);
 
-    /// Store a scalar-valued quantity on all segments of the device
-    void                  set_quantity (std::string const& quantity_name,                    viennamini::quantity   const& quan);
+    /// Distribute the value of a single quantity on the entire device
+    void set_quantity (std::string          const& quantity_name,
+                       viennamini::numeric         value, 
+                       std::string          const& unit);
 
-    /// Store a scalar-valued quantity on a specific segment of the device
-    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::quantity   const& quan);
+    /// Distribute the value of a single quantity on a specific device segment
+    void set_quantity (std::string          const& quantity_name,
+                       int                         segment_index,
+                       viennamini::numeric         value, 
+                       std::string          const& unit);
 
-    /// Store a set of quantities (indexed according to cell indices) on all segments of the device
-    void                  set_quantity (std::string const& quantity_name,                    viennamini::sparse_quantities const& quantities);
+    /// Distribute the values of a single quantity on the entire device
+    void set_quantity (std::string          const& quantity_name,
+                       viennamini::sparse_values & values, 
+                       std::string          const& unit);
 
-    /// Store a set of quantities (indexed according to cell indices) on a specific segment of the device
-    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::sparse_quantities const& quantities);
+    /// Distribute the values of a single quantity on a specific device segment
+    void set_quantity (std::string          const& quantity_name,
+                       int                         segment_index,
+                       viennamini::sparse_values & values, 
+                       std::string          const& unit);
 
-    template<typename FunctorT>
-    void                  set_quantity(std::string const& quantity_name, int segment_index, FunctorT functor)
+    /// Distribute the values of a single quantity on the entire device
+    void set_quantity (std::string          const& quantity_name,
+                       viennamini::dense_values  & values, 
+                       std::string          const& unit);
+
+    /// Distribute the values via an accessor of a single quantity on a specific device segment
+    template<typename AccessorT>
+    void set_quantity (std::string                                      const& quantity_name,
+                       int                                                     segment_index,
+                       AccessorT                                               accessor)
     {
-      std::cerr << "this is not implemented" << std::endl;
-      exit(0);
+      if(this->is_line1d())
+      {
+        typedef viennagrid::result_of::cell_range<segment_line_1d>::type      CellOnSegmentRange;
+        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type     CellOnSegmentIterator;
+        typedef viennagrid::result_of::cell<mesh_line_1d>::type               CellType;
 
-//      quantity_database_[quantity_name][segment_index].clear();
+        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
+        try{
+          for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+          {
+            std::size_t cell_index = (*cit).id().get();
+            quantity_database_[quantity_name][segment_index][cell_index] = accessor(cell_index);
+          }
+        }
+        catch(std::exception const& e)
+        {
+          throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+        }
+      }
+      else
+      if(this->is_triangular2d())
+      {
+        typedef viennagrid::result_of::cell_range<segment_triangular_2d>::type  CellOnSegmentRange;
+        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type       CellOnSegmentIterator;
+        typedef viennagrid::result_of::cell<mesh_triangular_2d>::type           CellType;
 
-//      if(this->is_line1d())
-//      {
-//        typedef viennagrid::result_of::cell_range<segment_line_1d>::type      CellOnSegmentRange;
-//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type     CellOnSegmentIterator;
-//        typedef viennagrid::result_of::cell<mesh_line_1d>::type               CellType;
+        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
+        try{
+          for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+          {
+            std::size_t cell_index = (*cit).id().get();
+            quantity_database_[quantity_name][segment_index][cell_index] = accessor(cell_index);
+          }
+        }
+        catch(std::exception const& e)
+        {
+          throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+        }
+      }
+      else
+      if(this->is_tetrahedral3d())
+      {
+        typedef viennagrid::result_of::cell_range<segment_tetrahedral_3d>::type   CellOnSegmentRange;
+        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type         CellOnSegmentIterator;
+        typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type            CellType;
 
-//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
-//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-//      }
-//      else
-//      if(this->is_triangular2d())
-//      {
-//        typedef viennagrid::result_of::cell_range<segment_triangular_2d>::type      CellOnSegmentRange;
-//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
-//        typedef viennagrid::result_of::cell<mesh_triangular_2d>::type               CellType;
-
-//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
-//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-//      }
-//      else
-//      if(this->is_tetrahedral3d())
-//      {
-//        typedef viennagrid::result_of::cell_range<segment_tetrahedral_3d>::type     CellOnSegmentRange;
-//        typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type           CellOnSegmentIterator;
-//        typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type              CellType;
-
-//        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
-//        for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-//          quantity_database_[quantity_name][segment_index][cit->id().get()] = functor(cit->id().get());
-//      }
+        CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
+        try{
+          for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+          {
+            std::size_t cell_index = (*cit).id().get();
+            quantity_database_[quantity_name][segment_index][cell_index] = accessor(cell_index);
+          }
+        }
+        catch(std::exception const& e)
+        {
+          throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+        }
+      }
     }
 
-private:
-    /// Store a set of quantities (indexed according to cell indices) on all segments of the device
-    void                  set_quantity (std::string const& quantity_name,                    viennamini::sparse_values const& values);
-
-    /// Store a set of quantities (indexed according to cell indices) on a specific segment of the device
-    void                  set_quantity (std::string const& quantity_name, int segment_index, viennamini::sparse_values const& values);
-
 public:
-    /// Retrieve a quantity container holding cell values (previously distributed via the 'set_quantity' method)
-    viennamini::sparse_values get_quantity_values (std::string const& quantity_name, int segment_index);
+    ///
+    viennamini::value_accessor get_quantity_value_accessor (std::string const& quantity_name, int segment_index);
 
-    /// Retrieve a cell quantity (previously distributed via the 'set_quantity' method)
+    ///
     viennamini::numeric get_quantity_value (std::string const& quantity_name, int segment_index, std::size_t cell_index);
 
     /// Test whether a quantity is stored for each cell of a specific segment
@@ -277,6 +272,8 @@ public:
     viennamaterials::accessor_handle matlib_model_;
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
+
+    viennamini::quantity_converter    converter_;
 
     std::ostream& stream_;
   };

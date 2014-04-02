@@ -60,7 +60,13 @@ namespace viennamini
   } // id
 
   namespace unit {
-    inline std::string kelvin()                     { return "K"; }
+    inline std::string none()                         { return "1"; }
+    namespace si {
+      inline std::string kelvin()                     { return "K"; }
+      inline std::string mobility()                   { return "m2/V*s"; }
+      inline std::string carrier_concentration()      { return "m-3"; }
+      inline std::string volt()                       { return "V"; }
+    } // si
   } // unit
 
   // the XML Tags used in the materials file
@@ -163,10 +169,11 @@ namespace viennamini
   class discretization;
   class stepper;
   class pde_set;
-  class quantity;
 
   typedef double                                                                                                  numeric;
   typedef std::map<std::size_t, numeric>                                                                          sparse_values;
+  typedef std::vector<numeric>                                                                                    dense_values;
+
 
   typedef ::viennagrid::mesh< viennagrid::config::line_1d >                                                       mesh_line_1d;
   typedef ::viennagrid::mesh< viennagrid::config::triangular_2d >                                                 mesh_triangular_2d;

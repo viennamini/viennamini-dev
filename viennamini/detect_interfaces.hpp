@@ -97,7 +97,7 @@ void detect_interfaces(viennamini::device& device, IndexMapT& contactSemiconduct
   if(device.is_tetrahedral3d())
     viennamini::detail::detect_interfaces_impl(device.get_segmesh_tetrahedral_3d(), contacts, oxides, semiconductors, contactSemiconductorInterfaces, contactOxideInterfaces);
   else
-    throw device_not_supported_exception("at: detect interfaces()");
+    throw device_exception("Detect interfaces method does not support this device type!");
 }
 
 } // viennamini

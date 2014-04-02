@@ -32,6 +32,7 @@
 #include "viennamini/utils/convert.hpp"
 #include "viennamini/material_accessors.hpp"
 
+
 namespace viennamini
 {
 
@@ -175,14 +176,9 @@ void device::update()
     else
     if(siter->second == role::semiconductor) semiconductor_segments_indices_.push_back(siter->first);
     else
-    if(siter->second == role::none)
-      throw unassigned_segment_role_exception(
+      throw device_exception(
         "Segment "+viennamini::convert<std::string>(siter->first)+
-        " lacks a segment role, such as 'oxide'.");
-    else
-      throw unassigned_segment_role_exception(
-        "Segment "+viennamini::convert<std::string>(siter->first)+
-        " lacks a segment role, such as 'oxide'.");
+        " lacks a segment role!");
   }
 
   // record the segment indices
@@ -221,6 +217,7 @@ void device::update()
 
   // finalize quantities
   //
+  std::cerr << "quantity setting broken, fix me!" << std::endl;
   if(this->is_line1d())
   {
     for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
@@ -228,7 +225,13 @@ void device::update()
     {
       if(this->has_quantity(viennamini::id::temperature(), sit->id()))
       {
-        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity_values(viennamini::id::temperature(), sit->id())));
+        this->set_quantity(
+          viennamini::id::thermal_potential(),
+          sit->id(),
+          viennamini::thermal_potential_functor(
+            this->get_quantity_value_accessor(viennamini::id::temperature(), sit->id())
+          )
+        );
       }
     }
   }
@@ -240,7 +243,13 @@ void device::update()
     {
       if(this->has_quantity(viennamini::id::temperature(), sit->id()))
       {
-        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+        this->set_quantity(
+          viennamini::id::thermal_potential(),
+          sit->id(),
+          viennamini::thermal_potential_functor(
+            this->get_quantity_value_accessor(viennamini::id::temperature(), sit->id())
+          )
+        );
       }
     }
   }
@@ -252,7 +261,13 @@ void device::update()
     {
       if(this->has_quantity(viennamini::id::temperature(), sit->id()))
       {
-        this->set_quantity(viennamini::id::thermal_potential(), sit->id(), viennamini::thermal_potential_functor(this->get_quantity(viennamini::id::temperature(), sit->id())));
+        this->set_quantity(
+          viennamini::id::thermal_potential(),
+          sit->id(),
+          viennamini::thermal_potential_functor(
+            this->get_quantity_value_accessor(viennamini::id::temperature(), sit->id())
+          )
+        );
       }
     }
   }
@@ -276,7 +291,7 @@ void device::update()
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
 //      std::cout << "transferring permittivity from oxide to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value);
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, viennamini::unit::none());
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -290,7 +305,7 @@ void device::update()
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
 //      std::cout << "transferring permittivity from semiconductor to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value);
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, viennamini::unit::none());
     }
   }
 }
@@ -302,7 +317,7 @@ device::GenericMeshType& device::mesh()
 
 material_library_handle & device::material_library()
 {
-  if(!matlib_.get()) throw device_lacks_material_library("");
+  if(!matlib_.get()) throw device_exception("Device lacks a material database!");
   return matlib_;
 }
 
@@ -322,7 +337,7 @@ void device::read(std::string const& filename, viennamini::line_1d const&)
     reader(get_segmesh_line_1d().mesh, get_segmesh_line_1d().segmentation, filename);
   }
   else
-    throw unknown_mesh_file_exception(filename);
+    throw device_exception("The input mesh file type is not supported!");
 }
 
 void device::read(std::string const& filename, viennamini::triangular_2d const&)
@@ -341,7 +356,7 @@ void device::read(std::string const& filename, viennamini::triangular_2d const&)
     reader(get_segmesh_triangular_2d().mesh, get_segmesh_triangular_2d().segmentation, filename);
   }
   else
-    throw unknown_mesh_file_exception(filename);
+    throw device_exception("The input mesh file type is not supported!");
 }
 
 void device::read(std::string const& filename, viennamini::tetrahedral_3d const&)
@@ -360,7 +375,7 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
     reader(get_segmesh_tetrahedral_3d().mesh, get_segmesh_tetrahedral_3d().segmentation, filename);
   }
   else
-    throw unknown_mesh_file_exception(filename);
+    throw device_exception("The input mesh file type is not supported!");
 }
 
 void device::set_material_library(material_library_handle& matlib)
@@ -386,9 +401,7 @@ void device::read_material_library(std::string const& filename)
     matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
   }
   else
-  {
-    throw unknown_material_library_file_exception(filename);
-  }
+    throw device_exception("The input material file type is not supported!");
 }
 
 void device::write(std::string const& filename)
@@ -410,7 +423,7 @@ void device::write(std::string const& filename)
     viennagrid::io::vtk_writer<mesh_tetrahedral_3d> vtk_writer;
     vtk_writer(get_segmesh_tetrahedral_3d().mesh, get_segmesh_tetrahedral_3d().segmentation, filename);
   }
-  else throw device_not_supported_exception("at: device::write()");
+  else throw device_exception("The device type is not supported for writing an output file!");
 }
 
 
@@ -430,7 +443,7 @@ void device::scale(viennamini::numeric factor)
   {
     viennagrid::scale(get_segmesh_tetrahedral_3d().mesh, factor);
   }
-  else throw device_not_supported_exception("at: device::scale()");
+  else throw device_exception("The device type is not supported for scaling!");
 }
 
 void device::set_material(int segment_index, std::string const& new_material)
@@ -452,7 +465,7 @@ void device::set_material(int segment_index, std::string const& new_material)
                      vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                      vmat::make_entry(this->matlib_data()     , material::value()))
   );
-  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value);
+  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, viennamini::unit::none());
 
   // the following quantities are only available for semiconductors
   //
@@ -465,7 +478,7 @@ void device::set_material(int segment_index, std::string const& new_material)
                          vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value);
+      this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value, viennamini::unit::si::mobility());
 
       // set the hole mobility for this segment
       //
@@ -474,14 +487,14 @@ void device::set_material(int segment_index, std::string const& new_material)
                          vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value);
+      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value, viennamini::unit::si::mobility());
 
       numeric ni_value        = this->material_library()->query_value(
         vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
                          vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value);
+      this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value, viennamini::unit::si::carrier_concentration());
   }
 }
 
@@ -495,14 +508,16 @@ std::string device::get_material(int segment_index)
   return segment_materials_[segment_index];
 }
 
-void device::set_quantity(std::string const& quantity_name, viennamini::quantity const& quan)
+void device::set_quantity(std::string         const& quantity_name,
+                          viennamini::numeric        value, 
+                          std::string         const& unit)
 {
   if(this->is_line1d())
   {
     for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
         sit != get_segmesh_line_1d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), quan);
+      this->set_quantity(quantity_name, (*sit).id(), value, unit);
     }
   }
   else
@@ -511,7 +526,7 @@ void device::set_quantity(std::string const& quantity_name, viennamini::quantity
     for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
         sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), quan);
+      this->set_quantity(quantity_name, (*sit).id(), value, unit);
     }
   }
   else
@@ -520,16 +535,19 @@ void device::set_quantity(std::string const& quantity_name, viennamini::quantity
     for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
         sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
     {
-      this->set_quantity(quantity_name, (*sit).id(), quan);
+      this->set_quantity(quantity_name, (*sit).id(), value, unit);
     }
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::quantity const& quan)
+void device::set_quantity(std::string         const& quantity_name,
+                          int                        segment_index,
+                          viennamini::numeric        value, 
+                          std::string         const& unit)
 {
   quantity_database_[quantity_name][segment_index].clear();
 
-  // if unit handling available: convert
+  converter_.run(quantity_name, value, unit);
 
   if(this->is_line1d())
   {
@@ -539,7 +557,7 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
   }
   else
   if(this->is_triangular2d())
@@ -550,7 +568,7 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
   }
   else
   if(this->is_tetrahedral3d())
@@ -561,93 +579,208 @@ void device::set_quantity(std::string const& quantity_name, int segment_index, v
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
-      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = quan.value();
+      quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, viennamini::sparse_quantities const& quantities)
+void device::set_quantity(std::string          const& quantity_name,
+                          viennamini::sparse_values & values, 
+                          std::string          const& unit)
 {
-  quantity_database_[quantity_name].clear();
-
   if(this->is_line1d())
   {
-    typedef viennagrid::result_of::cell_range<mesh_line_1d>::type      CellRange;
-    typedef viennagrid::result_of::cell<mesh_line_1d>::type            CellType;
-    typedef viennagrid::result_of::segment_id_range<segmentation_line_1d,CellType >::type SegmentIDRange;
-
-    CellRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().mesh);
-
-    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
+    for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
+        sit != get_segmesh_line_1d().segmentation.end(); ++sit)
     {
-      // iter->first:  cell index
-      // iter->second: value for the indexed cell
-
-      SegmentIDRange range = viennagrid::segment_ids(get_segmesh_line_1d().segmentation, cells[iter->first]);
-      for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
-      {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
-      }
+      this->set_quantity(quantity_name, (*sit).id(), values, unit);
     }
   }
   else
   if(this->is_triangular2d())
   {
-    typedef viennagrid::result_of::cell_range<mesh_triangular_2d>::type      CellRange;
-    typedef viennagrid::result_of::cell<mesh_triangular_2d>::type            CellType;
+    for(segmentation_triangular_2d::iterator sit = get_segmesh_triangular_2d().segmentation.begin();
+        sit != get_segmesh_triangular_2d().segmentation.end(); ++sit)
+    {
+      this->set_quantity(quantity_name, (*sit).id(), values, unit);
+    }
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    for(segmentation_tetrahedral_3d::iterator sit = get_segmesh_tetrahedral_3d().segmentation.begin();
+        sit != get_segmesh_tetrahedral_3d().segmentation.end(); ++sit)
+    {
+      this->set_quantity(quantity_name, (*sit).id(), values, unit);
+    }
+  }
+}
+
+void device::set_quantity(std::string          const& quantity_name,
+                          int                         segment_index,
+                          viennamini::sparse_values & values, 
+                          std::string          const& unit)
+{
+  quantity_database_[quantity_name][segment_index].clear();
+
+  converter_.run(quantity_name, values, unit);
+
+  if(this->is_line1d())
+  {
+    typedef viennagrid::result_of::cell_range<segment_line_1d>::type      CellOnSegmentRange;
+    typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type     CellOnSegmentIterator;
+    typedef viennagrid::result_of::cell<mesh_line_1d>::type               CellType;
+
+    CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
+    try{
+      for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+      {
+        std::size_t cell_index = (*cit).id().get();
+        quantity_database_[quantity_name][segment_index][cell_index] = values[cell_index];
+      }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+    }
+  }
+  else
+  if(this->is_triangular2d())
+  {
+    typedef viennagrid::result_of::cell_range<segment_triangular_2d>::type  CellOnSegmentRange;
+    typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type       CellOnSegmentIterator;
+    typedef viennagrid::result_of::cell<mesh_triangular_2d>::type           CellType;
+
+    CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().segmentation[segment_index]);
+    try{
+      for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+      {
+        std::size_t cell_index = (*cit).id().get();
+        quantity_database_[quantity_name][segment_index][cell_index] = values[cell_index];
+      }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+    }
+  }
+  else
+  if(this->is_tetrahedral3d())
+  {
+    typedef viennagrid::result_of::cell_range<segment_tetrahedral_3d>::type   CellOnSegmentRange;
+    typedef viennagrid::result_of::iterator<CellOnSegmentRange>::type         CellOnSegmentIterator;
+    typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type            CellType;
+
+    CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().segmentation[segment_index]);
+    try{
+      for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+      {
+        std::size_t cell_index = (*cit).id().get();
+        quantity_database_[quantity_name][segment_index][cell_index] = values[cell_index];
+      }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+    }
+  }
+}
+
+void device::set_quantity(std::string              const& quantity_name,
+                          viennamini::dense_values      & values,
+                          std::string              const& unit)
+{
+  quantity_database_[quantity_name].clear();
+
+  converter_.run(quantity_name, values, unit);
+
+  if(this->is_line1d())
+  {
+    typedef viennagrid::result_of::cell_range<mesh_line_1d>::type                         CellRange;
+    typedef viennagrid::result_of::iterator<CellRange>::type                              Cellterator;
+    typedef viennagrid::result_of::cell<mesh_line_1d>::type                               CellType;
+    typedef viennagrid::result_of::segment_id_range<segmentation_line_1d,CellType >::type SegmentIDRange;
+
+    CellRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().mesh);
+    if(cells.size() != values.size())
+      throw device_exception("Error with distributing dense values of quantity \""+quantity_name+"\". Quantity values do not fit cell size!");
+
+    try{
+      for(Cellterator cit = cells.begin(); cit != cells.end(); cit++)
+      {
+        std::size_t cell_index = (*cit).id().get();
+        SegmentIDRange range = viennagrid::segment_ids(get_segmesh_line_1d().segmentation, cells[cell_index]);
+        for(SegmentIDRange::iterator seg_iter = range.begin(); seg_iter != range.end(); seg_iter++)
+        {
+          quantity_database_[quantity_name][*seg_iter][cell_index] = values[cell_index];
+        }
+      }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing dense values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
+    }
+  }
+  else
+  if(this->is_triangular2d())
+  {
+    typedef viennagrid::result_of::cell_range<mesh_triangular_2d>::type     CellRange;
+    typedef viennagrid::result_of::iterator<CellRange>::type                Cellterator;
+    typedef viennagrid::result_of::cell<mesh_triangular_2d>::type           CellType;
     typedef viennagrid::result_of::segment_id_range<segmentation_triangular_2d,CellType >::type SegmentIDRange;
 
     CellRange cells = viennagrid::elements<CellType>(get_segmesh_triangular_2d().mesh);
+    if(cells.size() != values.size())
+      throw device_exception("Error with distributing dense values of quantity \""+quantity_name+"\". Quantity values do not fit cell size!");
 
-    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
-    {
-      // iter->first:  cell index
-      // iter->second: value for the indexed cell
-
-      SegmentIDRange range = viennagrid::segment_ids(get_segmesh_triangular_2d().segmentation, cells[iter->first]);
-      for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
+    try{
+      for(Cellterator cit = cells.begin(); cit != cells.end(); cit++)
       {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
+        std::size_t cell_index = (*cit).id().get();
+        SegmentIDRange range = viennagrid::segment_ids(get_segmesh_triangular_2d().segmentation, cells[cell_index]);
+        for(SegmentIDRange::iterator seg_iter = range.begin(); seg_iter != range.end(); seg_iter++)
+        {
+          quantity_database_[quantity_name][*seg_iter][cell_index] = values[cell_index];
+        }
       }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
     }
   }
   else
   if(this->is_tetrahedral3d())
   {
     typedef viennagrid::result_of::cell_range<mesh_tetrahedral_3d>::type      CellRange;
+    typedef viennagrid::result_of::iterator<CellRange>::type                  Cellterator;
     typedef viennagrid::result_of::cell<mesh_tetrahedral_3d>::type            CellType;
     typedef viennagrid::result_of::segment_id_range<segmentation_tetrahedral_3d,CellType >::type SegmentIDRange;
 
     CellRange cells = viennagrid::elements<CellType>(get_segmesh_tetrahedral_3d().mesh);
+    if(cells.size() != values.size())
+      throw device_exception("Error with distributing dense values of quantity \""+quantity_name+"\". Quantity values do not fit cell size!");
 
-    for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
-    {
-      // iter->first:  cell index
-      // iter->second: value for the indexed cell
-
-      SegmentIDRange range = viennagrid::segment_ids(get_segmesh_tetrahedral_3d().segmentation, cells[iter->first]);
-      for(SegmentIDRange::iterator riter = range.begin(); riter != range.end(); riter++)
+    try{
+      for(Cellterator cit = cells.begin(); cit != cells.end(); cit++)
       {
-        quantity_database_[quantity_name][*riter][iter->first] = iter->second.value();
+        std::size_t cell_index = (*cit).id().get();
+        SegmentIDRange range = viennagrid::segment_ids(get_segmesh_tetrahedral_3d().segmentation, cells[cell_index]);
+        for(SegmentIDRange::iterator seg_iter = range.begin(); seg_iter != range.end(); seg_iter++)
+        {
+          quantity_database_[quantity_name][*seg_iter][cell_index] = values[cell_index];
+        }
       }
+    }
+    catch(std::exception const& e)
+    {
+      throw device_exception("Error with distributing sparse values of quantity \""+quantity_name+"\". Verify cell-value mapping!");
     }
   }
 }
 
-void device::set_quantity(std::string const& quantity_name, int segment_index, viennamini::sparse_quantities const& quantities)
+viennamini::value_accessor device::get_quantity_value_accessor (std::string const& quantity_name, int segment_index)
 {
-  quantity_database_[quantity_name][segment_index].clear();
-  //quantity_database_[quantity_name][segment_index].insert(values.begin(), values.end());
-  for(viennamini::sparse_values::const_iterator iter = quantities.begin(); iter != quantities.end(); iter++)
-  {
-
-  }
-  std::cerr << "this is not implemented yet" << std::endl;
-  exit(0);
-}
-
-viennamini::sparse_values device::get_quantity_values(std::string const& quantity_name, int segment_index)
-{
-  return quantity_database_[quantity_name][segment_index];
+  return viennamini::value_accessor(quantity_database_[quantity_name][segment_index]);
 }
 
 viennamini::numeric device::get_quantity_value(std::string const& quantity_name, int segment_index, std::size_t cell_index)
@@ -793,85 +926,6 @@ std::ostream& device::stream()
 {
   return stream_;
 }
-
-// Private member functions
-
-//void device::distribute_permittivity(std::size_t segment_index)
-//{
-//  if(this->is_line1d())
-//  {
-//    typedef problem_description_line_1d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::permittivity());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_line_1d().segmentation(segment_index), segment_permittivity_[segment_index]);
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    typedef problem_description_triangular_2d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::permittivity());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), segment_permittivity_[segment_index]);
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::permittivity());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), segment_permittivity_[segment_index]);
-//  }
-//  else throw device_not_supported_exception("at: device::set_permittivity()");
-//}
-
-//void device::distribute_acceptor_doping(std::size_t segment_index)
-//{
-//  if(this->is_line1d())
-//  {
-//    typedef problem_description_line_1d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::acceptor_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_line_1d().segmentation(segment_index), segment_acceptor_doping_[segment_index]);
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    typedef problem_description_triangular_2d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::acceptor_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), segment_acceptor_doping_[segment_index]);
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::acceptor_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), segment_acceptor_doping_[segment_index]);
-//  }
-//  else throw device_not_supported_exception("at: device::set_acceptor_doping()");
-//}
-
-//void device::distribute_donator_doping(std::size_t segment_index)
-//{
-//  if(this->is_line1d())
-//  {
-//    typedef problem_description_line_1d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_line_1d().get_quantity(viennamini::id::donator_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_line_1d().segmentation(segment_index), segment_donator_doping_[segment_index]);
-//  }
-//  else
-//  if(this->is_triangular2d())
-//  {
-//    typedef problem_description_triangular_2d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_triangular_2d().get_quantity(viennamini::id::donator_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_triangular_2d().segmentation(segment_index), segment_donator_doping_[segment_index]);
-//  }
-//  else
-//  if(this->is_tetrahedral3d())
-//  {
-//    typedef problem_description_tetrahedral_3d::quantity_type  QuantityType;
-//    QuantityType & quan = this->get_problem_description_tetrahedral_3d().get_quantity(viennamini::id::donator_doping());
-//    viennafvm::set_initial_value(quan, this->get_segmesh_tetrahedral_3d().segmentation(segment_index), segment_donator_doping_[segment_index]);
-//  }
-//  else throw device_not_supported_exception("at: device::set_donator_doping()");
-//}
-
-
 
 } // viennamini
 

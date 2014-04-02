@@ -1,5 +1,5 @@
 /* =======================================================================
-   Copyright (c) 2011-2014, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
                  ViennaMini - The Vienna Device Simulator
@@ -9,26 +9,23 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the base directory
+   license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include "viennamini/quantity.hpp"
+#include "viennamini/value_accessor.hpp"
 
-namespace viennamini
-{
+namespace viennamini {
 
-  quantity::quantity(viennamini::numeric value, std::string unit)
-    : value_(value), unit_(unit)
+  value_accessor::value_accessor(viennamini::sparse_values& data) : data_(data)
   {
+
   }
 
-  viennamini::numeric& quantity::value()
+  viennamini::numeric& value_accessor::operator()(std::size_t const& cell_index)
   {
-    return value_;
+    return data_[cell_index];
   }
 
-  std::string& quantity::unit()
-  {
-    return unit_;
-  }
+
 } // viennamini
+

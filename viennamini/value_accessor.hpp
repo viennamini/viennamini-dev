@@ -1,8 +1,8 @@
-#ifndef VIENNAMINI_QUANTITY_HPP
-#define VIENNAMINI_QUANTITY_HPP
+#ifndef VIENNAMINI_VALUEACCESSOR_HPP
+#define VIENNAMINI_VALUEACCESSOR_HPP
 
 /* =======================================================================
-   Copyright (c) 2011-2014, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
                  ViennaMini - The Vienna Device Simulator
@@ -12,29 +12,29 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the base directory
+   license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
 #include "viennamini/forwards.h"
 
-namespace viennamini
-{
+namespace viennamini {
 
-struct quantity
+class value_accessor
 {
 public:
-  quantity(viennamini::numeric value, std::string unit);
-  quantity(viennamini::numeric value, std::string unit);
 
+  typedef viennamini::sparse_values::mapped_type result_type;
 
-  viennamini::numeric& value();
-  std::string&         unit();
+  value_accessor(viennamini::sparse_values& data);
+
+  result_type& operator()(std::size_t const& cell_index);
 
 private:
-  viennamini::numeric value_;
-  std::string         unit_;
+  viennamini::sparse_values& data_;
 };
 
-} //viennamini
+} // viennamini
+
 
 #endif
+

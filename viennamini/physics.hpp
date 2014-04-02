@@ -17,6 +17,8 @@
 ======================================================================= */
 
 #include "viennamini/constants.hpp"
+#include "viennamini/value_accessor.hpp"
+
 
 namespace viennamini
 {
@@ -40,18 +42,20 @@ namespace viennamini
     return (viennamini::kB::val() * T) / viennamini::q::val();
   }
 
+
+
   struct thermal_potential_functor
   {
-    typedef viennamini::numeric result_type;
+    typedef viennamini::value_accessor::result_type result_type;
 
-    thermal_potential_functor(viennamini::sparse_values const& temperature_cell_values) : temperature_cell_values_(temperature_cell_values) {}
+    thermal_potential_functor(viennamini::value_accessor temperature_cell_values) : temperature_cell_values_(temperature_cell_values) {}
 
-    result_type operator()(std::size_t cell_index)
+    result_type operator()(std::size_t const& cell_index)
     {
-      return thermal_potential(temperature_cell_values_.at(cell_index));
+      return thermal_potential(temperature_cell_values_(cell_index));
     }
 
-    viennamini::sparse_values const& temperature_cell_values_;
+    viennamini::value_accessor temperature_cell_values_;
   };
 
   // ---------------------------------------------------------------------------
