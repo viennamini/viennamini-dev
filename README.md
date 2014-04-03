@@ -40,10 +40,12 @@ $> make install
 CMake Options
 --------------------------
 
-VIENNAMINI_VERBOSE =(ON), OFF         : Make ViennaMini output debug messages (default: ON).
-VIENNAMINI_DOWNLOAD= ON, (OFF)        : Automatically checkout external dependencies during the build-process, i.e., other Vienna* projects  (default: OFF).
-BUILD_EXAMPLES     =(ON), OFF         : Build the examples. The ViennaMini library is generated anyway. (default: ON)
-CMAKE_BUILD_TYPE   = debug, (release) : Turn off/on optimizations (default: release, i.e., optimized mode)
+<pre>
+VIENNAMINI_VERBOSE =(ON), OFF         # Make ViennaMini output debug messages (default: ON).
+VIENNAMINI_DOWNLOAD= ON, (OFF)        # Automatically checkout external dependencies during the build-process, i.e., other Vienna* projects  (default: OFF).
+BUILD_EXAMPLES     =(ON), OFF         # Build the examples. The ViennaMini library is generated anyway. (default: ON)
+CMAKE_BUILD_TYPE   = debug, (release) # Turn off/on optimizations (default: release, i.e., optimized mode)
+</pre>
 
 Automatic Unit Conversions
 --------------------------
