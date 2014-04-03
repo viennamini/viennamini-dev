@@ -28,7 +28,8 @@ int main()
   // read mesh and material input files
   //
   mysim.device().read(viennamini::device_collection_path()+"/nin2d/nin2d.mesh", viennamini::triangular_2d());
-  mysim.device().read_material_library("../../examples/materials.xml");
+  mysim.device().read_material_database("../../auxiliary/materials.xml");
+  mysim.device().read_unit_database("../../auxiliary/units.xml");
 
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
@@ -59,8 +60,8 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact(viennamini::id::potential(), left_contact,  0.0);
-  mysim.device().set_contact(viennamini::id::potential(), right_contact, 1.0);
+  mysim.device().set_contact_quantity(viennamini::id::potential(), left_contact,  0.0, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), right_contact, 1.0, "V");
 
   // perform the simulation
   //

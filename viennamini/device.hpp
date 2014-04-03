@@ -1,4 +1,3 @@
-
 #ifndef VIENNAMINI_DEVICE_HPP
 #define VIENNAMINI_DEVICE_HPP
 
@@ -25,9 +24,28 @@
 #include "viennamini/generic_mesh.hpp"
 #include "viennamini/value_accessor.hpp"
 #include "viennamini/quantity_converter.hpp"
+#include "viennamini/utils/enable_if.hpp"
 
 namespace viennamini
 {
+
+  template<typename T>
+  struct is_accessor
+  {
+  private:
+    typedef char true_type;
+    struct false_type{ true_type _[2]; };
+
+    template <typename U>
+    static true_type has_result_type(typename U::result_type *);
+
+    template <typename U>
+    static false_type has_result_type(...);
+
+  public:
+    enum { value = (sizeof(has_result_type<T>(0)) == sizeof(true_type)) };
+//    static const bool value = (sizeof(has_result_type<T>(0)) == sizeof(true_type));
+  };
 
   class device_exception : public std::runtime_error {
   public:
@@ -103,8 +121,10 @@ namespace viennamini
     void read(std::string const& filename, viennamini::triangular_2d const&);
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
 
-    void read_material_library(std::string const& filename);
-    void set_material_library(material_library_handle& matlib);
+    void read_material_database(std::string const& filename);
+    void set_material_database(material_library_handle& matlib);
+
+    void read_unit_database(std::string const& filename);
 
     void write(std::string const& filename);
 
@@ -116,36 +136,37 @@ namespace viennamini
 
     /// Distribute the value of a single quantity on the entire device
     void set_quantity (std::string          const& quantity_name,
-                       viennamini::numeric         value, 
+                       viennamini::numeric         value,
                        std::string          const& unit);
 
     /// Distribute the value of a single quantity on a specific device segment
     void set_quantity (std::string          const& quantity_name,
                        int                         segment_index,
-                       viennamini::numeric         value, 
+                       viennamini::numeric         value,
                        std::string          const& unit);
 
     /// Distribute the values of a single quantity on the entire device
     void set_quantity (std::string          const& quantity_name,
-                       viennamini::sparse_values & values, 
+                       viennamini::sparse_values & values,
                        std::string          const& unit);
 
     /// Distribute the values of a single quantity on a specific device segment
     void set_quantity (std::string          const& quantity_name,
                        int                         segment_index,
-                       viennamini::sparse_values & values, 
+                       viennamini::sparse_values & values,
                        std::string          const& unit);
 
     /// Distribute the values of a single quantity on the entire device
     void set_quantity (std::string          const& quantity_name,
-                       viennamini::dense_values  & values, 
+                       viennamini::dense_values  & values,
                        std::string          const& unit);
 
     /// Distribute the values via an accessor of a single quantity on a specific device segment
     template<typename AccessorT>
-    void set_quantity (std::string                                      const& quantity_name,
-                       int                                                     segment_index,
-                       AccessorT                                               accessor)
+    typename viennamini::enable_if< viennamini::is_accessor<AccessorT>::value >::type
+    set_quantity (std::string                                      const& quantity_name,
+                  int                                                     segment_index,
+                  AccessorT                                               accessor)
     {
       if(this->is_line1d())
       {
@@ -219,13 +240,13 @@ public:
     bool                  has_quantity (std::string const& quantity_name, int segment_index);
 
     /// Store a contact value
-    void                  set_contact (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value);
+    void                  set_contact_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric  value, std::string const& unit);
 
     /// Retrieve a contact value
-    viennamini::numeric   get_contact (std::string const& quantity_name, int segment_index);
+    viennamini::numeric   get_contact_quantity_value (std::string const& quantity_name, int segment_index);
 
     /// Test whether a contact value is stored for a specific segment
-    bool                  has_contact (std::string const& quantity_name, int segment_index);
+    bool                  has_contact_quantity (std::string const& quantity_name, int segment_index);
 
     void set_recombination        (int segment_index, recombination::recombination_ids id);
     recombination::recombination_ids get_recombination(int segment_index);
@@ -273,7 +294,7 @@ public:
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
 
-    viennamini::quantity_converter    converter_;
+    viennamini::quantity_converter_handle converter_;
 
     std::ostream& stream_;
   };

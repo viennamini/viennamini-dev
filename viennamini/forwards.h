@@ -62,10 +62,10 @@ namespace viennamini
   namespace unit {
     inline std::string none()                         { return "1"; }
     namespace si {
-      inline std::string kelvin()                     { return "K"; }
+      inline std::string temperature()                { return "K"; }
       inline std::string mobility()                   { return "m2/V*s"; }
       inline std::string carrier_concentration()      { return "m-3"; }
-      inline std::string volt()                       { return "V"; }
+      inline std::string potential()                  { return "V"; }
     } // si
   } // unit
 
@@ -169,6 +169,7 @@ namespace viennamini
   class discretization;
   class stepper;
   class pde_set;
+  class quantity_converter;
 
   typedef double                                                                                                  numeric;
   typedef std::map<std::size_t, numeric>                                                                          sparse_values;
@@ -201,6 +202,7 @@ namespace viennamini
   typedef std::unique_ptr<viennamini::stepper>                                                                stepper_handle;
   typedef std::unique_ptr<viennamini::discretization>                                                         discretization_handle;
   typedef std::unique_ptr<viennamini::pde_set>                                                                pde_set_handle;
+  typedef std::unique_ptr<viennamini::quantity_converter>                                                     quantity_converter_handle;
 #else
   typedef std::auto_ptr<viennamini::device>                                                                 device_handle;
   typedef std::auto_ptr<viennamini::configuration>                                                          configuration_handle;
@@ -210,6 +212,7 @@ namespace viennamini
   typedef std::auto_ptr<viennamini::stepper>                                                                stepper_handle;
   typedef std::auto_ptr<viennamini::discretization>                                                         discretization_handle;
   typedef std::auto_ptr<viennamini::pde_set>                                                                pde_set_handle;
+  typedef std::auto_ptr<viennamini::quantity_converter>                                                     quantity_converter_handle;
 #endif
 
 } // viennamini

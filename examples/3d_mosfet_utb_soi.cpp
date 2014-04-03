@@ -26,7 +26,8 @@ int main()
   // read mesh and material input files
   //
   mysim.device().read(viennamini::device_collection_path()+"/mosfet_utb_soi_3d/mosfet_utb_soi_3d_main.pvd", viennamini::tetrahedral_3d());
-  mysim.device().read_material_library("../../examples/materials.xml");
+  mysim.device().read_material_database("../../auxiliary/materials.xml");
+  mysim.device().read_unit_database("../../auxiliary/units.xml");
 
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
@@ -35,7 +36,7 @@ int main()
 
   // set the temperature of the device
   //
-  mysim.device().set_quantity(viennamini::id::temperature(), 300.0);
+  mysim.device().set_quantity(viennamini::id::temperature(), 300.0, "K");
 
   // setup auxiliary segment indices, aiding in identifying the individual
   // device segments in the subsequent device setup step
@@ -66,14 +67,14 @@ int main()
 
   // assign doping values to the semiconductor segments
   //
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    channel, 1.0E22);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), channel, 1.0E10);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    source, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), source, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain, 1.0E24);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain, 1.0E8);
-  mysim.device().set_quantity(viennamini::id::donor_doping(),    body, 1.0E22);
-  mysim.device().set_quantity(viennamini::id::acceptor_doping(), body, 1.0E10);
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    channel, 1.0E22, "m-3");
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), channel, 1.0E10, "m-3");
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    source,  1.0E24, "m-3");
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), source,  1.0E8,  "m-3");
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    drain,   1.0E24, "m-3");
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain,   1.0E8,  "m-3");
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    body,    1.0E22, "m-3");
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), body,    1.0E10, "m-3");
 
   // set optional solver parameters
   //
@@ -90,10 +91,10 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact(viennamini::id::potential(), gate_contact,   0.6);
-  mysim.device().set_contact(viennamini::id::potential(), source_contact, 0.0);
-  mysim.device().set_contact(viennamini::id::potential(), drain_contact,  0.2);
-  mysim.device().set_contact(viennamini::id::potential(), body_contact,   0.0);
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), body_contact,   0.0, "V");
 
   // perform the simulation
   //

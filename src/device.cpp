@@ -290,8 +290,12 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-//      std::cout << "transferring permittivity from oxide to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, viennamini::unit::none());
+      std::string epsr_unit    = this->material_library()->query(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
+                         vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                         vmat::make_entry(this->matlib_data()     , material::unit()))
+      );
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, epsr_unit);
     }
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
@@ -304,8 +308,12 @@ void device::update()
                          vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-//      std::cout << "transferring permittivity from semiconductor to contact " << adjacent_segment_index << " " << adjacent_segment_material << " " << epsr_value << std::endl;
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, viennamini::unit::none());
+      std::string epsr_unit    = this->material_library()->query(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
+                         vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                         vmat::make_entry(this->matlib_data()     , material::unit()))
+      );
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, epsr_value, epsr_unit);
     }
   }
 }
@@ -378,7 +386,7 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
     throw device_exception("The input mesh file type is not supported!");
 }
 
-void device::set_material_library(material_library_handle& matlib)
+void device::set_material_database(material_library_handle& matlib)
 {
   matlib_.reset();
   matlib_ = matlib;
@@ -388,7 +396,7 @@ void device::set_material_library(material_library_handle& matlib)
   matlib_data_      = matlib_->register_accessor(new viennamini::xpath_data_accessor);
 }
 
-void device::read_material_library(std::string const& filename)
+void device::read_material_database(std::string const& filename)
 {
   matlib_.reset();
   std::string extension = viennamini::file_extension(filename);
@@ -402,6 +410,12 @@ void device::read_material_library(std::string const& filename)
   }
   else
     throw device_exception("The input material file type is not supported!");
+}
+
+void device::read_unit_database(std::string const& filename)
+{
+  converter_.reset();
+  converter_ = quantity_converter_handle(new quantity_converter(filename));
 }
 
 void device::write(std::string const& filename)
@@ -465,7 +479,12 @@ void device::set_material(int segment_index, std::string const& new_material)
                      vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
                      vmat::make_entry(this->matlib_data()     , material::value()))
   );
-  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, viennamini::unit::none());
+  std::string epsr_unit    = this->material_library()->query(
+    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
+                     vmat::make_entry(this->matlib_data()     , material::unit()))
+  );
+  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, epsr_unit);
 
   // the following quantities are only available for semiconductors
   //
@@ -478,7 +497,12 @@ void device::set_material(int segment_index, std::string const& new_material)
                          vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value, viennamini::unit::si::mobility());
+      std::string mu_n_0_unit    = this->material_library()->query(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::base_electron_mobility()),
+                         vmat::make_entry(this->matlib_data()     , material::unit()))
+      );
+      this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_value, mu_n_0_unit);
 
       // set the hole mobility for this segment
       //
@@ -487,14 +511,24 @@ void device::set_material(int segment_index, std::string const& new_material)
                          vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value, viennamini::unit::si::mobility());
+      std::string mu_p_0_unit    = this->material_library()->query(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::base_hole_mobility()),
+                         vmat::make_entry(this->matlib_data()     , material::unit()))
+      );
+      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value, mu_p_0_unit);
 
       numeric ni_value        = this->material_library()->query_value(
         vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
                          vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
                          vmat::make_entry(this->matlib_data()     , material::value()))
       );
-      this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value, viennamini::unit::si::carrier_concentration());
+      std::string ni_unit        = this->material_library()->query(
+        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
+                         vmat::make_entry(this->matlib_parameter(), material::intrinsic_carrier_concentration()),
+                         vmat::make_entry(this->matlib_data()     , material::unit()))
+      );
+      this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_value, ni_unit);
   }
 }
 
@@ -547,7 +581,8 @@ void device::set_quantity(std::string         const& quantity_name,
 {
   quantity_database_[quantity_name][segment_index].clear();
 
-  converter_.run(quantity_name, value, unit);
+  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
+  converter_->run(quantity_name, value, unit);
 
   if(this->is_line1d())
   {
@@ -622,7 +657,8 @@ void device::set_quantity(std::string          const& quantity_name,
 {
   quantity_database_[quantity_name][segment_index].clear();
 
-  converter_.run(quantity_name, values, unit);
+  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
+  converter_->run(quantity_name, values, unit);
 
   if(this->is_line1d())
   {
@@ -691,7 +727,8 @@ void device::set_quantity(std::string              const& quantity_name,
 {
   quantity_database_[quantity_name].clear();
 
-  converter_.run(quantity_name, values, unit);
+  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
+  converter_->run(quantity_name, values, unit);
 
   if(this->is_line1d())
   {
@@ -788,12 +825,14 @@ viennamini::numeric device::get_quantity_value(std::string const& quantity_name,
   return quantity_database_[quantity_name][segment_index][cell_index];
 }
 
-void device::set_contact (std::string const& quantity_name, int segment_index, viennamini::numeric   const& value)
+void device::set_contact_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value, std::string const& unit)
 {
+  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
+  converter_->run(quantity_name, value, unit);
   contact_database_[quantity_name][segment_index] = value;
 }
 
-viennamini::numeric device::get_contact (std::string const& quantity_name, int segment_index)
+viennamini::numeric device::get_contact_quantity_value (std::string const& quantity_name, int segment_index)
 {
 //  if(!(this->has_contact(quantity_name, segment_index)))
 //    throw device_exception("Device contact quantity \""+quantity_name+
@@ -801,7 +840,7 @@ viennamini::numeric device::get_contact (std::string const& quantity_name, int s
   return contact_database_[quantity_name][segment_index];
 }
 
-bool device::has_contact (std::string const& quantity_name, int segment_index)
+bool device::has_contact_quantity (std::string const& quantity_name, int segment_index)
 {
   if(contact_database_.find(quantity_name) != contact_database_.end())
   {

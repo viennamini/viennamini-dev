@@ -8,9 +8,10 @@ redistribution conditions.
 -->
 
 <unit-system>
-    <import>udunits2-prefixes.xml</import>
-    <import>udunits2-base.xml</import>
-    <import>udunits2-derived.xml</import>
-    <import>udunits2-accepted.xml</import>
-    <import>udunits2-common.xml</import>
+    <import>units-prefixes.xml</import>
+    <import>units-base.xml</import>
+    <import>units-derived.xml</import>
+    <import>units-accepted.xml</import>
+    <import>units-common.xml</import>
+    <import>units-viennastar.xml</import>
 </unit-system>

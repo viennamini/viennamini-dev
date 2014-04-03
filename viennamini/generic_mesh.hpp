@@ -16,7 +16,7 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-namespace viennamini 
+namespace viennamini
 {
 
 /** @brief Exception for the case that the mesh type id is not supported */
@@ -60,7 +60,7 @@ struct generic_mesh
   }
 
   viennamini::mesh::mesh_ids id;
-  union 
+  union
   {
     segmesh_line_1d         *  segmesh_line_1d_ptr;
     segmesh_triangular_2d   *  segmesh_triangular_2d_ptr;

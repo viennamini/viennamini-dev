@@ -72,7 +72,7 @@ public:
     key_index_map_.clear();
     matrix_.clear();
   }
-  
+
   std::size_t column_size()
   {
     return matrix_.size();
@@ -100,7 +100,7 @@ public:
     //
     for(std::size_t i = 0; i < matrix_.front().size(); i++)
     {
-      for(MatrixType::iterator col_iter = matrix_.begin(); 
+      for(MatrixType::iterator col_iter = matrix_.begin();
           col_iter != matrix_.end(); col_iter++)
       {
         stream << (*col_iter)[i] << "  ";

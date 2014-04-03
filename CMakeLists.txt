@@ -136,9 +136,9 @@ IF(UDUNITS_FOUND)
   INCLUDE_DIRECTORIES(${UDUNITS_INCLUDE_DIR})
   SET(LIBRARIES ${LIBRARIES} ${UDUNITS_LIBRARIES})
   ADD_DEFINITIONS(-DVIENNAMINI_WITH_UNITS)
-  MESSAGE(STATUS "ViennaMini will be built with automatic unit handling")
+  MESSAGE(STATUS "ViennaMini will be built with support for automatic unit conversions!")
 ELSE(UDUNITS_FOUND)
-  MESSAGE(WARNING "ViennaMini will be built without automatic unit handling")
+  MESSAGE(WARNING "ViennaMini will be built without support for automatic unit conversions!")
 ENDIF(UDUNITS_FOUND)
 
 # build the ViennaMini library

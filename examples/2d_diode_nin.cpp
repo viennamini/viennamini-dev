@@ -30,7 +30,8 @@ int main()
   // read mesh and material input files
   //
   mysim.device().read(device_collection_path()+"/nin2d/nin2d.mesh", triangular_2d());
-  mysim.device().read_material_library("../../auxiliary/materials.xml");
+  mysim.device().read_material_database("../../auxiliary/materials.xml");
+  mysim.device().read_unit_database("../../auxiliary/units.xml");
 
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
@@ -39,7 +40,7 @@ int main()
 
   // set the temperature of the device
   //
-  mysim.device().set_quantity(id::temperature(), 300.0, unit::si::kelvin());
+  mysim.device().set_quantity(id::temperature(), 300.0, "K");
 
   // setup auxiliary segment indices, aiding in identifying the individual
   // device segments in the subsequent device setup step
@@ -60,12 +61,12 @@ int main()
 
   // assign doping values to the semiconductor segments
   //
-  mysim.device().set_quantity(id::donor_doping(),    left,      1.0E24, unit::si::carrier_concentration());
-  mysim.device().set_quantity(id::acceptor_doping(), left,      1.0E8,  unit::si::carrier_concentration());
-  mysim.device().set_quantity(id::donor_doping(),    intrinsic, 1.0E21, unit::si::carrier_concentration());
-  mysim.device().set_quantity(id::acceptor_doping(), intrinsic, 1.0E11, unit::si::carrier_concentration());
-  mysim.device().set_quantity(id::donor_doping(),    right,     1.0E24, unit::si::carrier_concentration());
-  mysim.device().set_quantity(id::acceptor_doping(), right,     1.0E8,  unit::si::carrier_concentration());
+  mysim.device().set_quantity(id::donor_doping(),    left,      1.0E24, "m-3");
+  mysim.device().set_quantity(id::acceptor_doping(), left,      1.0E8,  "m-3");
+  mysim.device().set_quantity(id::donor_doping(),    intrinsic, 1.0E21, "m-3");
+  mysim.device().set_quantity(id::acceptor_doping(), intrinsic, 1.0E11, "m-3");
+  mysim.device().set_quantity(id::donor_doping(),    right,     1.0E24, "m-3");
+  mysim.device().set_quantity(id::acceptor_doping(), right,     1.0E8,  "m-3");
 
   // set optional solver parameters
   //
@@ -81,9 +82,8 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact(id::potential(), left_contact,  0.0);
-  mysim.device().set_contact(id::potential(), right_contact, 0.2);
-
+  mysim.device().set_contact_quantity(id::potential(), left_contact,  0.0, "V");
+  mysim.device().set_contact_quantity(id::potential(), right_contact, 0.2, "V");
 
   // perform the simulation
   //

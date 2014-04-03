@@ -97,12 +97,12 @@ public:
           if(config().model().get_pde_set().is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
           {
             // sanity check: make sure that a contact value is available ..
-            if(device().has_contact(*unknown_iter, current_segment_index))
+            if(device().has_contact_quantity(*unknown_iter, current_segment_index))
             {
               #ifdef VIENNAMINI_VERBOSE
-                std::cout << "    assigning Dirichlet boundary value: " << device().get_contact(*unknown_iter, current_segment_index) << std::endl;
+                std::cout << "    assigning Dirichlet boundary value: " << device().get_contact_quantity_value(*unknown_iter, current_segment_index) << std::endl;
               #endif
-              viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact(*unknown_iter, current_segment_index));
+              viennafvm::set_dirichlet_boundary(quan, segmesh.segmentation(current_segment_index), device().get_contact_quantity_value(*unknown_iter, current_segment_index));
             }
             else throw discretization_exception("Contact boundary condition for unknown \""+*unknown_iter+
               "\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");

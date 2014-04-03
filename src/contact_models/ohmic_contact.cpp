@@ -37,17 +37,32 @@ void ohmic_contact::apply(viennamini::device_handle& device, std::size_t segment
     //
     if(get_quantity_name() == viennamini::id::potential())
     {
-      device->set_contact(get_quantity_name(), segment_index, device->get_contact(get_quantity_name(), segment_index) + viennamini::built_in_potential(qset.ND, qset.NA, qset.T, qset.ni));
+      device->set_contact_quantity(
+        get_quantity_name(), 
+        segment_index, 
+        device->get_contact_quantity_value(get_quantity_name(), segment_index) + viennamini::built_in_potential(qset.ND, qset.NA, qset.T, qset.ni), 
+        viennamini::unit::si::potential()
+      );
     }
     else
     if(get_quantity_name() == viennamini::id::electron_concentration())
     {
-      device->set_contact(get_quantity_name(), segment_index, viennamini::ohmic_electrons_initial(qset.ND, qset.NA, qset.ni));
+      device->set_contact_quantity(
+        get_quantity_name(), 
+        segment_index, 
+        viennamini::ohmic_electrons_initial(qset.ND, qset.NA, qset.ni), 
+        viennamini::unit::si::carrier_concentration()
+      );
     }
     else
     if(get_quantity_name() == viennamini::id::hole_concentration())
     {
-      device->set_contact(get_quantity_name(), segment_index, viennamini::ohmic_holes_initial(qset.ND, qset.NA, qset.ni));
+      device->set_contact_quantity(
+        get_quantity_name(), 
+        segment_index, 
+        viennamini::ohmic_holes_initial(qset.ND, qset.NA, qset.ni),
+        viennamini::unit::si::carrier_concentration()
+      );
     }
     else throw contact_model_exception("Ohmic contact model is not defined for quantity \""+get_quantity_name()+"\"!");
 }
