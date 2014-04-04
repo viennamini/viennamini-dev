@@ -21,48 +21,43 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/configs/model.hpp"
-
+#include "viennamini/configs/linear_solver.hpp"
+#include "viennamini/configs/nonlinear_solver.hpp"
 
 namespace viennamini {
 
 struct configuration
 {
 private:
-  typedef viennamini::numeric                 NumericType;
-  typedef int                                 IndexType;
-  typedef std::vector<NumericType>            ValuesType;
-  typedef std::map<std::size_t, NumericType>  SegmentValuesType;
-  typedef viennamini::config::model           ModelType;
+  typedef viennamini::config::linear_solver     LinearSolverConfigType;
+  typedef viennamini::config::nonlinear_solver  NonLinearSolverConfigType;
+  typedef viennamini::config::model             ModelType;
 
 public:
-  typedef NumericType       numeric_type;
-  typedef IndexType         index_type;
-  typedef ValuesType        values_type;
-  typedef SegmentValuesType segmentvalues_type;
-  typedef ModelType         model_type;
+  typedef LinearSolverConfigType                linear_solver_config_type;
+  typedef NonLinearSolverConfigType             nonlinear_solver_config_type;
+  typedef ModelType                             model_type;
 
   configuration(std::ostream& stream = std::cout);
 
-  IndexType&    nonlinear_iterations();
-  NumericType&  nonlinear_breaktol();
-  IndexType&    linear_iterations();
-  NumericType&  linear_breaktol();
-  NumericType&  damping();
   bool&         write_initial_guess_files();
   bool&         write_result_files();
   std::ostream& stream();
-  ModelType&    model();
+
+  linear_solver_config_type     & linear_solver();
+  nonlinear_solver_config_type  & nonlinear_solver();
+  model_type                    & model();
 
 private:
-  IndexType         nonlinear_iterations_;
-  IndexType         linear_iterations_;
-  NumericType       nonlinear_breaktol_;
-  NumericType       linear_breaktol_;
-  NumericType       damping_;
+
+
   bool              write_initial_guesses_;
   bool              write_simulation_results_;
   std::ostream&     stream_;
-  ModelType         model_;
+
+  LinearSolverConfigType    linear_solver_;
+  NonLinearSolverConfigType nonlinear_solver_;
+  ModelType                 model_;
 };
 
 

@@ -17,10 +17,11 @@
 
 namespace viennamini {
 
-discretization::discretization(viennamini::device_handle        device,
-               viennamini::configuration_handle config,
-               viennamini::stepper_handle       stepper,
-               std::ostream                   & stream) :
+discretization::discretization(
+                viennamini::device_handle        & device,
+                viennamini::configuration_handle & config,
+                viennamini::stepper_handle       & stepper,
+                std::ostream                     & stream) :
   device_(device), config_(config), stepper_(stepper), stream_(stream)
 {
 }

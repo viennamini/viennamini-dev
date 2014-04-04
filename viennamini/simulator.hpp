@@ -19,16 +19,12 @@
   #define NDEBUG
 #endif
 
-// ViennaMini includes:
 #include "viennamini/forwards.h"
 #include "viennamini/configuration.hpp"
 #include "viennamini/device.hpp"
-//#include "viennamini/problem.hpp"
 #include "viennamini/stepper.hpp"
 #include "viennamini/data_table.hpp"
 #include "viennamini/utils/convert.hpp"
-#include "viennamini/discretization.hpp"
-#include "viennamini/discretizations/fvm.hpp"
 
 namespace viennamini
 {

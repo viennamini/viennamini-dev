@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_PDESETS_LAPLACE_HPP
-#define VIENNAMINI_PDESETS_LAPLACE_HPP
+#ifndef VIENNAMINI_GENERATEPDESET_HPP
+#define VIENNAMINI_GENERATEPDESET_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
@@ -15,27 +15,14 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include "viennamini/pde_set.hpp"
-
+#include "viennamini/pde_sets/laplace.hpp"
+#include "viennamini/pde_sets/drift_diffusion.hpp"
 
 namespace viennamini {
 
-class laplace : public viennamini::pde_set
-{
-public:
-
-  laplace();
-
-  std::string info();
-
-  pdes_type get_pdes();
-
-  bool is_linear();
-
-};
+viennamini::pde_set_handle generate_pde_set(viennamini::pdeset::pdeset_ids pde_set_id);
 
 } // viennamini
-
 
 #endif
 

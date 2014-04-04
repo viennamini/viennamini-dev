@@ -71,11 +71,11 @@ int main()
 
   // set optional solver parameters
   //
-  mysim.config().linear_breaktol()        = 1.0E-14;
-  mysim.config().linear_iterations()      = 1000;
-  mysim.config().nonlinear_iterations()   = 100;
-  mysim.config().nonlinear_breaktol()     = 1.0E-2;
-  mysim.config().damping()                = 0.9;
+  mysim.config().linear_solver().breaktol()        = 1.0E-14;
+  mysim.config().linear_solver().iterations()      = 1000;
+  mysim.config().nonlinear_solver().iterations()   = 100;
+  mysim.config().nonlinear_solver().breaktol()     = 1.0E-2;
+  mysim.config().nonlinear_solver().damping()      = 0.9;
 
   // manually set the contact potentials
   //

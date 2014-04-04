@@ -28,16 +28,16 @@ public:
 #define VIENNAMINI_DISCRETIZATION(classname) \
 public: \
 \
-  classname(viennamini::device_handle        device,  \
-            viennamini::configuration_handle config,  \
-            viennamini::stepper_handle       stepper,  \
-            std::ostream                   & stream) : \
+  classname(viennamini::device_handle        & device,  \
+            viennamini::configuration_handle & config,  \
+            viennamini::stepper_handle       & stepper,  \
+            std::ostream                     & stream) : \
             viennamini::discretization(device, config, stepper, stream) {} \
  \
   ~classname() {} \
 \
   void run_auto() \
-  {\
+  { \
     if(device().is_line1d()) \
     {\
       this->run(device().get_segmesh_line_1d()); \
@@ -58,10 +58,10 @@ public: \
 class discretization
 {
 public:
-  discretization(viennamini::device_handle        device,
-                 viennamini::configuration_handle config,
-                 viennamini::stepper_handle       stepper,
-                 std::ostream                   & stream);
+  discretization(viennamini::device_handle        & device,
+                 viennamini::configuration_handle & config,
+                 viennamini::stepper_handle       & stepper,
+                 std::ostream                     & stream);
 
   virtual ~discretization();
 

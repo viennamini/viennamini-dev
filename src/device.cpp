@@ -21,8 +21,6 @@
 #include "viennagrid/io/vtk_writer.hpp"
 #include "viennagrid/algorithm/scale.hpp"
 
-#include "viennafvm/boundary.hpp"
-
 #include "viennamini/device.hpp"
 #include "viennamini/detect_interfaces.hpp"
 #include "viennamini/constants.hpp"
@@ -217,7 +215,6 @@ void device::update()
 
   // finalize quantities
   //
-  std::cerr << "quantity setting broken, fix me!" << std::endl;
   if(this->is_line1d())
   {
     for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();

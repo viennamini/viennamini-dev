@@ -15,14 +15,8 @@
    license:    see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-#include <vector>
-
-#include "viennamini/forwards.h"
 #include "viennamini/pde_set.hpp"
-#include "viennamini/constants.hpp"
-#include "viennamini/quantity_generators/builtin_potential.hpp"
-#include "viennamini/quantity_generators/use_quantity.hpp"
-#include "viennamini/contact_models/ohmic_contact.hpp"
+
 
 namespace viennamini {
 

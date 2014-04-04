@@ -1,8 +1,5 @@
-#ifndef VIENNAMINI_PDESETS_LAPLACE_HPP
-#define VIENNAMINI_PDESETS_LAPLACE_HPP
-
 /* =======================================================================
-   Copyright (c) 2011-2013, Institute for Microelectronics, TU Wien
+   Copyright (c) 2011-2014, Institute for Microelectronics, TU Wien
    http://www.iue.tuwien.ac.at
                              -----------------
                  ViennaMini - The Vienna Device Simulator
@@ -12,30 +9,32 @@
                Josef Weinbub                   weinbub@iue.tuwien.ac.at
                (add your name here)
 
-   license:    see file LICENSE in the ViennaFVM base directory
+   license:    see file LICENSE in the base directory
 ======================================================================= */
 
-#include "viennamini/pde_set.hpp"
+#include "viennamini/configs/linear_solver.hpp"
 
 
 namespace viennamini {
+namespace config {
 
-class laplace : public viennamini::pde_set
-{
-public:
+  linear_solver::linear_solver()
+    : iterations_(1000),
+      breaktol_(1.E-14)
+  {
+  }
 
-  laplace();
+  std::size_t& linear_solver::iterations()
+  {
+    return iterations_;
+  }
 
-  std::string info();
+  viennamini::numeric& linear_solver::breaktol()
+  {
+    return breaktol_;
+  }
 
-  pdes_type get_pdes();
-
-  bool is_linear();
-
-};
-
+} // config
 } // viennamini
 
-
-#endif
 

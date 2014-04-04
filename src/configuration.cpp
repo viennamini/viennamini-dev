@@ -20,38 +20,8 @@ namespace viennamini {
 
 configuration::configuration(std::ostream& stream) : stream_(stream)
 {
-  nonlinear_iterations_                = 100;
-  nonlinear_breaktol_                  = 1.E-3;
-  linear_breaktol_                     = 1.E-14;
-  linear_iterations_                   = 1000;
-  damping_                             = 0.9;
   write_initial_guesses_               = true;
   write_simulation_results_            = true;
-}
-
-configuration::IndexType&    configuration::nonlinear_iterations()
-{
-  return nonlinear_iterations_;
-}
-
-configuration::NumericType&  configuration::nonlinear_breaktol()
-{
-  return nonlinear_breaktol_;
-}
-
-configuration::IndexType&    configuration::linear_iterations()
-{
-  return linear_iterations_;
-}
-
-configuration::NumericType&  configuration::linear_breaktol()
-{
-  return linear_breaktol_;
-}
-
-configuration::NumericType&  configuration::damping()
-{
-  return damping_;
 }
 
 bool& configuration::write_initial_guess_files()
@@ -69,7 +39,17 @@ std::ostream& configuration::stream()
   return stream_;
 }
 
-configuration::ModelType&   configuration::model()
+configuration::linear_solver_config_type & configuration::linear_solver()
+{
+  return linear_solver_;
+}
+
+configuration::nonlinear_solver_config_type & configuration::nonlinear_solver()
+{
+  return nonlinear_solver_;
+}
+
+configuration::ModelType& configuration::model()
 {
   return model_;
 }

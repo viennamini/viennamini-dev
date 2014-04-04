@@ -17,8 +17,14 @@
 
 #include "viennamini/forwards.h"
 #include "viennamini/discretization.hpp"
+#include "viennamini/configuration.hpp"
+#include "viennamini/generate_pde_set.hpp"
+#include "viennamini/utils/convert.hpp"
 
  //ViennaFVM includes:
+#ifndef NDEBUG
+  #define NDEBUG
+#endif
 #ifdef VIENNAMINI_VERBOSE
   #define VIENNAFVM_VERBOSE
 #endif
@@ -27,6 +33,7 @@
 #include "viennafvm/forwards.h"
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
+#include "viennafvm/viennacl_support.hpp"
 
 namespace viennamini {
 
@@ -49,16 +56,18 @@ public:
     pbdesc_set.push_back(ProblemDescriptionType(segmesh.mesh));
     ProblemDescriptionType & current_pbdesc = pbdesc_set.back();
 
-    initialize(segmesh, current_pbdesc);
+    viennamini::pde_set_handle pde_set = viennamini::generate_pde_set(config().model().pdeset_id());
 
-    for(viennamini::pde_set::ids_type::iterator unknown_iter = config().model().get_pde_set().unknowns().begin();
-        unknown_iter != config().model().get_pde_set().unknowns().end(); unknown_iter++)
+    initialize(pde_set, segmesh, current_pbdesc);
+
+    for(viennamini::pde_set::ids_type::iterator unknown_iter = pde_set->unknowns().begin();
+        unknown_iter != pde_set->unknowns().end(); unknown_iter++)
     {
     #ifdef VIENNAMINI_VERBOSE
       stream() << "processing unknown: " << *unknown_iter << std::endl;
     #endif
       QuantityType & quan = current_pbdesc.add_quantity(*unknown_iter);
-      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
+      pde_set->register_quantity(quan.get_name(), quan.id());
 
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
@@ -82,19 +91,19 @@ public:
           // if the PDE set has a contact model for this segment, apply it
           // i.e., overwrite the corresponding contact value on the device
           //
-          if(config().model().get_pde_set().has_contact_model(*unknown_iter))
+          if(pde_set->has_contact_model(*unknown_iter))
           {
             #ifdef VIENNAMINI_VERBOSE
               std::cout << "    applying contact model from PDE set .. " << std::endl;
             #endif
-            config().model().get_pde_set().get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
+            pde_set->get_contact_model(*unknown_iter)->apply(device_handle(), current_segment_index);
           }
 
           // apply the contact value stored on the device as a Dirichlet contact
           // first evaluate whether the current unknown is to be solved on the neighbour segment,
           // otherwise we cannot expect a contact value to be present on the device
           //
-          if(config().model().get_pde_set().is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
+          if(pde_set->is_role_supported(*unknown_iter, device().get_segment_role(device().get_adjacent_segment_for_contact(current_segment_index))))
           {
             // sanity check: make sure that a contact value is available ..
             if(device().has_contact_quantity(*unknown_iter, current_segment_index))
@@ -112,7 +121,7 @@ public:
         // Register 'unknowns' and set initial guesses if required if the current unknown
         // 'supports' the current segment role
         //
-        if(config().model().get_pde_set().is_role_supported(*unknown_iter, role))
+        if(pde_set->is_role_supported(*unknown_iter, role))
         {
         #ifdef VIENNAMINI_VERBOSE
           std::cout << "    solving 'unknown' on this segment .." << std::endl;
@@ -125,7 +134,7 @@ public:
           if(role == viennamini::role::oxide) continue;
 
           // if we deal with a nonlinear problem, we have to assign an initial guess
-          if(!config().model().get_pde_set().is_linear())
+          if(!pde_set->is_linear())
           {
             // if there is a quantity distribution available, use it.
             // this way the user can conveniently 'inject' an initial guess
@@ -142,7 +151,7 @@ public:
             //
             else
             {
-              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (config().model().get_pde_set().get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
+              viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), (pde_set->get_initial_guess(*unknown_iter, device_handle(), current_segment_index)));
             #ifdef VIENNAMINI_VERBOSE
               std::cout << "    using initial guess from PDE set .. " << std::endl;
             #endif
@@ -163,9 +172,9 @@ public:
     std::cout << "preparing PDE system .." << std::endl;
   #endif
     viennafvm::linear_pde_system<> pde_system;
-    pde_system.is_linear(config().model().get_pde_set().is_linear());
+    pde_system.is_linear(pde_set->is_linear());
     typedef typename viennamini::pde_set::pdes_type PDEsType;
-    PDEsType pdes = config().model().get_pde_set().get_pdes();
+    PDEsType pdes = pde_set->get_pdes();
     int pde_index = 0;
     for(PDEsType::iterator pde_iter = pdes.begin(); pde_iter != pdes.end(); pde_iter++)
     {
@@ -183,33 +192,49 @@ public:
   #ifdef VIENNAMINI_VERBOSE
     std::cout << "preparing solvers .." << std::endl;
   #endif
+
+  #ifdef VIENNACL_WITH_OPENCL
+    std::cout << "ViennaCL's OpenCL backend - Device:" << std::endl;
+    viennafvm::print_current_device(std::cout);   
+  #endif
+
     viennafvm::linsolv::viennacl  linear_solver;
-    linear_solver.break_tolerance() = config().linear_breaktol();
-    linear_solver.max_iterations()  = config().linear_iterations();
+    linear_solver.break_tolerance() = config().linear_solver().breaktol();
+    linear_solver.max_iterations()  = config().linear_solver().iterations();
+//    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::none;
+    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::ilu0;
+//    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::ilut;
+//    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::block_ilu;
+//    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::jacobi;
+//    linear_solver.preconditioner()  = viennafvm::linsolv::viennacl::preconditioner_ids::row_scaling;
+//    linear_solver.solver()          = viennafvm::linsolv::viennacl::solver_ids::cg;
+    linear_solver.solver()          = viennafvm::linsolv::viennacl::solver_ids::bicgstab;
+//    linear_solver.solver()          = viennafvm::linsolv::viennacl::solver_ids::gmres;
 
     viennafvm::pde_solver pde_solver;
-    pde_solver.set_nonlinear_iterations(config().nonlinear_iterations());
-    pde_solver.set_nonlinear_breaktol(config().nonlinear_breaktol());
+    pde_solver.set_nonlinear_iterations(config().nonlinear_solver().iterations());
+    pde_solver.set_nonlinear_breaktol(config().nonlinear_solver().breaktol());
 
     // temporary fix to ensure proper handling of minority carriers
     // atm the damping must not be 1.0, so to be sure, we limit the damping to 0.9
     // see ViennaFVM commit:
     // https://github.com/viennafvm/viennafvm-dev/commit/3144e05af36be3beb02ee9be85d6d07c34031395
-    if(config().damping() > 0.9)
+    if(config().nonlinear_solver().damping() > 0.9)
     {
-      config().damping() = 0.9;
+      pde_solver.set_damping(0.9);
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << "  non-linear solver damping too large, limiting damping to " << config().damping() << std::endl;
+      std::cout << "  non-linear solver damping too large, limiting damping to " << pde_solver.get_damping() << std::endl;
     #endif
     }
-    else if(config().damping() <= 0.0)
+    else if(config().nonlinear_solver().damping() <= 0.0)
     {
-      config().damping() = 0.5;
+      pde_solver.set_damping(0.1);
     #ifdef VIENNAMINI_VERBOSE
-      std::cout << "  non-linear solver damping too small, limiting damping to " << config().damping() << std::endl;
+      std::cout << "  non-linear solver damping too small, limiting damping to " << pde_solver.get_damping() << std::endl;
     #endif
     }
-    pde_solver.set_damping(config().damping());
+    else pde_solver.set_damping(config().nonlinear_solver().damping());
+
 
   #ifdef VIENNAMINI_VERBOSE
     std::cout << "assembling and solving the system .." << std::endl;
@@ -230,19 +255,19 @@ public:
 private:
 
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
-  void initialize(SegmentedMeshT & segmesh, ProblemDescriptionT & pdesc)
+  void initialize(viennamini::pde_set_handle pde_set, SegmentedMeshT & segmesh, ProblemDescriptionT & pdesc)
   {
     typedef typename SegmentedMeshT::segmentation_type          SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type         QuantityType;
 
-    for(viennamini::pde_set::ids_type::iterator dep_iter = config().model().get_pde_set().dependencies().begin();
-        dep_iter != config().model().get_pde_set().dependencies().end(); dep_iter++)
+    for(viennamini::pde_set::ids_type::iterator dep_iter = pde_set->dependencies().begin();
+        dep_iter != pde_set->dependencies().end(); dep_iter++)
     {
     #ifdef VIENNAMINI_VERBOSE
       stream() << "processing dependency: " << *dep_iter << std::endl;
     #endif
       QuantityType & quan = pdesc.add_quantity(*dep_iter);
-      config().model().get_pde_set().register_quantity(quan.get_name(), quan.id());
+      pde_set->register_quantity(quan.get_name(), quan.id());
 
       for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
           sit != segmesh.segmentation.end(); ++sit)
@@ -259,7 +284,7 @@ private:
         stream() << "    identified role: " << device().get_segment_role_string(current_segment_index) << std::endl;
       #endif
 
-        if(config().model().get_pde_set().is_role_supported(*dep_iter, role))
+        if(pde_set->is_role_supported(*dep_iter, role))
         {
         #ifdef VIENNAMINI_VERBOSE
           stream() << "    role supported, distributing quantities .. " << std::endl;

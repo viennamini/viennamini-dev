@@ -16,8 +16,8 @@
 #include "viennamini/simulator.hpp"
 #include "viennamini/device_template.hpp"
 #include "viennamini/utils/convert.hpp"
-//#include "viennamini/problems/poisson_dd-np.hpp"
-//#include "viennamini/problems/laplace.hpp"
+#include "viennamini/generate_discretization.hpp"
+#include "viennamini/discretization.hpp"
 
 namespace viennamini
 {
@@ -85,12 +85,10 @@ void simulator::run()
     device().update();
   }
 
-  if(config().model().get_discret_id() == viennamini::discret::fvm)
-  {
-    discretization_handle_ = discretization_handle(new viennamini::fvm(device_handle_, config_handle_, stepper_handle_, stream_));
-    discretization_handle_->run_auto();
-  }
-  else throw simulator_exception("Discretization type is not supported!");
+  discretization_handle_ = viennamini::generate_discretization(config().model().discretization_id(), device_handle_, config_handle_, stepper_handle_, stream_);
+  discretization_handle_->run_auto();
+
+//     return discretization_handle(new viennamini::fvm(device_handle_, config_handle_, stepper_handle_, stream_));
 
   /*
 
