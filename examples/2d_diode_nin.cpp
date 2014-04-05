@@ -77,8 +77,8 @@ int main()
 
   // set the simulation type by choosing the PDE set and the discretization
   //
-  mysim.config().model().set_pdeset(pdeset::drift_diffusion);
-  mysim.config().model().set_discretization(discret::fvm);
+  mysim.config().model().pdeset_id()         = viennamini::pdeset::drift_diffusion;
+  mysim.config().model().discretization_id() = viennamini::discret::fvm;
 
   // manually set the contact potentials
   //

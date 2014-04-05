@@ -18,12 +18,12 @@ namespace viennamini {
 
 viennamini::pde_set_handle generate_pde_set(viennamini::pdeset::pdeset_ids pde_set_id)
 {
-//  if(pde_set_id == viennamini::pdeset::laplace)
-//    return viennamini::pde_set_handle(new viennamini::laplace());
-//  else 
-//  if(pde_set_id == viennamini::pdeset::drift_diffusion)
-//    return viennamini::pde_set_handle(new viennamini::drift_diffusion());
-//  else throw pde_set_exception("PDE Set type is not supported by the pde set generator!");
+  if(pde_set_id == viennamini::pdeset::laplace)
+    return viennamini::pde_set_handle(new viennamini::laplace());
+  else
+  if(pde_set_id == viennamini::pdeset::drift_diffusion)
+    return viennamini::pde_set_handle(new viennamini::drift_diffusion());
+  else throw pde_set_exception("PDE Set type is not supported by the pde set generator!");
 }
 
 } // viennamini

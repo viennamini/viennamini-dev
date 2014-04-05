@@ -195,7 +195,7 @@ public:
 
   #ifdef VIENNACL_WITH_OPENCL
     std::cout << "ViennaCL's OpenCL backend - Device:" << std::endl;
-    viennafvm::print_current_device(std::cout);   
+    viennafvm::print_current_device(std::cout);
   #endif
 
     viennafvm::linsolv::viennacl  linear_solver;
@@ -255,7 +255,7 @@ public:
 private:
 
   template<typename SegmentedMeshT, typename ProblemDescriptionT>
-  void initialize(viennamini::pde_set_handle pde_set, SegmentedMeshT & segmesh, ProblemDescriptionT & pdesc)
+  void initialize(viennamini::pde_set_handle& pde_set, SegmentedMeshT & segmesh, ProblemDescriptionT & pdesc)
   {
     typedef typename SegmentedMeshT::segmentation_type          SegmentationType;
     typedef typename ProblemDescriptionT::quantity_type         QuantityType;

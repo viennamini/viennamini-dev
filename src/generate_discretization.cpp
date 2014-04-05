@@ -17,15 +17,14 @@
 
 namespace viennamini {
 
-viennamini::discretization_handle generate_discretization(viennamini::discret::discret_ids   discretization_id, 
-                                                          viennamini::device_handle        & device,  
-                                                          viennamini::configuration_handle & config,  
-                                                          viennamini::stepper_handle       & stepper, 
+viennamini::discretization_handle generate_discretization(viennamini::discret::discret_ids   discretization_id,
+                                                          viennamini::device_handle        & device,
+                                                          viennamini::configuration_handle & config,
+                                                          viennamini::stepper_handle       & stepper,
                                                           std::ostream                     & stream)
 {
   if(discretization_id == viennamini::discret::fvm)
   {
-    std::cout << "returning fvm" ;
     return discretization_handle(new viennamini::fvm(device, config, stepper, stream));
   }
   else throw discretization_exception("Discretization type is not supported by the discretization generator!");

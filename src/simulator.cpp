@@ -88,7 +88,6 @@ void simulator::run()
   discretization_handle_ = viennamini::generate_discretization(config().model().discretization_id(), device_handle_, config_handle_, stepper_handle_, stream_);
   discretization_handle_->run_auto();
 
-//     return discretization_handle(new viennamini::fvm(device_handle_, config_handle_, stepper_handle_, stream_));
 
   /*
 

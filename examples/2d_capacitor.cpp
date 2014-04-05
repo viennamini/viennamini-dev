@@ -55,8 +55,8 @@ int main()
 
   // set the simulation type by choosing the PDE set and the discretization
   //
-  mysim.config().model().set_pdeset(viennamini::pdeset::laplace);
-  mysim.config().model().set_discretization(viennamini::discret::fvm);
+  mysim.config().model().pdeset_id()         = viennamini::pdeset::laplace;
+  mysim.config().model().discretization_id() = viennamini::discret::fvm;
 
   // manually set the contact potentials
   //
