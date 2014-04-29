@@ -130,9 +130,13 @@ namespace viennamini
 
     void scale(viennamini::numeric factor);
 
-    void set_material             (int segment_index, std::string const& new_material);
-    std::string get_name          (int segment_index);
-    std::string get_material      (int segment_index);
+    void set_name     (int segment_index, std::string const& new_name);
+    void set_material (int segment_index, std::string const& new_material);
+    void set_role     (int segment_index, viennamini::role::segment_role_ids const& new_role);
+
+    std::string&                        get_name      (int segment_index);
+    std::string&                        get_material  (int segment_index);
+    viennamini::role::segment_role_ids& get_role      (int segment_index);
 
     /// Distribute the value of a single quantity on the entire device
     void set_quantity (std::string          const& quantity_name,
@@ -303,4 +307,3 @@ public:
 } // viennamini
 
 #endif
-

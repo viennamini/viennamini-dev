@@ -87,9 +87,9 @@ segmesh_tetrahedral_3d& device::get_segmesh_tetrahedral_3d()
 
 void device::make(viennamini::role::segment_role_ids role, int segment_index, std::string const& name, std::string const& material)
 {
-    segment_roles_[segment_index] = role;
-    segment_names_[segment_index] = name;
-    this->set_material(segment_index, material);
+  this->set_role(segment_index, role);
+  this->set_name(segment_index, name);
+  this->set_material(segment_index, material);
 }
 
 bool device::is_contact(int segment_index)
@@ -460,6 +460,11 @@ void device::scale(viennamini::numeric factor)
   else throw device_exception("The device type is not supported for scaling!");
 }
 
+void device::set_name(int segment_index, std::string const& new_name)
+{
+  segment_names_[segment_index] = new_name;
+}
+
 void device::set_material(int segment_index, std::string const& new_material)
 {
   // store the material key for this segment
@@ -532,12 +537,22 @@ void device::set_material(int segment_index, std::string const& new_material)
   }
 }
 
-std::string device::get_name(int segment_index)
+void device::set_role(int segment_index, viennamini::role::segment_role_ids const& new_role)
+{
+  segment_roles_[segment_index] = new_role;
+}
+
+viennamini::role::segment_role_ids& device::get_role(int segment_index)
+{
+  return segment_roles_[segment_index];
+}
+
+std::string& device::get_name(int segment_index)
 {
   return segment_names_[segment_index];
 }
 
-std::string device::get_material(int segment_index)
+std::string& device::get_material(int segment_index)
 {
   return segment_materials_[segment_index];
 }
