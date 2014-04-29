@@ -24,6 +24,8 @@
 #include <map>
 #include <memory>
 
+#include "viennamini/utils/shared_ptr.hpp"
+
 // ViennaGrid includes
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/config/default_configs.hpp"
@@ -193,27 +195,15 @@ namespace viennamini
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_triangular_2d,  viennamini::segmentation_triangular_2d>   segmesh_triangular_2d;
   typedef ::viennagrid::segmented_mesh<viennamini::mesh_tetrahedral_3d, viennamini::segmentation_tetrahedral_3d>  segmesh_tetrahedral_3d;
 
-#ifdef VIENNAMINI_WITH_CXX11
-  typedef std::unique_ptr<viennamini::device>                                                                 device_handle;
-  typedef std::unique_ptr<viennamini::configuration>                                                          configuration_handle;
-  typedef std::unique_ptr<viennamaterials::library>                                                           material_library_handle;
-  typedef std::unique_ptr<viennamini::device_template>                                                        device_template_handle;
-  typedef std::unique_ptr<viennamini::simulator>                                                              simulator_handle;
-  typedef std::unique_ptr<viennamini::stepper>                                                                stepper_handle;
-  typedef std::unique_ptr<viennamini::discretization>                                                         discretization_handle;
-  typedef std::unique_ptr<viennamini::pde_set>                                                                pde_set_handle;
-  typedef std::unique_ptr<viennamini::quantity_converter>                                                     quantity_converter_handle;
-#else
-  typedef std::auto_ptr<viennamini::device>                                                                 device_handle;
-  typedef std::auto_ptr<viennamini::configuration>                                                          configuration_handle;
-  typedef std::auto_ptr<viennamaterials::library>                                                           material_library_handle;
-  typedef std::auto_ptr<viennamini::device_template>                                                        device_template_handle;
-  typedef std::auto_ptr<viennamini::simulator>                                                              simulator_handle;
-  typedef std::auto_ptr<viennamini::stepper>                                                                stepper_handle;
-  typedef std::auto_ptr<viennamini::discretization>                                                         discretization_handle;
-  typedef std::auto_ptr<viennamini::pde_set>                                                                pde_set_handle;
-  typedef std::auto_ptr<viennamini::quantity_converter>                                                     quantity_converter_handle;
-#endif
+  typedef viennamini::shared_ptr<viennamini::device>                                                                 device_handle;
+  typedef viennamini::shared_ptr<viennamini::configuration>                                                          configuration_handle;
+  typedef viennamini::shared_ptr<viennamaterials::library>                                                           material_library_handle;
+  typedef viennamini::shared_ptr<viennamini::device_template>                                                        device_template_handle;
+  typedef viennamini::shared_ptr<viennamini::simulator>                                                              simulator_handle;
+  typedef viennamini::shared_ptr<viennamini::stepper>                                                                stepper_handle;
+  typedef viennamini::shared_ptr<viennamini::discretization>                                                         discretization_handle;
+  typedef viennamini::shared_ptr<viennamini::pde_set>                                                                pde_set_handle;
+  typedef viennamini::shared_ptr<viennamini::quantity_converter>                                                     quantity_converter_handle;
 
 } // viennamini
 
