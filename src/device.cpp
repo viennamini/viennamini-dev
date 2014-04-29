@@ -19,7 +19,7 @@
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
-#include "viennagrid/algorithm/scale.hpp"
+#include "viennagrid/algorithm/geometric_transform.hpp"
 
 #include "viennafvm/boundary.hpp"
 
@@ -543,7 +543,7 @@ std::string device::get_material(int segment_index)
 }
 
 void device::set_quantity(std::string         const& quantity_name,
-                          viennamini::numeric        value, 
+                          viennamini::numeric        value,
                           std::string         const& unit)
 {
   if(this->is_line1d())
@@ -576,7 +576,7 @@ void device::set_quantity(std::string         const& quantity_name,
 
 void device::set_quantity(std::string         const& quantity_name,
                           int                        segment_index,
-                          viennamini::numeric        value, 
+                          viennamini::numeric        value,
                           std::string         const& unit)
 {
   quantity_database_[quantity_name][segment_index].clear();
@@ -619,7 +619,7 @@ void device::set_quantity(std::string         const& quantity_name,
 }
 
 void device::set_quantity(std::string          const& quantity_name,
-                          viennamini::sparse_values & values, 
+                          viennamini::sparse_values & values,
                           std::string          const& unit)
 {
   if(this->is_line1d())
@@ -652,7 +652,7 @@ void device::set_quantity(std::string          const& quantity_name,
 
 void device::set_quantity(std::string          const& quantity_name,
                           int                         segment_index,
-                          viennamini::sparse_values & values, 
+                          viennamini::sparse_values & values,
                           std::string          const& unit)
 {
   quantity_database_[quantity_name][segment_index].clear();
@@ -967,4 +967,3 @@ std::ostream& device::stream()
 }
 
 } // viennamini
-

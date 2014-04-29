@@ -14,7 +14,7 @@
 
 
 #include "viennamini/simulator.hpp"
-#include "viennamini/device_template.hpp"
+//#include "viennamini/device_template.hpp"
 #include "viennamini/utils/convert.hpp"
 //#include "viennamini/problems/poisson_dd-np.hpp"
 //#include "viennamini/problems/laplace.hpp"
@@ -366,5 +366,3 @@ std::ostream& simulator::stream()
 //}
 
 } // viennamini
-
-
