@@ -36,7 +36,7 @@
 namespace viennamini
 {
 
-device::device(std::ostream& stream) : matlib_(), stream_(stream)
+device::device(std::ostream& stream) : matlib_(), stream_(stream), converter_(new quantity_converter)
 {
 }
 
@@ -217,7 +217,6 @@ void device::update()
 
   // finalize quantities
   //
-  std::cerr << "quantity setting broken, fix me!" << std::endl;
   if(this->is_line1d())
   {
     for(segmentation_line_1d::iterator sit = get_segmesh_line_1d().segmentation.begin();
@@ -273,9 +272,9 @@ void device::update()
   }
 
 
-  // transfer permittivity from the semiconductor/oxide segments to
-  // adjacent contact segments
-  //
+//   transfer permittivity from the semiconductor/oxide segments to
+//   adjacent contact segments
+
   for(IndicesType::iterator contact_iter = contact_segments_indices_.begin();
       contact_iter != contact_segments_indices_.end(); contact_iter++)
   {
@@ -323,7 +322,7 @@ device::GenericMeshType& device::mesh()
   return mesh_;
 }
 
-material_library_handle & device::material_library()
+viennamaterials::library_handle & device::material_library()
 {
   if(!matlib_.get()) throw device_exception("Device lacks a material database!");
   return matlib_;
@@ -372,6 +371,7 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
   this->make_tetrahedral3d();
 
   std::string extension = viennamini::file_extension(filename);
+
   if(extension == "mesh")
   {
     viennagrid::io::netgen_reader reader;
@@ -386,7 +386,7 @@ void device::read(std::string const& filename, viennamini::tetrahedral_3d const&
     throw device_exception("The input mesh file type is not supported!");
 }
 
-void device::set_material_database(material_library_handle& matlib)
+void device::set_material_database(viennamaterials::library_handle& matlib)
 {
   matlib_.reset();
   matlib_ = matlib;
@@ -402,7 +402,7 @@ void device::read_material_database(std::string const& filename)
   std::string extension = viennamini::file_extension(filename);
   if(extension == "xml")
   {
-    matlib_           = material_library_handle(new viennamaterials::pugixml(filename));
+    matlib_           = viennamaterials::library_handle(new viennamaterials::pugixml(filename));
     matlib_material_  = matlib_->register_accessor(new viennamini::xpath_material_accessor);
     matlib_model_     = matlib_->register_accessor(new viennamini::xpath_model_accessor);
     matlib_parameter_ = matlib_->register_accessor(new viennamini::xpath_parameter_accessor);
@@ -596,7 +596,6 @@ void device::set_quantity(std::string         const& quantity_name,
 {
   quantity_database_[quantity_name][segment_index].clear();
 
-  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
   converter_->run(quantity_name, value, unit);
 
   if(this->is_line1d())
@@ -672,7 +671,6 @@ void device::set_quantity(std::string          const& quantity_name,
 {
   quantity_database_[quantity_name][segment_index].clear();
 
-  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
   converter_->run(quantity_name, values, unit);
 
   if(this->is_line1d())
@@ -742,7 +740,6 @@ void device::set_quantity(std::string              const& quantity_name,
 {
   quantity_database_[quantity_name].clear();
 
-  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
   converter_->run(quantity_name, values, unit);
 
   if(this->is_line1d())
@@ -842,7 +839,6 @@ viennamini::numeric device::get_quantity_value(std::string const& quantity_name,
 
 void device::set_contact_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value, std::string const& unit)
 {
-  if(!converter_.get()) throw device_exception("Unit converter has not been initialized! Please load the unit database via the 'read_units_database' method!");
   converter_->run(quantity_name, value, unit);
   contact_database_[quantity_name][segment_index] = value;
 }

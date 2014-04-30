@@ -16,7 +16,7 @@
 
 namespace viennamini {
 
-  quantity_converter::quantity_converter(std::string const& filename) 
+  quantity_converter::quantity_converter(std::string const& filename)
   #ifdef VIENNAMINI_WITH_UNITS
     : udunits_(filename)
   #endif
@@ -52,7 +52,7 @@ namespace viennamini {
       }
       catch (std::exception const& e)
       {
-        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" + 
+        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" +
           unit + "\": must be based on \"" + get_conform_unit(quantity_name));
       }
     #else
@@ -81,7 +81,7 @@ namespace viennamini {
       }
       catch (std::exception const& e)
       {
-        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" + 
+        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" +
           unit + "\": must be based on \"" + get_conform_unit(quantity_name));
       }
     #else
@@ -110,7 +110,7 @@ namespace viennamini {
       }
       catch (std::exception const& e)
       {
-        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" + 
+        throw quantity_converter_exception("Quantity \"" + quantity_name + "\" has non-conform unit \"" +
           unit + "\": must be based on \"" + get_conform_unit(quantity_name));
       }
     #else
@@ -140,4 +140,3 @@ namespace viennamini {
   }
 
 } // viennamini
-

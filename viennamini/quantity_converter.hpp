@@ -54,7 +54,7 @@ public:
   *
   * @param filename The XML input filename pointing to a unit database
   */
-  quantity_converter(std::string const& filename);
+  quantity_converter(std::string const& filename = "");
 
 /** @brief Investigate (and possible convert) a quantity holding a single scalar value
   *
@@ -115,4 +115,3 @@ private:
 } // viennamini
 
 #endif
-

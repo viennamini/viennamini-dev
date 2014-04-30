@@ -113,8 +113,8 @@ namespace viennamini
 
     void update();
 
-    GenericMeshType               & mesh();
-    material_library_handle       & material_library();
+    GenericMeshType                 & mesh();
+    viennamaterials::library_handle & material_library();
 
 
     void read(std::string const& filename, viennamini::line_1d const&);
@@ -122,7 +122,7 @@ namespace viennamini
     void read(std::string const& filename, viennamini::tetrahedral_3d const&);
 
     void read_material_database(std::string const& filename);
-    void set_material_database(material_library_handle& matlib);
+    void set_material_database(viennamaterials::library_handle& matlib);
 
     void read_unit_database(std::string const& filename);
 
@@ -291,16 +291,15 @@ public:
     QuantityDatabaseType      quantity_database_;
     ContactDatabaseType       contact_database_;
 
-    viennamini::material_library_handle  matlib_;
+    viennamaterials::library_handle  matlib_;
 
     viennamaterials::accessor_handle matlib_material_;
     viennamaterials::accessor_handle matlib_model_;
     viennamaterials::accessor_handle matlib_parameter_;
     viennamaterials::accessor_handle matlib_data_;
 
-    viennamini::quantity_converter_handle converter_;
-
     std::ostream& stream_;
+    viennamini::quantity_converter_handle converter_;
   };
 
 
