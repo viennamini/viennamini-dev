@@ -17,6 +17,7 @@
 ======================================================================= */
 
 #include <vector>
+#include <fstream>
 
 #include "viennamini/forwards.h"
 
@@ -118,4 +119,3 @@ private:
 } // viennamini
 
 #endif
-

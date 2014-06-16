@@ -18,7 +18,8 @@
 #include <map>
 #include <vector>
 
-#include "viennamaterials/pugixml.hpp"
+#include "viennamaterials/platform.hpp"
+#include "viennamaterials/proxy/viennastar.hpp"
 
 #include "viennamini/forwards.h"
 #include "viennamini/generic_mesh.hpp"
@@ -115,6 +116,7 @@ namespace viennamini
 
     GenericMeshType                 & mesh();
     viennamaterials::library_handle & material_library();
+    viennamaterials::proxy_handle   & material_library_proxy();
 
 
     void read(std::string const& filename, viennamini::line_1d const&);
@@ -262,11 +264,6 @@ public:
     IndicesType&   oxide_segments_indices();
     IndicesType&   semiconductor_segments_indices();
 
-    viennamaterials::accessor_handle&  matlib_material();
-    viennamaterials::accessor_handle&  matlib_model();
-    viennamaterials::accessor_handle&  matlib_parameter();
-    viennamaterials::accessor_handle&  matlib_data();
-
     std::ostream & stream();
 
   private:
@@ -292,11 +289,7 @@ public:
     ContactDatabaseType       contact_database_;
 
     viennamaterials::library_handle  matlib_;
-
-    viennamaterials::accessor_handle matlib_material_;
-    viennamaterials::accessor_handle matlib_model_;
-    viennamaterials::accessor_handle matlib_parameter_;
-    viennamaterials::accessor_handle matlib_data_;
+    viennamaterials::proxy_handle    matlib_proxy_;
 
     std::ostream& stream_;
     viennamini::quantity_converter_handle converter_;

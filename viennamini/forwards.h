@@ -31,7 +31,7 @@
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/mesh/segmented_mesh.hpp"
 
-#include "viennamaterials/library.hpp"
+#include "viennamaterials/forwards.h"
 
 namespace viennamini
 {
