@@ -24,7 +24,7 @@ int main()
 
   // read mesh and material input files
   //
-  mysim.device().read(viennamini::device_collection_path()+"/Gate_All_Around/Gate_All_Around_FreeCAD/All_Around_Gate/Four_Gate/Four_Gate_meshed.pvd", viennamini::tetrahedral_3d());
+  mysim.device().read(viennamini::device_collection_path()+"/FinFET/FinFET_FreeCAD/Tri_Gate/Tri_Gate2/Tri_Gate2_meshed.pvd", viennamini::tetrahedral_3d());
   mysim.device().read_material_database("../../auxiliary/materials.xml");
   mysim.device().read_unit_database("../../auxiliary/units.xml");
 
