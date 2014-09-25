@@ -73,7 +73,7 @@ int main()
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().nonlinear_iterations()               = 26;
+  mysim.config().nonlinear_iterations()               = 30;
   mysim.config().nonlinear_breaktol()                 = 35.0E-2;
   mysim.config().damping()                            = 0.6;
 
