@@ -18,8 +18,7 @@
 #include <map>
 #include <vector>
 
-#include "viennamaterials/platform.hpp"
-#include "viennamaterials/proxy/viennastar.hpp"
+#include "viennamaterials/library.hpp"
 
 #include "viennamini/forwards.h"
 #include "viennamini/generic_mesh.hpp"
@@ -116,7 +115,7 @@ namespace viennamini
 
     GenericMeshType                 & mesh();
     viennamaterials::library_handle & material_library();
-    viennamaterials::proxy_handle   & material_library_proxy();
+//    viennamaterials::proxy_handle   & material_library_proxy();
 
 
     void read(std::string const& filename, viennamini::line_1d const&);
@@ -288,8 +287,7 @@ public:
     QuantityDatabaseType      quantity_database_;
     ContactDatabaseType       contact_database_;
 
-    viennamaterials::library_handle  matlib_;
-    viennamaterials::proxy_handle    matlib_proxy_;
+    viennamaterials::library_handle   matlib_;
 
     std::ostream& stream_;
     viennamini::quantity_converter_handle converter_;
