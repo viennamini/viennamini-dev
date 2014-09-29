@@ -100,8 +100,8 @@ int main()
 //  mysim.device().scale(1.0E-6);
 
 //  mysim.device().set_quantity(viennamini::id::temperature(), 223.15, "K"); // -50 degrees celsius
-  mysim.device().set_quantity(viennamini::id::temperature(), 273.15, "K"); //   0 degrees celsius
-//  mysim.device().set_quantity(viennamini::id::temperature(), 323.15, "K"); //  50 degrees celsius
+//  mysim.device().set_quantity(viennamini::id::temperature(), 273.15, "K"); //   0 degrees celsius
+  mysim.device().set_quantity(viennamini::id::temperature(), 323.15, "K"); //  50 degrees celsius
 
 
 //  mysim.device().set_quantity(viennamini::id::temperature(), 273.15, "K"); //  0 degrees celsius
@@ -120,9 +120,9 @@ int main()
   // setup the device by identifying the individual segments
   //
   mysim.device().make(viennamini::role::contact,    left_contact,  "left_contact",  "Cu");
-  mysim.device().make(viennamini::role::oxide,      left_oxide,    "left_oxide",    "SiO2");
+  mysim.device().make(viennamini::role::oxide,      left_oxide,    "left_oxide",    "Si");
   mysim.device().make(viennamini::role::oxide,      middle_oxide,  "middle_oxide",  "Greg1");
-  mysim.device().make(viennamini::role::oxide,      right_oxide,   "right_oxide",   "SiO2");
+  mysim.device().make(viennamini::role::oxide,      right_oxide,   "right_oxide",   "Si");
   mysim.device().make(viennamini::role::contact,    right_contact, "right_contact", "Cu");
 
   // set the simulation type by choosing the PDE set and the discretization
@@ -133,7 +133,7 @@ int main()
   // manually set the contact potentials
   //
   mysim.device().set_contact_quantity(viennamini::id::potential(), left_contact,  0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), right_contact, 1.0E4, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), right_contact, 1.0, "V");
 
   // perform the simulation
   //
