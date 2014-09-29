@@ -3,7 +3,7 @@ IF(DOWNLOAD)
   ExternalProject_Add(viennagrid
     PREFIX viennagrid
     GIT_REPOSITORY https://github.com/viennagrid/viennagrid-dev.git
-    GIT_TAG master
+    GIT_TAG next
     BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/viennagrid"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

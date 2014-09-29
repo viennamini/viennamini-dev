@@ -280,7 +280,9 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
+      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id='"+adjacent_segment_material+"']/parameter[id='"+material::relative_permittivity()+"']")->evaluate<double>();
+//      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
+
       this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
@@ -301,7 +303,8 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
+      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id='"+adjacent_segment_material+"']/parameter[id='"+material::relative_permittivity()+"']")->evaluate<double>();
+//      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
       this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
@@ -330,11 +333,11 @@ viennamaterials::library_handle & device::material_library()
   return matlib_;
 }
 
-viennamaterials::proxy_handle   & device::material_library_proxy()
-{
-  if(!matlib_proxy_) throw device_exception("Device lacks a material database proxy!");
-  return matlib_proxy_;
-}
+//viennamaterials::proxy_handle   & device::material_library_proxy()
+//{
+//  if(!matlib_proxy_) throw device_exception("Device lacks a material database proxy!");
+//  return matlib_proxy_;
+//}
 
 void device::read(std::string const& filename, viennamini::line_1d const&)
 {
@@ -403,9 +406,10 @@ void device::set_material_database(viennamaterials::library_handle& matlib)
 void device::read_material_database(std::string const& filename)
 {
   matlib_.reset();
-  matlib_ = viennamaterials::generator(filename);
-  matlib_proxy_.reset();
-  matlib_proxy_ = viennamaterials::proxy_handle(new viennamaterials::viennastar_proxy(matlib_));
+  matlib_ = viennamaterials::library_handle(new viennamaterials::library(filename));
+//  matlib_ = viennamaterials::generator(filename);
+//  matlib_proxy_.reset();
+//  matlib_proxy_ = viennamaterials::proxy_handle(new viennamaterials::viennastar_proxy(matlib_));
 }
 
 void device::read_unit_database(std::string const& filename)
@@ -485,7 +489,8 @@ void device::set_material(int segment_index, std::string const& new_material)
 //  );
 //  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, epsr_unit);
 
-  viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::relative_permittivity());
+//  viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::relative_permittivity());
+  viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id='"+new_material+"']/parameter[id='"+material::relative_permittivity()+"']")->evaluate<double>();
   this->set_quantity(viennamini::id::relative_permittivity(), segment_index, eps_quantity.value(), eps_quantity.unit());
 
 
@@ -496,7 +501,8 @@ void device::set_material(int segment_index, std::string const& new_material)
   {
       // set the electron mobility for this segment
       //
-      viennamaterials::quantity mu_n_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_electron_mobility());
+      viennamaterials::quantity<double> mu_n_0_quantity = matlib_->query("/material[id='"+new_material+"']/parameter[id='"+material::base_electron_mobility()+"']")->evaluate<double>();
+//      viennamaterials::quantity mu_n_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_electron_mobility());
       this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_quantity.value(), mu_n_0_quantity.unit());
 //      numeric mu_n_0_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -512,7 +518,8 @@ void device::set_material(int segment_index, std::string const& new_material)
 
       // set the hole mobility for this segment
       //
-      viennamaterials::quantity mu_p_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_hole_mobility());
+      viennamaterials::quantity<double> mu_p_0_quantity = matlib_->query("/material[id='"+new_material+"']/parameter[id='"+material::base_hole_mobility()+"']")->evaluate<double>();
+//      viennamaterials::quantity mu_p_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_hole_mobility());
       this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_quantity.value(), mu_p_0_quantity.unit());
 //      numeric mu_p_0_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -526,8 +533,8 @@ void device::set_material(int segment_index, std::string const& new_material)
 //      );
 //      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value, mu_p_0_unit);
 
-
-      viennamaterials::quantity ni_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::intrinsic_carrier_concentration());
+      viennamaterials::quantity<double> ni_quantity = matlib_->query("/material[id='"+new_material+"']/parameter[id='"+material::intrinsic_carrier_concentration()+"']")->evaluate<double>();
+//      viennamaterials::quantity ni_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::intrinsic_carrier_concentration());
       this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_quantity.value(), ni_quantity.unit());
 //      numeric ni_value        = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
