@@ -70,7 +70,7 @@ void generate_1d_device(DeviceT& device)
   viennamesh::algorithm_handle mesher( new viennamesh::make_line_mesh() );
 
   mesher->set_input( "mesh", geometry_handle );
-  mesher->set_input( "cell_size", 0.05 );
+  mesher->set_input( "cell_size", 0.005 );
   mesher->set_input( "make_segmented_mesh", true );
   mesher->set_input( "absolute_min_geometry_point_distance", 1e-10 );
   mesher->set_input( "relative_min_geometry_point_distance", 1e-10 );
@@ -97,7 +97,16 @@ int main()
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
   //
-  mysim.device().scale(1.0E-9);
+//  mysim.device().scale(1.0E-6);
+
+//  mysim.device().set_quantity(viennamini::id::temperature(), 223.15, "K"); // -50 degrees celsius
+  mysim.device().set_quantity(viennamini::id::temperature(), 273.15, "K"); //   0 degrees celsius
+//  mysim.device().set_quantity(viennamini::id::temperature(), 323.15, "K"); //  50 degrees celsius
+
+
+//  mysim.device().set_quantity(viennamini::id::temperature(), 273.15, "K"); //  0 degrees celsius
+//  mysim.device().set_quantity(viennamini::id::temperature(), 293.15, "K"); // 20 degrees celsius
+//  mysim.device().set_quantity(viennamini::id::temperature(), 313.15, "K"); // 40 degrees celsius
 
   // setup auxiliary segment indices, aiding in identifying the individual
   // device segments in the subsequent device setup step
@@ -112,7 +121,7 @@ int main()
   //
   mysim.device().make(viennamini::role::contact,    left_contact,  "left_contact",  "Cu");
   mysim.device().make(viennamini::role::oxide,      left_oxide,    "left_oxide",    "SiO2");
-  mysim.device().make(viennamini::role::oxide,      middle_oxide,  "middle_oxide",  "HfO2");
+  mysim.device().make(viennamini::role::oxide,      middle_oxide,  "middle_oxide",  "Greg1");
   mysim.device().make(viennamini::role::oxide,      right_oxide,   "right_oxide",   "SiO2");
   mysim.device().make(viennamini::role::contact,    right_contact, "right_contact", "Cu");
 
@@ -124,7 +133,7 @@ int main()
   // manually set the contact potentials
   //
   mysim.device().set_contact_quantity(viennamini::id::potential(), left_contact,  0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), right_contact, 1.0, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), right_contact, 1.0E4, "V");
 
   // perform the simulation
   //

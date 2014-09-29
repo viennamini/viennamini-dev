@@ -233,3 +233,58 @@
   <name>Copper</name>
   <category>metal</category>
 </material>
+<material>
+  <id>Greg1</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+      <function>
+        <code lang='python' call='func'>
+        def func(T):
+          return 0.01*T
+        </code>
+        <arg>
+          <id>0</id>
+          <quantity>Temperature</quantity>
+          <scalar type='float'>300</scalar>
+        </arg>
+        <return>
+          <scalar type='float'/>
+        </return>
+      </function>
+    <unit>1</unit>
+  </attribute>
+</material>
+<material>
+  <id>Greg2</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+      <function>
+        <code lang='python' call='func'>
+          def func(T):
+            return 1.0E-5*T*T
+        </code>
+        <arg>
+          <id>0</id>
+          <quantity>Temperature</quantity>
+          <scalar type='float'>300</scalar>
+        </arg>
+        <return>
+          <scalar type='float'/>
+        </return>
+      </function>
+    <unit>1</unit>
+  </attribute>
+</material>
+<material>
+  <id>Greg3</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+    <scalar type='float'>0.0000000001003339</scalar>
+<!--    <scalar type='float'>0.0000000001003339</scalar>-->
+<!--    <scalar type='float'>0.0000000001003339</scalar>-->
+    <unit>1</unit>
+  </attribute>
+</material>

@@ -241,6 +241,8 @@ public:
     ///
     viennamini::numeric get_quantity_value (std::string const& quantity_name, int segment_index, std::size_t cell_index);
 
+    viennamini::sparse_values get_quantity_container(std::string const& quantity_name, int segment_index);
+
     /// Test whether a quantity is stored for each cell of a specific segment
     bool                  has_quantity (std::string const& quantity_name, int segment_index);
 

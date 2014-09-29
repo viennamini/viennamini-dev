@@ -278,15 +278,33 @@ void device::update()
     if(this->is_contact_at_oxide(*contact_iter))
     {
 
-      std::cout << "contact index " << *contact_iter << " is at an oxide " << std::endl;
+//      std::cout << "contact index " << *contact_iter << " is at an oxide " << std::endl;
 
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
-//      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
-    std::cout << eps_quantity.value() << " - " << eps_quantity.unit() << std::endl;
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
+      viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+      if(attr->is_function_float())
+      {
+        std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+        for(std::size_t i = 0; i < func_args.size(); i++)
+        {
+          //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+          std::string dep_name = func_args[i]->get_name();
+          if(this->has_quantity(dep_name, adjacent_segment_index))
+          {
+            func_args[i]->set_value( this->get_quantity_container(dep_name, adjacent_segment_index ).begin()->second ); // todo: requires cell index
+          }
+          else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+          attr->set_dependencies(func_args);
+        }
+      }
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
+  std::cout << "on contact at oxide: setting value: " << attr->evaluate<double>().value() << std::endl;
+
+
+//      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
+//      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
@@ -306,9 +324,26 @@ void device::update()
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
-//      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
+      viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+      if(attr->is_function_float())
+      {
+        std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+        for(std::size_t i = 0; i < func_args.size(); i++)
+        {
+          //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+          std::string dep_name = func_args[i]->get_name();
+          if(this->has_quantity(dep_name, adjacent_segment_index))
+          {
+            func_args[i]->set_value( this->get_quantity_container(dep_name, adjacent_segment_index ).begin()->second ); // todo: requires cell index
+          }
+          else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+          attr->set_dependencies(func_args);
+        }
+      }
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
+  std::cout << "on contact at semic: setting value: " << attr->evaluate<double>().value() << std::endl;
+//      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
+//      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
@@ -480,23 +515,28 @@ void device::set_material(int segment_index, std::string const& new_material)
 
   // set the permittivity for this segment. this should be done for oxides and semiconductors
   //
-//  numeric epsr_value    = this->material_library()->query_value(
-//    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-//                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-//                     vmat::make_entry(this->matlib_data()     , material::value()))
-//  );
-//  std::string epsr_unit    = this->material_library()->query(
-//    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-//                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-//                     vmat::make_entry(this->matlib_data()     , material::unit()))
-//  );
-//  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, epsr_unit);
 
-//  viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::relative_permittivity());
-  viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
-  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, eps_quantity.value(), eps_quantity.unit());
+//  viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
 
-
+  viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+  if(attr->is_function_float())
+  {
+    std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+    for(std::size_t i = 0; i < func_args.size(); i++)
+    {
+      //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+      std::string dep_name = func_args[i]->get_name();
+      if(this->has_quantity(dep_name, segment_index))
+      {
+        std::cout << "temp value: " << dep_name << " - " << this->get_quantity_container(viennamini::id::temperature(), segment_index ).begin()->second << std::endl;
+        func_args[i]->set_value( this->get_quantity_container(dep_name, segment_index ).begin()->second ); // todo: requires cell index
+      }
+      else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+      attr->set_dependencies(func_args);
+    }
+  }
+  std::cout << "on oxide: setting value: " << attr->evaluate<double>().value() << std::endl;
+  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
 
   // the following quantities are only available for semiconductors
   //
@@ -622,7 +662,10 @@ void device::set_quantity(std::string         const& quantity_name,
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+    {
+//      std::cout << quantity_name << " - " << segment_index << " - " << (*cit).id().get() << " = " << value << std::endl;
       quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
+    }
   }
   else
   if(this->is_triangular2d())
@@ -851,6 +894,11 @@ viennamini::value_accessor device::get_quantity_value_accessor (std::string cons
 viennamini::numeric device::get_quantity_value(std::string const& quantity_name, int segment_index, std::size_t cell_index)
 {
   return quantity_database_[quantity_name][segment_index][cell_index];
+}
+
+viennamini::sparse_values device::get_quantity_container(std::string const& quantity_name, int segment_index)
+{
+  return quantity_database_[quantity_name][segment_index];
 }
 
 void device::set_contact_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value, std::string const& unit)
