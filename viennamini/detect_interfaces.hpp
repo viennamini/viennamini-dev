@@ -37,6 +37,7 @@ int find_adjacent_segment(SegmentedMeshT& segmesh, SegmentT & current_contact_se
   for(typename IndexContT::iterator sit = segments_under_test.begin();
       sit != segments_under_test.end(); sit++)
   {
+
     typename SegmentedMeshT::segmentation_type::segment_handle_type current_segment = segmesh.segmentation[*sit];
 
     for (ConstFacetSegmentIteratorType fit = facets.begin(); fit != facets.end(); ++fit)
@@ -60,20 +61,20 @@ void detect_interfaces_impl(SegmentedMeshT& segmesh, IndexContT& contacts, Index
   for(typename IndexContT::iterator cs_it = contacts.begin();
       cs_it != contacts.end(); cs_it++)
   {
-    //std::cout << "  * contact-segment " << *cs_it << " : looking for interfaces .." << std::endl;
+//    std::cout << "  * contact-segment " << *cs_it << " : looking for interfaces .." << std::endl;
     typename SegmentedMeshT::segmentation_type::segment_handle_type current_contact_segment = segmesh.segmentation[*cs_it];
 
     int adjacent_semiconduct_segment_id = viennamini::detail::find_adjacent_segment(segmesh, current_contact_segment, semiconductors);
     if(adjacent_semiconduct_segment_id != -1) // found ..
     {
-      //std::cout << "Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
+//      std::cout << "Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
       contactSemiconductorInterfaces[*cs_it] = adjacent_semiconduct_segment_id;
     }
     // if it's not a contact-semiconductor interface -> try a contact-insulator interface
     int adjacent_oxide_segment_id = viennamini::detail::find_adjacent_segment(segmesh, current_contact_segment, oxides);
     if(adjacent_oxide_segment_id != -1) // found ..
     {
-      //std::cout << "Found neighbour Oxide segment #" << adjacent_oxide_segment_id << " for contact segment #" << *cs_it << std::endl;
+//      std::cout << "Found neighbour Oxide segment #" << adjacent_oxide_segment_id << " for contact segment #" << *cs_it << std::endl;
       contactOxideInterfaces[*cs_it] = adjacent_oxide_segment_id;
     }
   }
@@ -103,4 +104,3 @@ void detect_interfaces(viennamini::device& device, IndexMapT& contactSemiconduct
 } // viennamini
 
 #endif
-
