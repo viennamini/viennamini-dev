@@ -152,10 +152,9 @@ public:
       }
     }
 
-
     viennafvm::io::write_solution_to_VTK_file(
       current_pbdesc.quantities(),
-      "initial",
+      config().initial_guess_filename(),
       segmesh.mesh,
       segmesh.segmentation);
 
@@ -221,7 +220,7 @@ public:
 
     viennafvm::io::write_solution_to_VTK_file(
       current_pbdesc.quantities(),
-      "output",
+      config().result_filename(),
       segmesh.mesh,
       segmesh.segmentation);
 
@@ -285,4 +284,3 @@ private:
 
 
 #endif
-

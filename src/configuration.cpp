@@ -27,6 +27,8 @@ configuration::configuration(std::ostream& stream) : stream_(stream)
   damping_                             = 0.9;
   write_initial_guesses_               = true;
   write_simulation_results_            = true;
+  result_filename_                     = "output";
+  initial_guess_filename_              = "initial";
 }
 
 configuration::IndexType&    configuration::nonlinear_iterations()
@@ -74,5 +76,14 @@ configuration::ModelType&   configuration::model()
   return model_;
 }
 
-} // viennamini
+std::string&  configuration::result_filename()
+{
+  return result_filename_;
+}
 
+std::string&  configuration::initial_guess_filename()
+{
+  return initial_guess_filename_;
+}
+
+} // viennamini
