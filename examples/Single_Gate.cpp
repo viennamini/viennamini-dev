@@ -54,7 +54,7 @@ int main()
 // setup the device by identifying the individual segments
   //
   mysim.device().make(viennamini::role::semiconductor,  source,         "source",          "Si");
-  mysim.device().make(viennamini::role::oxide,	 	sillicon,       "silicon",         "Si");//box
+  mysim.device().make(viennamini::role::oxide,	 	sillicon,       "silicon",         "Si"); //box
   mysim.device().make(viennamini::role::semiconductor,  channel,        "channel",         "Si");
   mysim.device().make(viennamini::role::semiconductor,  drain,          "drain",           "Si");
   mysim.device().make(viennamini::role::oxide,          oxide,          "oxide",           "HfO2");
