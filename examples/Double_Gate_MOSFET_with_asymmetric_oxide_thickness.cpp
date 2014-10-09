@@ -75,7 +75,7 @@ int main()
 // set optional solver parameters
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
-  mysim.config().linear_iterations()                  = 1000;
+  mysim.config().linear_iterations()                  = 2000;
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-2;
   mysim.config().damping()                            = 0.6;
@@ -88,10 +88,10 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), top_gate_contact,  	0.6, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), bottom_gate_contact,	0.6, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), top_gate_contact,  	0.3, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), bottom_gate_contact,	0.3, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 	0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  	0.2, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  	0.1, "V");
 
 
   // perform the simulation

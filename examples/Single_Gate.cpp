@@ -40,28 +40,28 @@ int main()
   // setup auxiliary segment indices, aiding in identifying the individual
   // device segments in the subsequent device setup step
   //
-  const int box			= 1;
-  const int source		= 2;
-  const int source_contact	= 3;
-  const int drain      		= 4;
-  const int drain_contact	= 5;
-  const int oxide          	= 6;
-  const int gate_contact    	= 7;
-  const int channel	   	= 8;  
-  const int bulk		= 9;
+  const int sillicon		= 1;
+  const int channel		= 2;
+  const int gate_contact	= 3;
+  const int source     		= 4;
+  const int drain		= 5;
+  const int source_contact      = 6;
+  const int drain_contact    	= 7;
+  const int bulk_contact   	= 8;  
+  const int oxide		= 9;
 
 
 // setup the device by identifying the individual segments
   //
   mysim.device().make(viennamini::role::semiconductor,  source,         "source",          "Si");
-  mysim.device().make(viennamini::role::oxide,	  	box,  	        "box",             "SiO2");
+  mysim.device().make(viennamini::role::oxide,	 	sillicon,       "silicon",         "Si");//box
   mysim.device().make(viennamini::role::semiconductor,  channel,        "channel",         "Si");
   mysim.device().make(viennamini::role::semiconductor,  drain,          "drain",           "Si");
   mysim.device().make(viennamini::role::oxide,          oxide,          "oxide",           "HfO2");
   mysim.device().make(viennamini::role::contact,        gate_contact,   "gate_contact",    "Cu");
   mysim.device().make(viennamini::role::contact,        source_contact, "source_contact",  "Cu");
   mysim.device().make(viennamini::role::contact,        drain_contact,  "drain_contact",   "Cu");
-  mysim.device().make(viennamini::role::contact,        bulk, 		"bulk",	   	   "Cu");
+  mysim.device().make(viennamini::role::contact,        bulk_contact,	"bulk_contact",	   "Cu");
 
 
   // assign doping values to the semiconductor segments
@@ -72,8 +72,8 @@ int main()
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), drain,      1.0E8,  "m-3");
   mysim.device().set_quantity(viennamini::id::donor_doping(),    channel,    1.0E22, "m-3");
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), channel,    1.0E10, "m-3");
-//  mysim.device().set_quantity(viennamini::id::donor_doping(),    box,       1.0E22, "m-3");
-//  mysim.device().set_quantity(viennamini::id::acceptor_doping(), box,       1.0E10, "m-3");
+  mysim.device().set_quantity(viennamini::id::donor_doping(),    sillicon, 	  1.0E22, "m-3");
+  mysim.device().set_quantity(viennamini::id::acceptor_doping(), sillicon, 	  1.0E10, "m-3");
 
 
 // set optional solver parameters
@@ -92,10 +92,10 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.3, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), bulk,  	   0.0, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.1, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), bulk_contact,   0.0, "V");
 
   // perform the simulation
   //
