@@ -55,6 +55,15 @@ IF(VIENNADEVICECOLLECTION_FOUND)
   ADD_EXECUTABLE(Single_Gate     Single_Gate.cpp)
   TARGET_LINK_LIBRARIES(Single_Gate ${LIBRARIES})
 
+  ADD_EXECUTABLE(Double_Gate_MOSFET2     Double_Gate_MOSFET2.cpp)
+  TARGET_LINK_LIBRARIES(Double_Gate_MOSFET2 ${LIBRARIES})
+
+  ADD_EXECUTABLE(Double_Gate_MOSFET_with_asymmetric_oxide_thickness     Double_Gate_MOSFET_with_asymmetric_oxide_thickness.cpp)
+  TARGET_LINK_LIBRARIES(Double_Gate_MOSFET_with_asymmetric_oxide_thickness ${LIBRARIES})
+
+  ADD_EXECUTABLE(Bulk_Tri_Gate     Bulk_Tri_Gate.cpp)
+  TARGET_LINK_LIBRARIES(Bulk_Tri_Gate ${LIBRARIES})
+
 ENDIF(VIENNADEVICECOLLECTION_FOUND)
 
 

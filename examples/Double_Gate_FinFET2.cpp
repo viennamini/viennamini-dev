@@ -31,7 +31,7 @@ int main()
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
   //
-  mysim.device().scale(1.0E-6);
+  mysim.device().scale(1.0E-9);
 
  // set the temperature of the device
   //
@@ -44,11 +44,11 @@ int main()
   const int box			= 2;
   const int source_contact	= 3;
   const int source		= 4;
-  const int drain_contact      	= 5;
+  const int channel      	= 5;
   const int drain		= 6;
-  const int oxide          	= 7;
-  const int gate_contact    	= 8;
-  const int channel	   	= 9;
+  const int drain_contact      	= 7;
+  const int oxide    		= 8;
+  const int gate_contact  	= 9;
   const int hard_mask 		= 10;
 
 
@@ -81,8 +81,8 @@ int main()
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().nonlinear_iterations()               = 20;
-  mysim.config().nonlinear_breaktol()                 = 2.0E-1;
+  mysim.config().nonlinear_iterations()               = 100;
+  mysim.config().nonlinear_breaktol()                 = 1.0E-2;
   mysim.config().damping()                            = 0.6;
 
 

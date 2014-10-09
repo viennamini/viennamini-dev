@@ -97,7 +97,7 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.0, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), body_contact,   0.0, "V");

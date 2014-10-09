@@ -31,7 +31,7 @@ int main()
   // perform an optional scaling step
   // e.g., transfer device dimensions to nm regime
   //
-  mysim.device().scale(1.0E-6);
+  mysim.device().scale(1.0E-9);
 
  // set the temperature of the device
   //
@@ -42,12 +42,12 @@ int main()
   //
   const int channel		= 1;
   const int bulk_contact	= 2;
-  const int source_contact	= 3;
-  const int source		= 4;
-  const int drain_contact      	= 5;
-  const int drain		= 6;
-  const int oxide          	= 7;
-  const int gate_contact    	= 8;
+  const int oxide		= 3;
+  const int gate_contact	= 4;
+  const int drain      		= 5;
+  const int drain_contact	= 6;
+  const int source          	= 7;
+  const int source_contact    	= 8;
 
 
 // setup the device by identifying the individual segments
@@ -76,8 +76,8 @@ int main()
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().nonlinear_iterations()               = 30;
-  mysim.config().nonlinear_breaktol()                 = 10.0E-1;
+  mysim.config().nonlinear_iterations()               = 100;
+  mysim.config().nonlinear_breaktol()                 = 1.0E-2;
   mysim.config().damping()                            = 0.6;
 
 
@@ -88,9 +88,9 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.3, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.1, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), bulk_contact,   0.0, "V");
 
 

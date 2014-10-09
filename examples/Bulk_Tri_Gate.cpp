@@ -24,7 +24,7 @@ int main()
 
   // read mesh and material input files
   //
-  mysim.device().read(viennamini::device_collection_path()+"/FinFET/FinFET_FreeCAD/Tri_Gate/Tri_Gate3/Tri_Gate3_meshed.pvd", viennamini::tetrahedral_3d());
+  mysim.device().read(viennamini::device_collection_path()+"/FinFET/FinFET_FreeCAD/Bulk_Tri_Gate/Bulk_Tri_Gate/Bulk_Tri_Gate_meshed.pvd", viennamini::tetrahedral_3d());
   mysim.device().read_material_database("../../auxiliary/materials.xml");
   mysim.device().read_unit_database("../../auxiliary/units.xml");
 
@@ -41,24 +41,27 @@ int main()
   // device segments in the subsequent device setup step
   //
   const int sillicon		= 1;
-  const int box			= 2;
+  const int right_box		= 2; 
   const int source_contact	= 3;
   const int source		= 4;
   const int channel      	= 5;
   const int drain		= 6;
-  const int drain_contact       = 7;
+  const int drain_contact      	= 7;
   const int oxide    		= 8;
-  const int gate_contact	= 9;
-
+  const int gate_contact   	= 9;
+  const int bulk_contact	= 10;
+  const int left_box		= 11;
 
 // setup the device by identifying the individual segments
   //
   mysim.device().make(viennamini::role::semiconductor,  source,         "source",          "Si");
-  mysim.device().make(viennamini::role::oxide,          box,  	        "box",             "SiO2");
+  mysim.device().make(viennamini::role::oxide,          right_box,  	"right_box",       "SiO2"); 
+  mysim.device().make(viennamini::role::oxide,          left_box,       "left_box",        "SiO2");
   mysim.device().make(viennamini::role::semiconductor,  channel,        "channel",         "Si");
   mysim.device().make(viennamini::role::semiconductor,  drain,          "drain",           "Si");
   mysim.device().make(viennamini::role::oxide,          oxide,          "oxide",           "HfO2");
   mysim.device().make(viennamini::role::contact,        gate_contact,   "gate_contact",    "Cu");
+  mysim.device().make(viennamini::role::contact,        bulk_contact,   "bulk_contact",    "Cu");
   mysim.device().make(viennamini::role::semiconductor,  sillicon,       "sillicon",        "Si");
   mysim.device().make(viennamini::role::contact,        source_contact, "source_contact",  "Cu");
   mysim.device().make(viennamini::role::contact,        drain_contact,  "drain_contact",   "Cu");
@@ -79,9 +82,9 @@ int main()
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
   mysim.config().linear_iterations()                  = 1000;
-  mysim.config().nonlinear_iterations()               = 100;
+  mysim.config().nonlinear_iterations()               = 30;
   mysim.config().nonlinear_breaktol()                 = 1.0E-2;
-  mysim.config().damping()                            = 0.6;
+  mysim.config().damping()                            = 0.6; //0.9
 
 
 // set the simulation type by choosing the PDE set and the discretization
@@ -91,9 +94,11 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), bulk_contact,   0.0, "V");
+  
 
 
   // perform the simulation
