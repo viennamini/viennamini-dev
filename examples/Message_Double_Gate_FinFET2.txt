@@ -1,0 +1,2 @@
+Double_Gate_FinFET2 beinhaltet ein hard_mask(Ein Isolator) zwischen dem Kanal und dem Gate. Ein Isolator steht aber nicht zur Verfuegung. 
+
