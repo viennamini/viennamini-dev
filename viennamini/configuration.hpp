@@ -52,6 +52,8 @@ public:
   bool&         write_result_files();
   std::ostream& stream();
   ModelType&    model();
+  std::string&  result_filename();
+  std::string&  initial_guess_filename();
 
 private:
   IndexType         nonlinear_iterations_;
@@ -63,6 +65,8 @@ private:
   bool              write_simulation_results_;
   std::ostream&     stream_;
   ModelType         model_;
+  std::string       result_filename_;
+  std::string       initial_guess_filename_;
 };
 
 
@@ -73,5 +77,3 @@ private:
 
 
 #endif
-
-

@@ -57,4 +57,3 @@ bool laplace::is_linear()
 }
 
 } // viennamini
-

@@ -3,102 +3,102 @@
   <name>Silicon</name>
   <category>semiconductor</category>
   <category>indirect</category>
-  <parameter>
+  <attribute>
     <id>bandgap</id>
-    <value>1.107</value>
+    <scalar type='float'>1.107</scalar>
     <unit>eV</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>intrinsic_carrier_concentration</id>
-    <value>1.0E16</value>
+    <scalar type='float'>1.0E16</scalar>
     <unit>m-3</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>11.8</value>
+    <scalar type='float'>11.8</scalar>
     <unit>1</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_n_0</id>
-    <value>0.1430</value>
+    <scalar type='float'>0.1430</scalar>
     <unit>m2/V*s</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_p_0</id>
-    <value>0.0460</value>
+    <scalar type='float'>0.0460</scalar>
     <unit>m2/V*s</unit>
-  </parameter>
+  </attribute>
   <model>
   <id>drift_diffusion</id>
     <model>
       <id>lattice_scattering</id>
-      <parameter>
+      <attribute>
         <id>alpha_n</id>
-        <value>2.33</value>
+        <scalar type='float'>2.33</scalar>
         <unit>1</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>alpha_p</id>
-        <value>2.18</value>
+        <scalar type='float'>2.18</scalar>
         <unit>1</unit>
-      </parameter>
+      </attribute>
     </model>
     <model>
       <id>ionized_impurity_scattering</id>
-      <parameter>
+      <attribute>
         <id>mu_min_n</id>
-        <value>80</value>
+        <scalar type='float'>80</scalar>
         <unit>m2/V*s</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>mu_min_p</id>
-        <value>45</value>
+        <scalar type='float'>45</scalar>
         <unit>m2/V*s</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>N_ref_n</id>
-        <value>1.12E23</value>
+        <scalar type='float'>1.12E23</scalar>
         <unit>m-3</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>N_ref_p</id>
-        <value>2.23E23</value>
+        <scalar type='float'>2.23E23</scalar>
         <unit>m-3</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>alpha_n</id>
-        <value>0.72</value>
+        <scalar type='float'>0.72</scalar>
         <unit>1</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>alpha_p</id>
-        <value>0.72</value>
+        <scalar type='float'>0.72</scalar>
         <unit>1</unit>
-      </parameter>
+      </attribute>
     </model>
     <model>
       <id>shockley_read_hall_recombination</id>
       <source>Selberherr, Analysis and Simulation of Semiconductor Devices, page 106</source>
-      <parameter>
+      <attribute>
         <id>N_ref_n</id>
-        <value>5.0E22</value>
+        <scalar type='float'>5.0E22</scalar>
         <unit>m-3</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>N_ref_p</id>
-        <value>5.0E22</value>
+        <scalar type='float'>5.0E22</scalar>
         <unit>m-3</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>tau_n_0</id>
-        <value>5.0E-5</value>
+        <scalar type='float'>5.0E-5</scalar>
         <unit>s</unit>
-      </parameter>
-      <parameter>
+      </attribute>
+      <attribute>
         <id>tau_p_0</id>
-        <value>5.0E-5</value>
+        <scalar type='float'>5.0E-5</scalar>
         <unit>s</unit>
-      </parameter>
+      </attribute>
     </model>
   </model>
 </material>
@@ -107,41 +107,41 @@
   <name>Germanium</name>
   <category>semiconductor</category>
   <category>indirect</category>
-  <parameter>
+  <attribute>
     <id>bandgap</id>
-    <value>0.67</value>
+    <scalar type='float'>0.67</scalar>
     <unit>eV</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>intrinsic_carrier_concentration</id>
-    <value>2.4E13</value>
+    <scalar type='float'>2.4E13</scalar>
     <unit>cm-3</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>16</value>
+    <scalar type='float'>16</scalar>
     <unit>1</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_n_0</id>
-    <value>3800</value>
+    <scalar type='float'>3800</scalar>
     <unit>cm2/V*s</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_p_0</id>
-    <value>1820</value>
+    <scalar type='float'>1820</scalar>
     <unit>cm^2/V*s</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>alpha_n</id>
-    <value>1.66</value>
+    <scalar type='float'>1.66</scalar>
     <unit>1</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>alpha_p</id>
-    <value>2.33</value>
+    <scalar type='float'>2.33</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=a03ca6b2d6ae431aa5a7e71a129f9a4a</source>-->
 </material>
 <material>
@@ -150,86 +150,141 @@
   <category>semiconductor</category>
   <category>direct</category>
   <category>compound</category>
-  <parameter>
+  <attribute>
     <id>bandgap</id>
-    <value>1.35</value>
+    <scalar type='float'>1.35</scalar>
     <unit>eV</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>intrinsic_carrier_concentration</id>
-    <value>1.79E6</value>
+    <scalar type='float'>1.79E6</scalar>
     <unit>cm-3</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>13.2</value>
+    <scalar type='float'>13.2</scalar>
     <unit>1</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_n_0</id>
-    <value>8800</value>
+    <scalar type='float'>8800</scalar>
     <unit>cm2/V*s</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>mu_p_0</id>
-    <value>400</value>
+    <scalar type='float'>400</scalar>
     <unit>cm2/V*s</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>alpha_n</id>
-    <value>1</value>
+    <scalar type='float'>1</scalar>
     <unit>1</unit>
-  </parameter>
-  <parameter>
+  </attribute>
+  <attribute>
     <id>alpha_p</id>
-    <value>2.1</value>
+    <scalar type='float'>2.1</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=029a4ff04bdc46d5906b29e0a36dba36&ckck=1</source>-->
 </material>
 <material>
   <id>SiO2</id>
   <name>SiliconDioxide</name>
   <category>oxide</category>
-  <parameter>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>3.9</value>
+    <scalar type='float'>3.9</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=d5c906beded84f18a394afec8735c2a4</source>-->
 </material>
 <material>
   <id>InP</id>
   <name>IndiumPhosphide</name>
   <category>oxide</category>
-  <parameter>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>12.4</value>
+    <scalar type='float'>12.4</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 </material>
 <material>
   <id>HfO2</id>
   <name>HafniumDioxide</name>
   <category>oxide</category>
-  <parameter>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>15.6</value>
+    <scalar type='float'>15.6</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 </material>
 <material>
   <id>Air</id>
   <name>air</name>
   <category>air</category>
-  <parameter>
+  <attribute>
     <id>relative_permittivity</id>
-    <value>1.0</value>
+    <scalar type='float'>1.0</scalar>
     <unit>1</unit>
-  </parameter>
+  </attribute>
 </material>
 <material>
   <id>Cu</id>
   <name>Copper</name>
   <category>metal</category>
+</material>
+<material>
+  <id>Greg1</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+      <function>
+        <code lang='python' call='func'>
+        def func(T):
+          return 0.01*T
+        </code>
+        <arg>
+          <id>0</id>
+          <quantity>Temperature</quantity>
+          <scalar type='float'>300</scalar>
+        </arg>
+        <return>
+          <scalar type='float'/>
+        </return>
+      </function>
+    <unit>1</unit>
+  </attribute>
+</material>
+<material>
+  <id>Greg2</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+      <function>
+        <code lang='python' call='func'>
+          def func(T):
+            return 1.0E-5*T*T
+        </code>
+        <arg>
+          <id>0</id>
+          <quantity>Temperature</quantity>
+          <scalar type='float'>300</scalar>
+        </arg>
+        <return>
+          <scalar type='float'/>
+        </return>
+      </function>
+    <unit>1</unit>
+  </attribute>
+</material>
+<material>
+  <id>Greg3</id>
+  <category>oxide</category>
+  <attribute>
+    <id>relative_permittivity</id>
+    <scalar type='float'>0.0000000001003339</scalar>
+<!--    <scalar type='float'>0.0000000001003339</scalar>-->
+<!--    <scalar type='float'>0.0000000001003339</scalar>-->
+    <unit>1</unit>
+  </attribute>
 </material>

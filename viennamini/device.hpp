@@ -18,14 +18,15 @@
 #include <map>
 #include <vector>
 
-#include "viennamaterials/platform.hpp"
-#include "viennamaterials/proxy/viennastar.hpp"
+#include "viennamaterials/library.hpp"
 
 #include "viennamini/forwards.h"
 #include "viennamini/generic_mesh.hpp"
 #include "viennamini/value_accessor.hpp"
 #include "viennamini/quantity_converter.hpp"
 #include "viennamini/utils/enable_if.hpp"
+
+#include "viennagrid/io/vtk_writer.hpp"
 
 namespace viennamini
 {
@@ -116,7 +117,7 @@ namespace viennamini
 
     GenericMeshType                 & mesh();
     viennamaterials::library_handle & material_library();
-    viennamaterials::proxy_handle   & material_library_proxy();
+//    viennamaterials::proxy_handle   & material_library_proxy();
 
 
     void read(std::string const& filename, viennamini::line_1d const&);
@@ -242,6 +243,8 @@ public:
     ///
     viennamini::numeric get_quantity_value (std::string const& quantity_name, int segment_index, std::size_t cell_index);
 
+    viennamini::sparse_values get_quantity_container(std::string const& quantity_name, int segment_index);
+
     /// Test whether a quantity is stored for each cell of a specific segment
     bool                  has_quantity (std::string const& quantity_name, int segment_index);
 
@@ -266,6 +269,9 @@ public:
 
     std::ostream & stream();
 
+    /// Writes the raw mesh (without any quantities) to PVD/VTU file(s)
+    void write_to_VTK_file(std::string const& filename);
+
   private:
 
 
@@ -288,8 +294,7 @@ public:
     QuantityDatabaseType      quantity_database_;
     ContactDatabaseType       contact_database_;
 
-    viennamaterials::library_handle  matlib_;
-    viennamaterials::proxy_handle    matlib_proxy_;
+    viennamaterials::library_handle   matlib_;
 
     std::ostream& stream_;
     viennamini::quantity_converter_handle converter_;

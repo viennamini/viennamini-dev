@@ -95,6 +95,11 @@ int main()
   mysim.config().model().set_pdeset(viennamini::pdeset::drift_diffusion);
   mysim.config().model().set_discretization(viennamini::discret::fvm);
 
+  // set the output filenames
+  //
+  mysim.config().initial_guess_filename() = "mosfet_3d_initial";
+  mysim.config().result_filename()        = "mosfet_3d_result";
+
   // manually set the contact potentials
   //
   mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.0, "V");
@@ -108,4 +113,3 @@ int main()
 
   return EXIT_SUCCESS;
 }
-

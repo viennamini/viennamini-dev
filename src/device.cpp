@@ -275,13 +275,37 @@ void device::update()
   for(IndicesType::iterator contact_iter = contact_segments_indices_.begin();
       contact_iter != contact_segments_indices_.end(); contact_iter++)
   {
+//    std::cout << "processing contact " << *contact_iter << std::endl;
     if(this->is_contact_at_oxide(*contact_iter))
     {
+
+//      std::cout << "  is at an oxide " << std::endl;
+
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
+      viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+      if(attr->is_function_float())
+      {
+        std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+        for(std::size_t i = 0; i < func_args.size(); i++)
+        {
+          //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+          std::string dep_name = func_args[i]->get_name();
+          if(this->has_quantity(dep_name, adjacent_segment_index))
+          {
+            func_args[i]->set_value( this->get_quantity_container(dep_name, adjacent_segment_index ).begin()->second ); // todo: requires cell index
+          }
+          else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+          attr->set_dependencies(func_args);
+        }
+      }
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
+//      std::cout << "on contact at oxide " << *contact_iter << " setting value: " << attr->evaluate<double>().value() << std::endl;
+
+
+//      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
+//      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
@@ -298,11 +322,32 @@ void device::update()
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
     {
+
+//      std::cout << "  is at a semiconductor " << std::endl;
+
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
-      viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(adjacent_segment_material+"/"+material::relative_permittivity());
-      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
+      viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+      if(attr->is_function_float())
+      {
+        std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+        for(std::size_t i = 0; i < func_args.size(); i++)
+        {
+          //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+          std::string dep_name = func_args[i]->get_name();
+          if(this->has_quantity(dep_name, adjacent_segment_index))
+          {
+            func_args[i]->set_value( this->get_quantity_container(dep_name, adjacent_segment_index ).begin()->second ); // todo: requires cell index
+          }
+          else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+          attr->set_dependencies(func_args);
+        }
+      }
+      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
+//  std::cout << "on contact at semic " << *contact_iter << " setting value: " << attr->evaluate<double>().value() << std::endl;
+//      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
+//      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
 //      numeric epsr_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , adjacent_segment_material),
@@ -330,11 +375,11 @@ viennamaterials::library_handle & device::material_library()
   return matlib_;
 }
 
-viennamaterials::proxy_handle   & device::material_library_proxy()
-{
-  if(!matlib_proxy_) throw device_exception("Device lacks a material database proxy!");
-  return matlib_proxy_;
-}
+//viennamaterials::proxy_handle   & device::material_library_proxy()
+//{
+//  if(!matlib_proxy_) throw device_exception("Device lacks a material database proxy!");
+//  return matlib_proxy_;
+//}
 
 void device::read(std::string const& filename, viennamini::line_1d const&)
 {
@@ -403,9 +448,10 @@ void device::set_material_database(viennamaterials::library_handle& matlib)
 void device::read_material_database(std::string const& filename)
 {
   matlib_.reset();
-  matlib_ = viennamaterials::generator(filename);
-  matlib_proxy_.reset();
-  matlib_proxy_ = viennamaterials::proxy_handle(new viennamaterials::viennastar_proxy(matlib_));
+  matlib_ = viennamaterials::library_handle(new viennamaterials::library(filename));
+//  matlib_ = viennamaterials::generator(filename);
+//  matlib_proxy_.reset();
+//  matlib_proxy_ = viennamaterials::proxy_handle(new viennamaterials::viennastar_proxy(matlib_));
 }
 
 void device::read_unit_database(std::string const& filename)
@@ -473,21 +519,30 @@ void device::set_material(int segment_index, std::string const& new_material)
 
   // set the permittivity for this segment. this should be done for oxides and semiconductors
   //
-//  numeric epsr_value    = this->material_library()->query_value(
-//    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-//                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-//                     vmat::make_entry(this->matlib_data()     , material::value()))
-//  );
-//  std::string epsr_unit    = this->material_library()->query(
-//    vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
-//                     vmat::make_entry(this->matlib_parameter(), material::relative_permittivity()),
-//                     vmat::make_entry(this->matlib_data()     , material::unit()))
-//  );
-//  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, epsr_value, epsr_unit);
 
-  viennamaterials::quantity eps_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::relative_permittivity());
-  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, eps_quantity.value(), eps_quantity.unit());
+//  viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
 
+  viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
+
+//  if(attr->is_function_float())
+//  {
+//    std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+//    for(std::size_t i = 0; i < func_args.size(); i++)
+//    {
+//      //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+//      std::string dep_name = func_args[i]->get_name();
+//      if(this->has_quantity(dep_name, segment_index))
+//      {
+//        std::cout << "temp value: " << dep_name << " - " << this->get_quantity_container(viennamini::id::temperature(), segment_index ).begin()->second << std::endl;
+//        func_args[i]->set_value( this->get_quantity_container(dep_name, segment_index ).begin()->second ); // todo: requires cell index
+//      }
+//      else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+//      attr->set_dependencies(func_args);
+//    }
+//  }
+//  std::cout << "setting eps_r on segment " << segment_index << " setting value " << attr->evaluate<double>().value() << std::endl;
+
+  this->set_quantity(viennamini::id::relative_permittivity(), segment_index, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
 
 
   // the following quantities are only available for semiconductors
@@ -496,7 +551,8 @@ void device::set_material(int segment_index, std::string const& new_material)
   {
       // set the electron mobility for this segment
       //
-      viennamaterials::quantity mu_n_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_electron_mobility());
+      viennamaterials::quantity<double> mu_n_0_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::base_electron_mobility()+"\"]")->evaluate<double>();
+//      viennamaterials::quantity mu_n_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_electron_mobility());
       this->set_quantity(viennamini::id::electron_mobility(), segment_index, mu_n_0_quantity.value(), mu_n_0_quantity.unit());
 //      numeric mu_n_0_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -512,7 +568,8 @@ void device::set_material(int segment_index, std::string const& new_material)
 
       // set the hole mobility for this segment
       //
-      viennamaterials::quantity mu_p_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_hole_mobility());
+      viennamaterials::quantity<double> mu_p_0_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::base_hole_mobility()+"\"]")->evaluate<double>();
+//      viennamaterials::quantity mu_p_0_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::base_hole_mobility());
       this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_quantity.value(), mu_p_0_quantity.unit());
 //      numeric mu_p_0_value    = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -526,8 +583,8 @@ void device::set_material(int segment_index, std::string const& new_material)
 //      );
 //      this->set_quantity(viennamini::id::hole_mobility(), segment_index, mu_p_0_value, mu_p_0_unit);
 
-
-      viennamaterials::quantity ni_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::intrinsic_carrier_concentration());
+      viennamaterials::quantity<double> ni_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::intrinsic_carrier_concentration()+"\"]")->evaluate<double>();
+//      viennamaterials::quantity ni_quantity = matlib_proxy_->query_quantity(new_material+"/"+material::intrinsic_carrier_concentration());
       this->set_quantity(viennamini::id::intrinsic_carrier(), segment_index, ni_quantity.value(), ni_quantity.unit());
 //      numeric ni_value        = this->material_library()->query_value(
 //        vmat::make_query(vmat::make_entry(this->matlib_material() , new_material),
@@ -600,6 +657,8 @@ void device::set_quantity(std::string         const& quantity_name,
                           viennamini::numeric        value,
                           std::string         const& unit)
 {
+//  std::cout << "setting quantity: " << quantity_name << " value: " << value << " unit: " << unit << " on segment: " << segment_index << std::endl;
+
   quantity_database_[quantity_name][segment_index].clear();
 
   converter_->run(quantity_name, value, unit);
@@ -612,7 +671,10 @@ void device::set_quantity(std::string         const& quantity_name,
 
     CellOnSegmentRange cells = viennagrid::elements<CellType>(get_segmesh_line_1d().segmentation[segment_index]);
     for(CellOnSegmentIterator cit = cells.begin(); cit != cells.end(); cit++)
+    {
+//      std::cout << quantity_name << " - " << segment_index << " - " << (*cit).id().get() << " = " << value << std::endl;
       quantity_database_[quantity_name][segment_index][(*cit).id().get()] = value;
+    }
   }
   else
   if(this->is_triangular2d())
@@ -843,6 +905,11 @@ viennamini::numeric device::get_quantity_value(std::string const& quantity_name,
   return quantity_database_[quantity_name][segment_index][cell_index];
 }
 
+viennamini::sparse_values device::get_quantity_container(std::string const& quantity_name, int segment_index)
+{
+  return quantity_database_[quantity_name][segment_index];
+}
+
 void device::set_contact_quantity (std::string const& quantity_name, int segment_index, viennamini::numeric value, std::string const& unit)
 {
   converter_->run(quantity_name, value, unit);
@@ -960,6 +1027,29 @@ device::IndicesType&   device::semiconductor_segments_indices()
 std::ostream& device::stream()
 {
   return stream_;
+}
+
+void device::write_to_VTK_file(std::string       const & filename)
+{
+  if(is_line1d())
+  {
+    segmesh_line_1d& segmesh = get_segmesh_line_1d();
+    viennagrid::io::vtk_writer<mesh_line_1d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else if(is_triangular2d())
+  {
+    segmesh_triangular_2d& segmesh = get_segmesh_triangular_2d();
+    viennagrid::io::vtk_writer<mesh_triangular_2d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else if(is_tetrahedral3d())
+  {
+    segmesh_tetrahedral_3d& segmesh = get_segmesh_tetrahedral_3d();
+    viennagrid::io::vtk_writer<mesh_tetrahedral_3d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else throw device_exception("Mesh type not recognized for exporting to PVD/VTU files!");
 }
 
 } // viennamini
