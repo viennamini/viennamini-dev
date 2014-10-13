@@ -97,8 +97,8 @@ int main()
 
   // set the output filenames
   //
-  mysim.config().initial_guess_filename() = "mosfet_3d_result";
-  mysim.config().result_filename()        = "mosfet_3d_initial";
+  mysim.config().initial_guess_filename() = "mosfet_3d_initial";
+  mysim.config().result_filename()        = "mosfet_3d_result";
 
   // manually set the contact potentials
   //

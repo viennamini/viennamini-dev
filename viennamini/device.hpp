@@ -26,6 +26,8 @@
 #include "viennamini/quantity_converter.hpp"
 #include "viennamini/utils/enable_if.hpp"
 
+#include "viennagrid/io/vtk_writer.hpp"
+
 namespace viennamini
 {
 
@@ -266,6 +268,9 @@ public:
     IndicesType&   semiconductor_segments_indices();
 
     std::ostream & stream();
+
+    /// Writes the raw mesh (without any quantities) to PVD/VTU file(s)
+    void write_to_VTK_file(std::string const& filename);
 
   private:
 

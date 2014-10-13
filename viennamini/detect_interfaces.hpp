@@ -37,11 +37,12 @@ int find_adjacent_segment(SegmentedMeshT& segmesh, SegmentT & current_contact_se
   for(typename IndexContT::iterator sit = segments_under_test.begin();
       sit != segments_under_test.end(); sit++)
   {
-
+//    std::cout << "        Testing neighbor segment " << *sit << std::endl;
     typename SegmentedMeshT::segmentation_type::segment_handle_type current_segment = segmesh.segmentation[*sit];
 
     for (ConstFacetSegmentIteratorType fit = facets.begin(); fit != facets.end(); ++fit)
     {
+//      std::cout << "          processing " << current_contact_segment.id() << " - " << *sit << " : " << fit->id() << std::endl;
       if (viennagrid::is_interface(current_contact_segment, current_segment, *fit))
       {
         return *sit;
@@ -64,17 +65,19 @@ void detect_interfaces_impl(SegmentedMeshT& segmesh, IndexContT& contacts, Index
 //    std::cout << "  * contact-segment " << *cs_it << " : looking for interfaces .." << std::endl;
     typename SegmentedMeshT::segmentation_type::segment_handle_type current_contact_segment = segmesh.segmentation[*cs_it];
 
+//    std::cout << "    checking for semiconductor neighbors .." << std::endl;
     int adjacent_semiconduct_segment_id = viennamini::detail::find_adjacent_segment(segmesh, current_contact_segment, semiconductors);
     if(adjacent_semiconduct_segment_id != -1) // found ..
     {
-//      std::cout << "Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
+//      std::cout << "      Found neighbour Semiconductor segment #" << adjacent_semiconduct_segment_id << " for contact segment #" << *cs_it << std::endl;
       contactSemiconductorInterfaces[*cs_it] = adjacent_semiconduct_segment_id;
     }
     // if it's not a contact-semiconductor interface -> try a contact-insulator interface
+//    std::cout << "    checking for oxide neighbors .." << std::endl;
     int adjacent_oxide_segment_id = viennamini::detail::find_adjacent_segment(segmesh, current_contact_segment, oxides);
     if(adjacent_oxide_segment_id != -1) // found ..
     {
-//      std::cout << "Found neighbour Oxide segment #" << adjacent_oxide_segment_id << " for contact segment #" << *cs_it << std::endl;
+//      std::cout << "      Found neighbour Oxide segment #" << adjacent_oxide_segment_id << " for contact segment #" << *cs_it << std::endl;
       contactOxideInterfaces[*cs_it] = adjacent_oxide_segment_id;
     }
   }

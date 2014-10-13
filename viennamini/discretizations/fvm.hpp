@@ -267,7 +267,8 @@ private:
           {
             viennafvm::set_initial_value(quan, segmesh.segmentation(current_segment_index), device().get_quantity_value_accessor(*dep_iter, current_segment_index));
           }
-          else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
+          // debug
+          //else throw discretization_exception("Quantity \""+*dep_iter+"\" is not available on segment "+viennamini::convert<std::string>(current_segment_index)+":\""+device().get_name(current_segment_index)+"\"");
         }
       }
     }

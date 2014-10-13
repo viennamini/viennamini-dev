@@ -275,10 +275,11 @@ void device::update()
   for(IndicesType::iterator contact_iter = contact_segments_indices_.begin();
       contact_iter != contact_segments_indices_.end(); contact_iter++)
   {
+//    std::cout << "processing contact " << *contact_iter << std::endl;
     if(this->is_contact_at_oxide(*contact_iter))
     {
 
-//      std::cout << "contact index " << *contact_iter << " is at an oxide " << std::endl;
+//      std::cout << "  is at an oxide " << std::endl;
 
       std::size_t adjacent_segment_index    = this->get_adjacent_oxide_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
@@ -300,7 +301,7 @@ void device::update()
         }
       }
       this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
-  std::cout << "on contact at oxide: setting value: " << attr->evaluate<double>().value() << std::endl;
+//      std::cout << "on contact at oxide " << *contact_iter << " setting value: " << attr->evaluate<double>().value() << std::endl;
 
 
 //      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
@@ -321,6 +322,9 @@ void device::update()
     else
     if(this->is_contact_at_semiconductor(*contact_iter))
     {
+
+//      std::cout << "  is at a semiconductor " << std::endl;
+
       std::size_t adjacent_segment_index    = this->get_adjacent_semiconductor_segment_for_contact(*contact_iter);
       std::string adjacent_segment_material = this->get_material(adjacent_segment_index);
 
@@ -341,7 +345,7 @@ void device::update()
         }
       }
       this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
-  std::cout << "on contact at semic: setting value: " << attr->evaluate<double>().value() << std::endl;
+//  std::cout << "on contact at semic " << *contact_iter << " setting value: " << attr->evaluate<double>().value() << std::endl;
 //      viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+adjacent_segment_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
 //      this->set_quantity(viennamini::id::relative_permittivity(), *contact_iter, eps_quantity.value(), eps_quantity.unit());
 
@@ -519,24 +523,27 @@ void device::set_material(int segment_index, std::string const& new_material)
 //  viennamaterials::quantity<double> eps_quantity = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]")->evaluate<double>();
 
   viennamaterials::attribute_handle attr = matlib_->query("/material[id=\""+new_material+"\"]/attribute[id=\""+material::relative_permittivity()+"\"]");
-  if(attr->is_function_float())
-  {
-    std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
-    for(std::size_t i = 0; i < func_args.size(); i++)
-    {
-      //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
-      std::string dep_name = func_args[i]->get_name();
-      if(this->has_quantity(dep_name, segment_index))
-      {
-        std::cout << "temp value: " << dep_name << " - " << this->get_quantity_container(viennamini::id::temperature(), segment_index ).begin()->second << std::endl;
-        func_args[i]->set_value( this->get_quantity_container(dep_name, segment_index ).begin()->second ); // todo: requires cell index
-      }
-      else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
-      attr->set_dependencies(func_args);
-    }
-  }
-  std::cout << "on oxide: setting value: " << attr->evaluate<double>().value() << std::endl;
+
+//  if(attr->is_function_float())
+//  {
+//    std::vector<viennamaterials::xml_value_entity_handle> func_args = attr->get_dependencies();
+//    for(std::size_t i = 0; i < func_args.size(); i++)
+//    {
+//      //std::cout << "dependent parameter: " << func_args[i]->get_name() << std::endl;
+//      std::string dep_name = func_args[i]->get_name();
+//      if(this->has_quantity(dep_name, segment_index))
+//      {
+//        std::cout << "temp value: " << dep_name << " - " << this->get_quantity_container(viennamini::id::temperature(), segment_index ).begin()->second << std::endl;
+//        func_args[i]->set_value( this->get_quantity_container(dep_name, segment_index ).begin()->second ); // todo: requires cell index
+//      }
+//      else std::cout << "Warning: Could not find dependent quantity \""+dep_name+"\" on the device" << std::endl;
+//      attr->set_dependencies(func_args);
+//    }
+//  }
+//  std::cout << "setting eps_r on segment " << segment_index << " setting value " << attr->evaluate<double>().value() << std::endl;
+
   this->set_quantity(viennamini::id::relative_permittivity(), segment_index, attr->evaluate<double>().value(), attr->evaluate<double>().unit());
+
 
   // the following quantities are only available for semiconductors
   //
@@ -650,6 +657,8 @@ void device::set_quantity(std::string         const& quantity_name,
                           viennamini::numeric        value,
                           std::string         const& unit)
 {
+//  std::cout << "setting quantity: " << quantity_name << " value: " << value << " unit: " << unit << " on segment: " << segment_index << std::endl;
+
   quantity_database_[quantity_name][segment_index].clear();
 
   converter_->run(quantity_name, value, unit);
@@ -1018,6 +1027,29 @@ device::IndicesType&   device::semiconductor_segments_indices()
 std::ostream& device::stream()
 {
   return stream_;
+}
+
+void device::write_to_VTK_file(std::string       const & filename)
+{
+  if(is_line1d())
+  {
+    segmesh_line_1d& segmesh = get_segmesh_line_1d();
+    viennagrid::io::vtk_writer<mesh_line_1d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else if(is_triangular2d())
+  {
+    segmesh_triangular_2d& segmesh = get_segmesh_triangular_2d();
+    viennagrid::io::vtk_writer<mesh_triangular_2d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else if(is_tetrahedral3d())
+  {
+    segmesh_tetrahedral_3d& segmesh = get_segmesh_tetrahedral_3d();
+    viennagrid::io::vtk_writer<mesh_tetrahedral_3d> my_vtk_writer;
+    my_vtk_writer(segmesh.mesh, segmesh.segmentation, filename);
+  }
+  else throw device_exception("Mesh type not recognized for exporting to PVD/VTU files!");
 }
 
 } // viennamini

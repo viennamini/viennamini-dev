@@ -5,7 +5,7 @@
                  ViennaMini - The Vienna Device Simulator
                              -----------------
 
-   authors:    Resutik Peter		     e1126613@student.tuwien.ac.at
+   authors:    Resutik Peter         e1126613@student.tuwien.ac.at
 
    license:    see file LICENSE in the base directory
 ======================================================================= */
@@ -40,16 +40,15 @@ int main()
   // setup auxiliary segment indices, aiding in identifying the individual
   // device segments in the subsequent device setup step
   //
-  const int silicon		= 1;
-  const int channel		= 2;
-  const int gate_contact	= 3;
-  const int source     		= 4;
-  const int drain		= 5;
-  const int source_contact      = 6;
-  const int drain_contact    	= 7;
-  const int bulk_contact   	= 8;
-  const int oxide		= 9;
-
+  const int silicon         = 1;
+  const int channel         = 2;
+  const int gate_contact    = 3;
+  const int source          = 4;
+  const int drain           = 5;
+  const int source_contact  = 6;
+  const int drain_contact   = 7;
+  const int bulk_contact    = 8;
+  const int oxide           = 9;
 
 // setup the device by identifying the individual segments
   //
@@ -57,12 +56,13 @@ int main()
   mysim.device().make(viennamini::role::semiconductor,  silicon,        "silicon",         "Si");
   mysim.device().make(viennamini::role::semiconductor,  channel,        "channel",         "Si");
   mysim.device().make(viennamini::role::semiconductor,  drain,          "drain",           "Si");
+//  std::cout << "55 Number of mesh-segments: " << mysim.device().get_segmesh_tetrahedral_3d().segmentation.size() << std::endl;
   mysim.device().make(viennamini::role::oxide,          oxide,          "oxide",           "HfO2");
+//  std::cout << "66 Number of mesh-segments: " << mysim.device().get_segmesh_tetrahedral_3d().segmentation.size() << std::endl;
   mysim.device().make(viennamini::role::contact,        gate_contact,   "gate_contact",    "Cu");
   mysim.device().make(viennamini::role::contact,        source_contact, "source_contact",  "Cu");
   mysim.device().make(viennamini::role::contact,        drain_contact,  "drain_contact",   "Cu");
   mysim.device().make(viennamini::role::contact,        bulk_contact,   "bulk_contact",    "Cu");
-
 
   // assign doping values to the semiconductor segments
   //
@@ -75,7 +75,6 @@ int main()
   mysim.device().set_quantity(viennamini::id::donor_doping(),    silicon,    1.0E22, "m-3");
   mysim.device().set_quantity(viennamini::id::acceptor_doping(), silicon,    1.0E10, "m-3");
 
-
 // set optional solver parameters
   //
   mysim.config().linear_breaktol()                    = 1.0E-10;
@@ -83,7 +82,6 @@ int main()
   mysim.config().nonlinear_iterations()               = 100;
   mysim.config().nonlinear_breaktol()                 = 1.0E-2;
   mysim.config().damping()                            = 0.6; //0.9
-
 
 // set the simulation type by choosing the PDE set and the discretization
   //
@@ -96,6 +94,7 @@ int main()
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.1, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), bulk_contact,   0.0, "V");
+
 
   // perform the simulation
   //
