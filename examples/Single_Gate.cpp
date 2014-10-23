@@ -42,13 +42,13 @@ int main()
   //
   const int silicon         = 1;
   const int channel         = 2;
-  const int gate_contact    = 3;
+  const int oxide	    = 3;
   const int source          = 4;
   const int drain           = 5;
   const int source_contact  = 6;
   const int drain_contact   = 7;
   const int bulk_contact    = 8;
-  const int oxide           = 9;
+  const int gate_contact    = 9;
 
 // setup the device by identifying the individual segments
   //
@@ -90,9 +90,9 @@ int main()
 
   // manually set the contact potentials
   //
-  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.3, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), gate_contact,   0.6, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), source_contact, 0.0, "V");
-  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.1, "V");
+  mysim.device().set_contact_quantity(viennamini::id::potential(), drain_contact,  0.2, "V");
   mysim.device().set_contact_quantity(viennamini::id::potential(), bulk_contact,   0.0, "V");
 
 
