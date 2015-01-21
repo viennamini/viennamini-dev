@@ -1,0 +1,12 @@
+<simulation>
+  <root>.</root>
+  <mesh_env>$VIENNADEVICECOLLECTIONPATH</mesh_env>
+  <mesh>/mosfet2d/mosfet2d.mesh</mesh>
+  <material_db>auxiliary/materials.xml</material_db>
+  <unit_db>auxiliary/units.xml</unit_db>
+  <device>
+    <scale>
+      <value>1.0E-9<value>
+    </scale>
+  </device>
+</simulation>
