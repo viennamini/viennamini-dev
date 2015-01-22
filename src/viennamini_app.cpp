@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
   // execute the simulation
   //
-//  sim.run();
+  sim.run();
 
   return EXIT_SUCCESS;
 }

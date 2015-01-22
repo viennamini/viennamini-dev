@@ -20,6 +20,10 @@
     <quantity name="Donor Doping"    segment="7" value="1.0E22" unit="m-3" />
     <quantity name="Acceptor Doping" segment="7" value="1.0E10" unit="m-3" />
   </device>
+  <model>
+    <pde_set        type="drift_diffusion" />
+    <discretization type="finite_volume" />
+  </model>
   <solver>
     <linear>
       <break_tolerance    value="1.0E-14"/>
@@ -28,7 +32,13 @@
     <nonlinear>
       <break_tolerance    value="1.0E-2"/>
       <max_iterations     value="100"/>
-      <daming             value="0.9"/>
+      <damping             value="0.9"/>
     </nonlinear>
   </solver>
+  <contacts>
+    <contact type="Potential" segment="1" value_single="0.6" unit="V"/>
+    <contact type="Potential" segment="2" value_single="0.0" unit="V"/>
+    <contact type="Potential" segment="4" value_single="0.2" unit="V"/>
+    <contact type="Potential" segment="8" value_single="0.0" unit="V"/>
+  </contacts>
 </simulation>

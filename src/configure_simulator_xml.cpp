@@ -108,13 +108,10 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
   pugi::xpath_node_set roles = doc.select_nodes("/simulation/device/role");
   for (pugi::xpath_node_set::const_iterator role_iter = roles.begin(); role_iter != roles.end(); ++role_iter)
   {
-//      std::cout << "\"" << viennamini::role::key_to_id(role_iter->node().attribute("type").value()) << "\" " ;
-//      std::cout << "\"" << viennamini::convert<int>(role_iter->node().attribute("segment").value()) << "\" " ;
-//      std::cout << "\"" << viennamini::convert<std::string>(role_iter->node().attribute("name").value()) << "\" " ;
-//      std::cout << "\"" << viennamini::convert<std::string>(role_iter->node().attribute("material").value()) << "\" " ;
-//      std::cout << std::endl;
-
-    if( std::string(role_iter->node().attribute("type").value()) != "Oxide") continue;
+//    std::cout << viennamini::role::key_to_id(viennamini::convert<std::string>(role_iter->node().attribute("type").value())) << " " <<
+//viennamini::convert<int>(role_iter->node().attribute("segment").value()) << " " <<
+//viennamini::convert<std::string>(role_iter->node().attribute("name").value()) << " " <<
+//viennamini::convert<std::string>(role_iter->node().attribute("material").value()) << std::endl;
 
     sim.device().make(
       viennamini::role::key_to_id(viennamini::convert<std::string>(role_iter->node().attribute("type").value())),
@@ -165,6 +162,26 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
     sim.config().nonlinear_iterations() = pugixml_query<long>(doc, "/simulation/solver/nonlinear/max_iterations/@value");
   if(pugixml_has_entry(doc, "/simulation/solver/nonlinear/damping"))
     sim.config().damping() = pugixml_query<double>(doc, "/simulation/solver/nonlinear/damping/@value");
+
+  // set the transport model
+  //
+  sim.config().model().set_pdeset(viennamini::pdeset::key_to_id(pugixml_query<std::string>(doc, "/simulation/model/pde_set/@type")));
+
+  // set the discretization
+  //
+  sim.config().model().set_discretization(viennamini::discret::key_to_id(pugixml_query<std::string>(doc, "/simulation/model/discretization/@type")));
+
+  // process the contacts
+  //
+  pugi::xpath_node_set contacts = doc.select_nodes("/simulation/contacts/contact");
+  for (pugi::xpath_node_set::const_iterator contact_iter = contacts.begin(); contact_iter != contacts.end(); ++contact_iter)
+  {
+    sim.device().set_contact_quantity(
+      viennamini::convert<std::string>(contact_iter->node().attribute("type").value()),
+      viennamini::convert<int>(contact_iter->node().attribute("segment").value()),
+      viennamini::convert<double>(contact_iter->node().attribute("value_single").value()),
+      viennamini::convert<std::string>(contact_iter->node().attribute("unit").value()));
+  }
 
 }
 
