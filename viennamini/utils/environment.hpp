@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_CONFIGURE_SIMULATOR_HPP
-#define VIENNAMINI_CONFIGURE_SIMULATOR_HPP
+#ifndef VIENNAMINI_UTILS_ENVIRONMENT_HPP
+#define VIENNAMINI_UTILS_ENVIRONMENT_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2015, Institute for Microelectronics, TU Wien
@@ -14,20 +14,17 @@
    license:    see file LICENSE in the base directory
 ======================================================================= */
 
-// ViennaMini includes
+// System includes
 //
-#include "viennamini/simulator.hpp"
+#include <cstdlib>
 
 namespace viennamini {
 
-class configure_simulator_exception : public std::runtime_error {
-public:
-  configure_simulator_exception(std::string const & str) : std::runtime_error(str) {}
-};
-
-
-void configure_simulator    (viennamini::simulator& sim, std::string const& configuration_file);
-
+std::string extract_environment_variable( std::string const& key )
+{
+    char * val = getenv( key.c_str() );
+    return val == NULL ? std::string("") : std::string(val);
+}
 
 } // viennamini
 

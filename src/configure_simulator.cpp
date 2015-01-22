@@ -11,26 +11,13 @@
    license:    see file LICENSE in the base directory
 ======================================================================= */
 
+// ViennaMini includes
+//
 #include "viennamini/configure_simulator.hpp"
+#include "viennamini/configure_simulator_xml.hpp"
 #include "viennamini/utils/file_extension.hpp"
 
-#include "external/pugixml/pugixml.hpp"
-
 namespace viennamini {
-
-void configure_simulator_xml(viennamini::simulator& sim, std::string const& configuration_file)
-{
-  pugi::xml_document doc;
-  pugi::xml_parse_result result = doc.load_file(configuration_file.c_str());
-  if(!result)
-  {
-    throw configure_simulator_exception("Configure Simulator XML encountered errors during parsing, attr value: [" +
-      std::string(doc.child("node").attribute("attr").value()) + "]\n" +
-      "Description: " + std::string(result.description()) + "\n");
-  }
-
-
-}
 
 void configure_simulator(viennamini::simulator& sim, std::string const& configuration_file)
 {

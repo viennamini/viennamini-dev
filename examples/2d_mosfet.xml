@@ -1,12 +1,18 @@
 <simulation>
-  <root>.</root>
-  <mesh_env>$VIENNADEVICECOLLECTIONPATH</mesh_env>
-  <mesh>/mosfet2d/mosfet2d.mesh</mesh>
-  <material_db>auxiliary/materials.xml</material_db>
-  <unit_db>auxiliary/units.xml</unit_db>
+  <mesh         env_prefix="VIENNADEVICECOLLECTIONPATH"  file="mosfet2d/mosfet2d.mesh"  />
+  <material_db  env_prefix="VIENNAMINIPATH"              file="auxiliary/materials.xml" />
+  <unit_db      env_prefix="VIENNAMINIPATH"              file="auxiliary/units.xml"     />
   <device>
-    <scale>
-      <value>1.0E-9<value>
-    </scale>
+    <scale value="1.0E-9" />
+    <role type="Contact"        segment="1" material="Cu"   name="gate_contact"  />
+    <role type="Contact"        segment="2" material="Cu"   name="source_contact"/>
+    <role type="Oxide"          segment="3" material="HfO2" name="oxide"/>
+    <role type="Contact"        segment="4" material="Cu"   name="drain_contact"/>
+    <role type="Semiconductor"  segment="5" material="Si"   name="source"/>
+    <role type="Semiconductor"  segment="6" material="Si"   name="drain"/>
+    <role type="Semiconductor"  segment="7" material="Si"   name="body"/>
+    <role type="Contact"        segment="8" material="Cu"   name="body_contact"/>
+    <quantity name="Temperature"  value="300.0"  value_type="float" unit="K" />
+    <quantity name="Donor Doping" value="1.0E24" value_type="float" unit="m-3" />
   </device>
 </simulation>

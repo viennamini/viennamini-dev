@@ -1,5 +1,5 @@
-#ifndef VIENNAMINI_CONFIGURE_SIMULATOR_HPP
-#define VIENNAMINI_CONFIGURE_SIMULATOR_HPP
+#ifndef VIENNAMINI_CONFIGURE_SIMULATOR_XML_HPP
+#define VIENNAMINI_CONFIGURE_SIMULATOR_XML_HPP
 
 /* =======================================================================
    Copyright (c) 2011-2015, Institute for Microelectronics, TU Wien
@@ -20,13 +20,13 @@
 
 namespace viennamini {
 
-class configure_simulator_exception : public std::runtime_error {
+class configure_simulator_xml_exception : public std::runtime_error {
 public:
-  configure_simulator_exception(std::string const & str) : std::runtime_error(str) {}
+  configure_simulator_xml_exception(std::string const & str) : std::runtime_error(str) {}
 };
 
+void configure_simulator_xml(viennamini::simulator& sim, std::string const& configuration_file);
 
-void configure_simulator    (viennamini::simulator& sim, std::string const& configuration_file);
 
 
 } // viennamini
