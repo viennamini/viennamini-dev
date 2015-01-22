@@ -1,9 +1,9 @@
 <simulation>
-  <mesh         env_prefix="VIENNADEVICECOLLECTIONPATH"  file="mosfet2d/mosfet2d.mesh"  />
+  <mesh         env_prefix="VIENNADEVICECOLLECTIONPATH"  file="mosfet2d/mosfet2d.mesh"  type="triangular_2d" />
   <material_db  env_prefix="VIENNAMINIPATH"              file="auxiliary/materials.xml" />
   <unit_db      env_prefix="VIENNAMINIPATH"              file="auxiliary/units.xml"     />
   <device>
-    <scale value="1.0E-9" />
+    <scale value="1.0E-9" >1.0E-9 </scale>
     <role type="Contact"        segment="1" material="Cu"   name="gate_contact"  />
     <role type="Contact"        segment="2" material="Cu"   name="source_contact"/>
     <role type="Oxide"          segment="3" material="HfO2" name="oxide"/>
@@ -12,7 +12,23 @@
     <role type="Semiconductor"  segment="6" material="Si"   name="drain"/>
     <role type="Semiconductor"  segment="7" material="Si"   name="body"/>
     <role type="Contact"        segment="8" material="Cu"   name="body_contact"/>
-    <quantity name="Temperature"  value="300.0"  value_type="float" unit="K" />
-    <quantity name="Donor Doping" value="1.0E24" value_type="float" unit="m-3" />
+    <quantity name="Temperature"                 value="300.0"  unit="K" />
+    <quantity name="Donor Doping"    segment="5" value="1.0E24" unit="m-3" />
+    <quantity name="Acceptor Doping" segment="5" value="1.0E8"  unit="m-3" />
+    <quantity name="Donor Doping"    segment="6" value="1.0E24" unit="m-3" />
+    <quantity name="Acceptor Doping" segment="6" value="1.0E8"  unit="m-3" />
+    <quantity name="Donor Doping"    segment="7" value="1.0E22" unit="m-3" />
+    <quantity name="Acceptor Doping" segment="7" value="1.0E10" unit="m-3" />
   </device>
+  <solver>
+    <linear>
+      <break_tolerance    value="1.0E-14"/>
+      <max_iterations     value="1000"/>
+    </linear>
+    <nonlinear>
+      <break_tolerance    value="1.0E-2"/>
+      <max_iterations     value="100"/>
+      <daming             value="0.9"/>
+    </nonlinear>
+  </solver>
 </simulation>

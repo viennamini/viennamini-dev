@@ -112,6 +112,26 @@ namespace viennamini
       oxide,
       semiconductor
     };
+
+    class role_exception : public std::runtime_error {
+    public:
+      role_exception(std::string const & str) : std::runtime_error(str) {}
+    };
+
+    inline viennamini::role::segment_role_ids key_to_id(std::string const& key)
+    {
+      if(key == "Contact") return viennamini::role::contact;
+      else
+      if(key == "Oxide") return viennamini::role::oxide;
+      else
+      if(key == "Semiconductor") return viennamini::role::semiconductor;
+      else
+      {
+        throw role_exception("Role key \""+key+"\" is not supported!");
+        return viennamini::role::none;
+      }
+    }
+
   } // role
 
   namespace recombination {
