@@ -19,7 +19,7 @@
 #include "viennamini/utils/string.hpp"
 #include "viennamini/utils/convert.hpp"
 #include "viennamini/utils/environment.hpp"
-#include "external/pugixml/pugixml.hpp"
+#include "external/pugixml/pugiconfig.hpp"
 
 namespace viennamini {
 
