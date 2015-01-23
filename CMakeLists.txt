@@ -162,6 +162,9 @@ IF(USE_UNITS)
   ENDIF(UDUNITS_FOUND)
 ENDIF(USE_UNITS)
 
+ADD_SUBDIRECTORY(external)
+SET(LIBRARIES ${LIBRARIES} pugixml)
+
 # build the ViennaMini library
 #AUX_SOURCE_DIRECTORY(src/ LIBSOURCES)
 FILE(GLOB_RECURSE LIBSOURCES src/*.cpp)
@@ -173,6 +176,11 @@ TARGET_LINK_LIBRARIES(viennamini ${LIBRARIES})
 ADD_DEPENDENCIES(viennamini viennamaterials viennamesh)
 SET(LIBRARIES ${LIBRARIES} viennamini)
 
+# build the application
+ADD_EXECUTABLE(viennamini-app     app/viennamini_app.cpp)
+TARGET_LINK_LIBRARIES(viennamini-app ${LIBRARIES})
+
+# build the examples
 IF(BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 ENDIF(BUILD_EXAMPLES)

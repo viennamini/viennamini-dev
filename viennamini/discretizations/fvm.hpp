@@ -44,6 +44,13 @@ public:
     typedef std::vector<ProblemDescriptionType>                                  ProblemDescriptionSetType;
     typedef typename ProblemDescriptionType::quantity_type                       QuantityType;
 
+//    for(typename SegmentationType::iterator sit = segmesh.segmentation.begin();
+//        sit != segmesh.segmentation.end(); ++sit)
+//    {
+//      std::cout << "segment id: " << sit->id() << std::endl;
+//    }
+
+
     ProblemDescriptionSetType  pbdesc_set;
 
     pbdesc_set.push_back(ProblemDescriptionType(segmesh.mesh));
