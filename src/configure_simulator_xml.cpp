@@ -52,10 +52,14 @@ inline TargetT pugixml_query(pugi::xml_document const& doc, std::string const& n
   return detail::pugixml_query_impl<TargetT>::eval(doc, native_query);
 }
 
-inline bool pugixml_has_entry(pugi::xml_document const& doc, std::string const& native_query)
+inline bool pugixml_has_node(pugi::xml_document const& doc, std::string const& native_query)
 {
-  if( doc.select_node(native_query.c_str()) ) return true;
-  else return false;
+  return doc.select_node(native_query.c_str());
+}
+
+inline bool pugixml_has_attribute(pugi::xml_document const& doc, std::string const& native_query, std::string const& attribute)
+{
+  return !doc.select_node(native_query.c_str()).node().attribute(attribute.c_str()).empty();
 }
 
 void configure_simulator_xml(viennamini::simulator& sim, std::string const& configuration_file)
@@ -100,7 +104,7 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
 
   // process mesh scaling
   //
-  if(pugixml_has_entry(doc, "/simulation/device/scale/@value"))
+  if(pugixml_has_attribute(doc, "/simulation/device/scale", "value"))
     sim.device().scale(pugixml_query<double>(doc, "/simulation/device/scale/@value"));
 
   // process the segment roles
@@ -108,16 +112,12 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
   pugi::xpath_node_set roles = doc.select_nodes("/simulation/device/role");
   for (pugi::xpath_node_set::const_iterator role_iter = roles.begin(); role_iter != roles.end(); ++role_iter)
   {
-//    std::cout << viennamini::role::key_to_id(viennamini::convert<std::string>(role_iter->node().attribute("type").value())) << " " <<
-//viennamini::convert<int>(role_iter->node().attribute("segment").value()) << " " <<
-//viennamini::convert<std::string>(role_iter->node().attribute("name").value()) << " " <<
-//viennamini::convert<std::string>(role_iter->node().attribute("material").value()) << std::endl;
-
     sim.device().make(
       viennamini::role::key_to_id(viennamini::convert<std::string>(role_iter->node().attribute("type").value())),
       viennamini::convert<int>(role_iter->node().attribute("segment").value()),
       viennamini::convert<std::string>(role_iter->node().attribute("name").value()),
-      viennamini::convert<std::string>(role_iter->node().attribute("material").value()));
+      viennamini::convert<std::string>(role_iter->node().attribute("material").value())
+    );
   }
 
   // process the quantities
@@ -127,7 +127,7 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
   {
     // process segment-specific quantity by checking whether the
     // quantity entry offers a segment id
-    if(pugixml_has_entry(doc, "/simulation/device/quantity/@segment"))
+    if(!quantity_iter->node().attribute("segment").empty())
     {
       sim.device().set_quantity(
         viennamini::convert<std::string>(quantity_iter->node().attribute("name").value()),
@@ -149,18 +149,18 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
 
   // process the linear solver parameters
   //
-  if(pugixml_has_entry(doc, "/simulation/solver/linear/break_tolerance"))
+  if(pugixml_has_node(doc, "/simulation/solver/linear/break_tolerance"))
     sim.config().linear_breaktol() = pugixml_query<double>(doc, "/simulation/solver/linear/break_tolerance/@value");
-  if(pugixml_has_entry(doc, "/simulation/solver/linear/max_iterations"))
+  if(pugixml_has_node(doc, "/simulation/solver/linear/max_iterations"))
     sim.config().linear_iterations() = pugixml_query<long>(doc, "/simulation/solver/linear/max_iterations/@value");
 
   // process the nonlinear solver parameters
   //
-  if(pugixml_has_entry(doc, "/simulation/solver/nonlinear/break_tolerance"))
+  if(pugixml_has_node(doc, "/simulation/solver/nonlinear/break_tolerance"))
     sim.config().nonlinear_breaktol() = pugixml_query<double>(doc, "/simulation/solver/nonlinear/break_tolerance/@value");
-  if(pugixml_has_entry(doc, "/simulation/solver/nonlinear/max_iterations"))
+  if(pugixml_has_node(doc, "/simulation/solver/nonlinear/max_iterations"))
     sim.config().nonlinear_iterations() = pugixml_query<long>(doc, "/simulation/solver/nonlinear/max_iterations/@value");
-  if(pugixml_has_entry(doc, "/simulation/solver/nonlinear/damping"))
+  if(pugixml_has_node(doc, "/simulation/solver/nonlinear/damping"))
     sim.config().damping() = pugixml_query<double>(doc, "/simulation/solver/nonlinear/damping/@value");
 
   // set the transport model
@@ -182,6 +182,8 @@ void configure_simulator_xml(viennamini::simulator& sim, std::string const& conf
       viennamini::convert<double>(contact_iter->node().attribute("value_single").value()),
       viennamini::convert<std::string>(contact_iter->node().attribute("unit").value()));
   }
+
+
 
 }
 

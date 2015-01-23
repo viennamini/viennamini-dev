@@ -177,7 +177,7 @@ ADD_DEPENDENCIES(viennamini viennamaterials viennamesh)
 SET(LIBRARIES ${LIBRARIES} viennamini)
 
 # build the application
-ADD_EXECUTABLE(viennamini-app     src/viennamini_app.cpp)
+ADD_EXECUTABLE(viennamini-app     app/viennamini_app.cpp)
 TARGET_LINK_LIBRARIES(viennamini-app ${LIBRARIES})
 
 # build the examples
