@@ -19,6 +19,13 @@
 
 namespace viennamini {
 
+/**
+ * @brief Configures a ViennaMini simulator object according to an arbitrary input configuration file
+ *        The file type of the input configuration is determined and used to fire-up the appropriate
+ *        configurator - currently only XML is supported.
+ * @param sim The ViennaMini simulator object
+ * @param configuration_file Path to the input configuration file
+ */
 void configure_simulator(viennamini::simulator& sim, std::string const& configuration_file)
 {
   if(!viennamini::file_exists(configuration_file))
