@@ -17,16 +17,13 @@ OPTION(BUILD_TESTS "Build the tests" OFF)
 OPTION(VIENNAMINI_VERBOSE "Verbose messaging" ON)
 OPTION(USE_CXX11 "Use C++11 features" OFF)
 OPTION(USE_UNITS "Use physical unit checks and conversions" ON)
+OPTION(BUILD_SHARED_LIBS "Build all libraries as shared (dynamic) libraries" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 #set default build type
 IF (NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "Release")
-ENDIF()
-
-IF (NOT BUILD_SHARED_LIBS)
-  SET(BUILD_SHARED_LIBS OFF)
 ENDIF()
 
 #set compiler flags
@@ -162,8 +159,8 @@ IF(USE_UNITS)
   ENDIF(UDUNITS_FOUND)
 ENDIF(USE_UNITS)
 
-ADD_SUBDIRECTORY(external)
-SET(LIBRARIES ${LIBRARIES} pugixml)
+#ADD_SUBDIRECTORY(external)
+#SET(LIBRARIES ${LIBRARIES} pugixml)
 
 # build the ViennaMini library
 #AUX_SOURCE_DIRECTORY(src/ LIBSOURCES)
