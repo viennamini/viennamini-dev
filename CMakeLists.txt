@@ -8,7 +8,7 @@ include(FindPackageHandleStandardArgs)
 cmake_minimum_required(VERSION 2.8.2)
 
 OPTION(DOWNLOAD           "Download external dependencies automatically"      OFF)
-OPTION(BUILD_EXAMPLES     "Build the examples"                                ON )
+OPTION(BUILD_EXAMPLES     "Build the examples"                                OFF)
 OPTION(VERBOSE            "Verbose messaging"                                 ON )
 OPTION(USE_UNITS          "Use physical unit checks and conversions"          ON )
 OPTION(BUILD_SHARED_LIBS  "Build all libraries as shared (dynamic) libraries" ON )
@@ -122,12 +122,14 @@ MESSAGE(STATUS "ViennaMaterials Libraries:    " ${VIENNAMATERIALS_LIBRARIES})
 INCLUDE_DIRECTORIES(${VIENNAMATERIALS_INCLUDE_DIRS})
 SET(LIBRARIES ${LIBRARIES} ${VIENNAMATERIALS_LIBRARIES})
 
-
-INCLUDE(cmake/GetViennaMesh.cmake)
-MESSAGE(STATUS "ViennaMesh Include Path: " ${VIENNAMESH_INCLUDE_DIRS})
-MESSAGE(STATUS "ViennaMesh Libraries:    " ${VIENNAMESH_LIBRARIES})
-INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
-SET(LIBRARIES ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+# Currently, we only need ViennaMesh for the examples
+IF(BUILD_EXAMPLES)
+  INCLUDE(cmake/GetViennaMesh.cmake)
+  MESSAGE(STATUS "ViennaMesh Include Path: " ${VIENNAMESH_INCLUDE_DIRS})
+  MESSAGE(STATUS "ViennaMesh Libraries:    " ${VIENNAMESH_LIBRARIES})
+  INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
+  SET(LIBRARIES ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+ENDIF(BUILD_EXAMPLES)
 
 FIND_PACKAGE ( Threads REQUIRED ) # required by ViennaMesh
 SET(LIBRARIES ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
