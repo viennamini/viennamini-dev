@@ -59,7 +59,7 @@ CMake Options
 <pre>
 VERBOSE            =(ON), OFF         # Make ViennaMini output debug messages (default: ON)
 DOWNLOAD           = ON, (OFF)        # Automatically checkout external dependencies during the build-process, i.e., other Vienna* projects (default: OFF)
-BUILD_EXAMPLES     =(ON), OFF         # Build the examples. The ViennaMini library is generated anyway (default: ON)
+BUILD_EXAMPLES     = ON, (OFF)        # Build the examples. The ViennaMini library is generated anyway (default: OFF)
 USE_UNITS          =(ON), OFF         # Manually switch on/off units support (default: ON)
 CMAKE_BUILD_TYPE   = debug, (release) # Turn off/on optimizations (default: release, i.e., optimized mode)
 BUILD_SHARED_LIBS  =(ON), OFF         # Build all libraries as shared libraries, if switched off, static libraries are generated and used (default: ON)
