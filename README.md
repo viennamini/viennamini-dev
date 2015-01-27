@@ -7,7 +7,7 @@ ViennaMini is currently in a prototype state.
 System requirements
 --------------------------
 
-* C++ compiler
+* C++11 compiler (gcc >= 4.6)
 * CMake >= 2.8.2
 * UDUNITS >= 2.1.23 (optional: for automatic unit conversions)
 
