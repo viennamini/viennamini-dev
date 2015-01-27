@@ -7,26 +7,22 @@ include(FindPackageHandleStandardArgs)
 # ExternalProject_Add mechanism supporting GIT repositories
 cmake_minimum_required(VERSION 2.8.2)
 
-#if you don't want the full compiler output, remove the following line
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
-
-OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
-SET(PARALLEL_MODE "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
-OPTION(BUILD_EXAMPLES "Build the examples" ON)
-OPTION(BUILD_TESTS "Build the tests" OFF)
-OPTION(VIENNAMINI_VERBOSE "Verbose messaging" ON)
-OPTION(USE_CXX11 "Use C++11 features" OFF)
-OPTION(USE_UNITS "Use physical unit checks and conversions" ON)
+OPTION(DOWNLOAD           "Download external dependencies automatically"      OFF)
+OPTION(BUILD_EXAMPLES     "Build the examples"                                OFF)
+OPTION(VERBOSE            "Verbose messaging"                                 ON )
+OPTION(USE_UNITS          "Use physical unit checks and conversions"          ON )
+OPTION(BUILD_SHARED_LIBS  "Build all libraries as shared (dynamic) libraries" ON )
+#OPTION(BUILD_TESTS "Build the tests" OFF)
+#SET(PARALLEL_MODE  "Serial" CACHE STRING "Specify execution mode for linear algebra kernels, supported values are: Serial,OpenCL,OpenMP")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+
+
 
 #set default build type
 IF (NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "Release")
-ENDIF()
-
-IF (NOT BUILD_SHARED_LIBS)
-  SET(BUILD_SHARED_LIBS OFF)
 ENDIF()
 
 #set compiler flags
@@ -35,56 +31,63 @@ SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g ")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ")
 SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 
-
-
-
-
-IF(USE_CXX11)
-  ADD_DEFINITIONS("-DVIENNAMINI_WITH_CXX11")
-
-  IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    IF    (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
-      message(${CMAKE_CXX_FLAGS})
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-      message(${CMAKE_CXX_FLAGS})
-    ELSEIF(GCC_VERSION VERSION_GREATER 4.3 OR GCC_VERSION VERSION_EQUAL 4.3 AND GCC_VERSION VERSION_LESS 4.7)
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    ELSE  (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7)
-      MESSAGE(FATAL_ERROR "C++11 features are not supported by this compiler.")
-    ENDIF ()
-  ELSEIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  ELSEIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  ELSE ()
-    MESSAGE(FATAL_ERROR "Your C++ compiler does not support C++11.")
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+  IF    (GCC_VERSION VERSION_EQUAL 4.6)
+    SET(CXX11_FLAG "-std=c++0x")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG}")
+    message(STATUS "GCC C++ compiler supports C++11 using flag: ${CXX11_FLAG}")
+  ELSEIF(GCC_VERSION VERSION_GREATER 4.6)
+    SET(CXX11_FLAG "-std=c++11")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG}")
+    message(STATUS "GCC C++ compiler supports C++11 using flag: ${CXX11_FLAG}")
+  ELSE  ()
+    MESSAGE(FATAL_ERROR "Required C++11 features are not supported by this GCC compiler, required: >=4.6")
   ENDIF ()
-ENDIF(USE_CXX11)
+#ELSEIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+#  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE CLANG_VERSION)
+#  message(STATUS "Detected Clang Compiler ${CLANG_VERSION}")
+#  IF    (CLANG_VERSION VERSION_EQUAL 3.1)
+#    SET(CXX11_FLAG "-std=c++11")
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG}")
+#    message(STATUS "Clang C++ compiler supports C++11 using flag: ${CXX11_FLAG}")
+#  ELSE  ()
+#    MESSAGE(FATAL_ERROR "Required C++11 features are not supported by this Clang compiler, required: >=3.1")
+#  ENDIF ()
+#ELSEIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Intel")
+#  IF    (INTEL_VERSION VERSION_EQUAL 13.0)
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#  ELSE  ()
+#    MESSAGE(FATAL_ERROR "Required C++11 features are not supported by this Intel compiler, required: >=13.0")
+#  ENDIF ()
+ELSE ()
+  MESSAGE(FATAL_ERROR "Unknown compiler detected, currently supported: GCC, Clang, Intel")
+ENDIF ()
 
-IF(VIENNAMINI_VERBOSE)
+
+IF(VERBOSE)
   ADD_DEFINITIONS(-DVIENNAMINI_VERBOSE)
-ENDIF(VIENNAMINI_VERBOSE)
+ENDIF(VERBOSE)
 
-STRING(TOLOWER "${PARALLEL_MODE}" PARALLEL_MODE) # make case unique
-IF(PARALLEL_MODE STREQUAL "serial")
-  MESSAGE(STATUS "Using serial linear algebra execution mode")
-ELSEIF(PARALLEL_MODE STREQUAL "opencl")
-  MESSAGE(STATUS "Using OpenCL linear algebra execution mode")
-  FIND_PACKAGE(OpenCL REQUIRED)
-  IF(OPENCL_FOUND)
-    INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIRS})
-    SET(LIBRARIES ${LIBRARIES} ${OPENCL_LIBRARIES})
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVIENNACL_WITH_OPENCL")
-  ENDIF(OPENCL_FOUND)
-ELSEIF(PARALLEL_MODE STREQUAL "openmp")
-  MESSAGE(STATUS "Using OpenMP linear algebra execution mode")
-  FIND_PACKAGE(OpenMP REQUIRED)
-  IF(OPENMP_FOUND)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -DVIENNACL_WITH_OPENMP")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVIENNACL_WITH_OPENMP")
-  ENDIF(OPENMP_FOUND)
-ENDIF()
+#STRING(TOLOWER "${PARALLEL_MODE}" PARALLEL_MODE) # make case unique
+#IF(PARALLEL_MODE STREQUAL "serial")
+#  MESSAGE(STATUS "Using serial linear algebra execution mode")
+#ELSEIF(PARALLEL_MODE STREQUAL "opencl")
+#  MESSAGE(STATUS "Using OpenCL linear algebra execution mode")
+#  FIND_PACKAGE(OpenCL REQUIRED)
+#  IF(OPENCL_FOUND)
+#    INCLUDE_DIRECTORIES(${OPENCL_INCLUDE_DIRS})
+#    SET(LIBRARIES ${LIBRARIES} ${OPENCL_LIBRARIES})
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVIENNACL_WITH_OPENCL")
+#  ENDIF(OPENCL_FOUND)
+#ELSEIF(PARALLEL_MODE STREQUAL "openmp")
+#  MESSAGE(STATUS "Using OpenMP linear algebra execution mode")
+#  FIND_PACKAGE(OpenMP REQUIRED)
+#  IF(OPENMP_FOUND)
+#    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -DVIENNACL_WITH_OPENMP")
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVIENNACL_WITH_OPENMP")
+#  ENDIF(OPENMP_FOUND)
+#ENDIF()
 
 INCLUDE_DIRECTORIES(".")
 
@@ -98,8 +101,6 @@ IF(DOWNLOAD)
 ELSE(DOWNLOAD)
   MESSAGE(STATUS "Using local ViennaStar via VIENNA*PATH environment variables ..")
 ENDIF(DOWNLOAD)
-
-SET(BUILD_VIENNASTAR_SHARED ${BUILD_SHARED_LIBS})
 
 INCLUDE(cmake/GetViennaFVM.cmake)
 MESSAGE(STATUS "ViennaFVM Include Path: " ${VIENNAFVM_INCLUDE_DIRS})
@@ -127,12 +128,14 @@ MESSAGE(STATUS "ViennaMaterials Libraries:    " ${VIENNAMATERIALS_LIBRARIES})
 INCLUDE_DIRECTORIES(${VIENNAMATERIALS_INCLUDE_DIRS})
 SET(LIBRARIES ${LIBRARIES} ${VIENNAMATERIALS_LIBRARIES})
 
-
-INCLUDE(cmake/GetViennaMesh.cmake)
-MESSAGE(STATUS "ViennaMesh Include Path: " ${VIENNAMESH_INCLUDE_DIRS})
-MESSAGE(STATUS "ViennaMesh Libraries:    " ${VIENNAMESH_LIBRARIES})
-INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
-SET(LIBRARIES ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+# Currently, we only need ViennaMesh for the examples
+IF(BUILD_EXAMPLES)
+  INCLUDE(cmake/GetViennaMesh.cmake)
+  MESSAGE(STATUS "ViennaMesh Include Path: " ${VIENNAMESH_INCLUDE_DIRS})
+  MESSAGE(STATUS "ViennaMesh Libraries:    " ${VIENNAMESH_LIBRARIES})
+  INCLUDE_DIRECTORIES(${VIENNAMESH_INCLUDE_DIRS})
+  SET(LIBRARIES ${LIBRARIES} ${VIENNAMESH_LIBRARIES})
+ENDIF(BUILD_EXAMPLES)
 
 FIND_PACKAGE ( Threads REQUIRED ) # required by ViennaMesh
 SET(LIBRARIES ${LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
@@ -160,7 +163,12 @@ IF(USE_UNITS)
   ELSE(UDUNITS_FOUND)
     MESSAGE(WARNING "ViennaMini will be built without support for automatic unit conversions!")
   ENDIF(UDUNITS_FOUND)
+ELSE(USE_UNITS)
+  MESSAGE(STATUS "ViennaMini will be built without support for automatic unit conversions!")
 ENDIF(USE_UNITS)
+
+#ADD_SUBDIRECTORY(external)
+#SET(LIBRARIES ${LIBRARIES} pugixml)
 
 # build the ViennaMini library
 #AUX_SOURCE_DIRECTORY(src/ LIBSOURCES)
@@ -173,6 +181,11 @@ TARGET_LINK_LIBRARIES(viennamini ${LIBRARIES})
 ADD_DEPENDENCIES(viennamini viennamaterials viennamesh)
 SET(LIBRARIES ${LIBRARIES} viennamini)
 
+# build the application
+ADD_EXECUTABLE(viennamini-app     app/viennamini_app.cpp)
+TARGET_LINK_LIBRARIES(viennamini-app ${LIBRARIES})
+
+# build the examples
 IF(BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 ENDIF(BUILD_EXAMPLES)
