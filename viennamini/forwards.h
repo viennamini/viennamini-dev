@@ -112,6 +112,26 @@ namespace viennamini
       oxide,
       semiconductor
     };
+
+    class role_exception : public std::runtime_error {
+    public:
+      role_exception(std::string const & str) : std::runtime_error(str) {}
+    };
+
+    inline viennamini::role::segment_role_ids key_to_id(std::string const& key)
+    {
+      if(key == "Contact") return viennamini::role::contact;
+      else
+      if(key == "Oxide") return viennamini::role::oxide;
+      else
+      if(key == "Semiconductor") return viennamini::role::semiconductor;
+      else
+      {
+        throw role_exception("Role key \""+key+"\" is not supported!");
+        return viennamini::role::none;
+      }
+    }
+
   } // role
 
   namespace recombination {
@@ -148,6 +168,24 @@ namespace viennamini
       laplace,
       drift_diffusion
     };
+
+    class pdeset_exception : public std::runtime_error {
+    public:
+      pdeset_exception(std::string const & str) : std::runtime_error(str) {}
+    };
+
+    inline viennamini::pdeset::pdeset_ids key_to_id(std::string const& key)
+    {
+      if(key == "laplace") return viennamini::pdeset::laplace;
+      else
+      if(key == "drift_diffusion") return viennamini::pdeset::drift_diffusion;
+      else
+      {
+        throw pdeset_exception("PDESet key \""+key+"\" is not supported!");
+        return viennamini::pdeset::none;
+      }
+    }
+
   } // pdeset
 
   namespace discret {
@@ -157,6 +195,24 @@ namespace viennamini
       fvm,
       fem
     };
+
+    class discret_exception : public std::runtime_error {
+    public:
+      discret_exception(std::string const & str) : std::runtime_error(str) {}
+    };
+
+    inline viennamini::discret::discret_ids key_to_id(std::string const& key)
+    {
+      if(key == "finite_volume") return viennamini::discret::fvm;
+      else
+      if(key == "finite_element") return viennamini::discret::fem;
+      else
+      {
+        throw discret_exception("Discretization key \""+key+"\" is not supported!");
+        return viennamini::discret::none;
+      }
+    }
+
   } // discret
 
   // public typedefs

@@ -19,20 +19,45 @@
 
 namespace viennamini {
 
+namespace detail {
+
 template<typename TargetT, typename SourceT>
-TargetT convert(SourceT const& source)
+struct convert_impl
 {
-  TargetT target;
-  std::stringstream sstr;
-  sstr << source;
-  sstr >> target;
-  return target;
+  static TargetT eval(SourceT const& source)
+  {
+    TargetT target;
+    std::stringstream sstr;
+    sstr << source;
+    sstr >> target;
+    return target;
+  }
+};
+
+// This specialization is important, as in cases
+// where the const char* contains a whitespace, the default
+// conversion method would 'cut' the result at the whitespace
+//
+template<>
+struct convert_impl <std::string, const char*>
+{
+  static std::string eval(const char* source)
+  {
+    return std::string(source);
+  }
+};
+
+} // detail
+
+template<typename TargetT, typename SourceT>
+inline TargetT convert(SourceT const& source)
+{
+  return detail::convert_impl<TargetT, SourceT>::eval(source);
 }
+
+
+
 
 } // end namespace viennamini
 
 #endif
-
-
-
-
